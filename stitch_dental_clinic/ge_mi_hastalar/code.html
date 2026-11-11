@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="tr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;min-height:100%;margin:0;padding:0;}body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 500,'GRAD' 0,'opsz' 24;display:inline-block;line-height:1;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: 'class', theme: { extend: { colors: { 'primary-fixed-dim': '#76d4e7', 'inverse-on-surface': '#eaf1ff', 'on-tertiary-container': '#00060b', 'on-tertiary-fixed': '#071e27', 'on-secondary': '#ffffff', 'tertiary': '#4c616c', 'surface-container': '#e5eeff', 'on-tertiary': '#ffffff', 'primary-container': '#008092', 'surface-dim': '#cbdbf5', 'surface-container-lowest': '#ffffff', 'on-secondary-fixed-variant': '#084c67', 'on-secondary-fixed': '#001e2c', 'on-tertiary-fixed-variant': '#344a54', 'error-container': '#ffdad6', 'secondary-fixed': '#c3e8ff', 'surface': '#f8f9ff', 'tertiary-fixed-dim': '#b3cad6', 'inverse-primary': '#76d4e7', 'on-surface-variant': '#3e494b', 'surface-bright': '#f8f9ff', 'on-surface': '#0b1c30', 'tertiary-container': '#647a86', 'secondary': '#2c6480', 'on-error-container': '#93000a', 'background': '#f8f9ff', 'surface-variant': '#d3e4fe', 'on-primary-container': '#f8fdff', 'on-primary-fixed': '#001f25', 'inverse-surface': '#213145', 'error': '#ba1a1a', 'surface-container-highest': '#d3e4fe', 'outline': '#6e797c', 'on-secondary-container': '#2b637f', 'surface-tint': '#006877', 'surface-container-low': '#eff4ff', 'tertiary-fixed': '#cfe6f3', 'primary': '#006574', 'on-primary-fixed-variant': '#004e5a', 'primary-fixed': '#a3eeff', 'secondary-fixed-dim': '#98cded', 'on-primary': '#ffffff', 'on-background': '#0b1c30', 'secondary-container': '#a9deff', 'outline-variant': '#bdc8cb', 'on-error': '#ffffff', 'surface-container-high': '#dce9ff' }, borderRadius: { 'DEFAULT': '0.25rem', 'lg': '0.5rem', 'xl': '0.75rem', 'full': '9999px' }, spacing: { 'gutter-sm': '0.75rem', 'space-md': '1rem', 'gutter': '1rem', 'space-xs': '0.25rem', 'margin': '1rem', 'space-xl': '2rem', 'margin-lg': '1.25rem', 'space-lg': '1.5rem', 'space-sm': '0.5rem', 'margin-sm': '0.75rem' }, fontFamily: { 'headline-sm': ['Inter'], 'body-lg': ['Inter'], 'label-md': ['Inter'], 'headline-md': ['Inter'], 'label-sm': ['Inter'], 'body-sm': ['Inter'], 'headline-lg-mobile': ['Inter'], 'headline-lg': ['Inter'], 'body-md': ['Inter'], 'label-lg': ['Inter'] }, fontSize: { 'headline-sm': ['18px', { lineHeight: '24px', letterSpacing: '-0.005em', fontWeight: '600' }], 'body-lg': ['16px', { lineHeight: '22px', letterSpacing: '-0.005em', fontWeight: '400' }], 'label-md': ['13px', { lineHeight: '18px', letterSpacing: '0.01em', fontWeight: '500' }], 'headline-md': ['22px', { lineHeight: '28px', letterSpacing: '-0.01em', fontWeight: '600' }], 'label-sm': ['11px', { lineHeight: '14px', letterSpacing: '0.03em', fontWeight: '600' }], 'body-sm': ['12px', { lineHeight: '16px', letterSpacing: '0.01em', fontWeight: '400' }], 'headline-lg-mobile': ['28px', { lineHeight: '34px', letterSpacing: '-0.015em', fontWeight: '700' }], 'headline-lg': ['34px', { lineHeight: '41px', letterSpacing: '-0.02em', fontWeight: '700' }], 'body-md': ['14px', { lineHeight: '20px', letterSpacing: '0em', fontWeight: '400' }], 'label-lg': ['15px', { lineHeight: '20px', letterSpacing: '-0.005em', fontWeight: '600' }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface text-on-surface font-body-md text-body-md flex flex-col min-h-screen selection:bg-secondary-container"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(10,77,104,0.04)]"><div class="h-20 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0 flex-1"><div class="w-11 h-11 rounded-full bg-primary-fixed flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-on-primary-fixed text-[24px]">person</span></div><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><h1 class="font-label-lg text-label-lg text-on-surface truncate">Dr. Selin Yılmaz</h1><span class="inline-flex items-center px-space-xs py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-label-sm flex-shrink-0">Nöbetçi</span></div><p class="font-body-sm text-body-sm text-on-surface-variant truncate">Ağız, Diş ve Çene Cerrahisi</p></div></div><div class="flex items-center gap-space-xs flex-shrink-0"><button aria-label="Bildirimler" class="relative w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container active:scale-95 transition-all" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-primary ring-2 ring-surface"></span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-20 pb-28 px-margin bg-surface flex-1"><div class="flex flex-col w-full gap-space-md">
+<!-- Search & Filter Controls -->
+<section class="flex flex-col gap-space-sm">
+<!-- Search Bar -->
+<div class="relative w-full">
+<div class="absolute inset-y-0 left-0 pl-space-md flex items-center pointer-events-none text-outline">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</div>
+<input class="w-full h-12 pl-11 pr-10 rounded-xl bg-surface-container-lowest text-on-surface placeholder:text-outline font-body-md text-body-md shadow-sm transition-all focus:outline-none focus:shadow-[0_0_0_2px_rgba(0,101,116,0.25)]" id="patient-search-input" placeholder="Hasta adı, protokol no, telefon veya işlem ara..." type="search"/>
+<button aria-label="Aramayı Temizle" class="absolute inset-y-0 right-0 pr-space-md hidden items-center text-outline hover:text-on-surface" id="clear-search-btn" type="button">
+<span class="material-symbols-outlined text-[18px]">cancel</span>
+</button>
+</div>
+<!-- Filter Chips Carousel -->
+<div aria-label="Hasta Filtreleri" class="flex items-center gap-space-xs overflow-x-auto pb-1 -mx-margin px-margin no-scrollbar" role="tablist">
+<button class="filter-chip flex items-center gap-1.5 px-3.5 h-9 rounded-full bg-primary text-on-primary font-label-md text-label-md shrink-0 shadow-sm transition-transform active:scale-95" data-filter="all" type="button">
+<span class="material-symbols-outlined text-[16px]">groups</span>
+<span>Tüm Hastalar (148)</span>
+</button>
+<button class="filter-chip flex items-center gap-1.5 px-3.5 h-9 rounded-full bg-surface-container-low text-on-surface-variant font-label-md text-label-md shrink-0 hover:bg-surface-container transition-transform active:scale-95" data-filter="month" type="button">
+<span class="material-symbols-outlined text-[16px]">calendar_month</span>
+<span>Bu Ay (24)</span>
+</button>
+<button class="filter-chip flex items-center gap-1.5 px-3.5 h-9 rounded-full bg-surface-container-low text-on-surface-variant font-label-md text-label-md shrink-0 hover:bg-surface-container transition-transform active:scale-95" data-filter="implant" type="button">
+<span class="material-symbols-outlined text-[16px]">dentistry</span>
+<span>İmplant (18)</span>
+</button>
+<button class="filter-chip flex items-center gap-1.5 px-3.5 h-9 rounded-full bg-surface-container-low text-on-surface-variant font-label-md text-label-md shrink-0 hover:bg-surface-container transition-transform active:scale-95" data-filter="cerrahi" type="button">
+<span class="material-symbols-outlined text-[16px]">medical_services</span>
+<span>Cerrahi (12)</span>
+</button>
+</div>
+</section>
+<!-- Clinic Statistics Banner: Compact Visual Delight -->
+<section class="flex items-center justify-between p-3.5 rounded-2xl bg-surface-container-low shadow-sm">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed">
+<span class="material-symbols-outlined text-[22px]">verified</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface">Klinik Arşivi Aktif</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Tüm dijital epikriz ve röntgenler hazır</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-label-sm text-label-sm text-primary bg-primary-fixed/40 px-2.5 py-1 rounded-full font-semibold">148 Kayıt</span>
+</div>
+</section>
+<!-- Patient List: Compact Accordion System -->
+<section class="flex flex-col gap-space-sm" id="patient-accordion-list">
+<!-- Card 1: Ahmet Arslan (Default EXPANDED) -->
+<article class="accordion-item w-full bg-surface-container-lowest rounded-2xl shadow-sm overflow-hidden transition-all duration-200" data-category="cerrahi" data-patient-id="p-10492">
+<button aria-controls="content-10492" aria-expanded="true" class="accordion-trigger w-full p-4 flex items-center justify-between text-left transition-colors hover:bg-surface-container-low/50" type="button">
+<div class="flex items-center gap-3 min-w-0">
+<div class="relative shrink-0">
+<img class="w-11 h-11 rounded-full object-cover shadow-sm" data-alt="Portrait photo of a young adult Turkish male patient named Ahmet with warm smiling expression, short dark hair, well-lit soft studio dental clinic atmosphere with calm teal and cyan ambient tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbUmzjn0tdLJogEFNo-MfmM2S3pPqNLgR-aTGkk3R8YLiTjHbw-Y9bi9OK39eEUG5LJOaNlq0lOwIWWl0BlUouEQwRKmO4nBLF1YnfTjLpvRH4qg8MWEkiSEuo3HX7nEmMTiG93qXsD75KDQepsmEoSslrNNqI9a8qQk_5wLMHJO6n7E5LO-uAqdJcqT_fWRktG-pz2MlBYW8N7SNmPwLGP_Bfhb8xn7pIvyPRLCqC"/>
+<span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-[10px]">check</span>
+</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg text-on-surface truncate">Ahmet Arslan</span>
+<span class="text-[11px] font-label-sm px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant shrink-0">#D-10492</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant font-body-sm text-body-sm">
+<span>18 Mart 2026</span>
+<span>•</span>
+<span class="text-primary font-medium truncate">20'lik Diş Çekimi</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-1 shrink-0 ml-2">
+<span class="status-indicator font-label-sm text-label-sm text-primary hidden md:inline">Kapat</span>
+<div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant chevron-icon transition-transform duration-300 rotate-180">
+<span class="material-symbols-outlined text-[20px]">expand_more</span>
+</div>
+</div>
+</button>
+<!-- Accordion Body: Open -->
+<div class="accordion-content px-4 pb-4 flex flex-col gap-3" id="content-10492">
+<!-- Procedural Badges Grid -->
+<div class="grid grid-cols-2 gap-2 pt-1">
+<div class="p-2.5 rounded-xl bg-surface-container-low flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm text-outline">Tanı</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold truncate">Gömülü 48 Retansiyon</span>
+</div>
+<div class="p-2.5 rounded-xl bg-surface-container-low flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm text-outline">Yapılan İşlem</span>
+<span class="font-label-md text-label-md text-primary font-semibold truncate">Gömülü 48 Cerrahi Çekim</span>
+</div>
+<div class="p-2.5 rounded-xl bg-surface-container-low flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm text-outline">Anestezi Tipi</span>
+<span class="font-label-md text-label-md text-on-surface">İnfiltratif + Mandibuler Blok</span>
+</div>
+<div class="p-2.5 rounded-xl bg-surface-container-low flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm text-outline">Uygulanan Dikiş</span>
+<span class="font-label-md text-label-md text-on-surface">3/0 İpek (2 Düğüm)</span>
+</div>
+</div>
+<!-- Prescribed Medications -->
+<div class="p-3 rounded-xl bg-surface-container-low flex flex-col gap-1.5">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5 text-on-secondary-container">
+<span class="material-symbols-outlined text-[16px]">prescriptions</span>
+<span class="font-label-sm text-label-sm font-semibold">Yazılan Reçete</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline">E-Reçete No: #48102</span>
+</div>
+<div class="flex flex-wrap gap-1.5">
+<span class="px-2.5 py-1 rounded-lg bg-surface-container-lowest text-on-surface font-body-sm text-body-sm shadow-sm">
+              💊 Augmentin BID 1000mg (2x1)
+            </span>
+<span class="px-2.5 py-1 rounded-lg bg-surface-container-lowest text-on-surface font-body-sm text-body-sm shadow-sm">
+              💊 Apranax Fort 550mg (1x1)
+            </span>
+<span class="px-2.5 py-1 rounded-lg bg-surface-container-lowest text-on-surface font-body-sm text-body-sm shadow-sm">
+              💧 Kloroben Gargara (%0.12)
+            </span>
+</div>
+</div>
+<!-- Doctor's Note -->
+<div class="p-3 rounded-xl bg-secondary-fixed/30 flex items-start gap-2.5">
+<span class="material-symbols-outlined text-secondary text-[20px] shrink-0 mt-0.5">edit_note</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary font-semibold">Randevu Notu</span>
+<p class="font-body-sm text-body-sm text-on-surface mt-0.5">Hasta operasyonu gayet iyi tolere etti. Kanama kontrolü sağlandı. 7 gün sonra dikiş kontrolü ve çıkarma için randevu verildi.</p>
+</div>
+</div>
+<!-- Panoramic X-Ray Preview & Actions -->
+<div class="flex items-center justify-between gap-2 pt-1">
+<button class="flex items-center gap-2 px-3 h-10 rounded-xl bg-secondary-fixed/50 hover:bg-secondary-fixed text-on-secondary-fixed-variant font-label-md text-label-md transition-colors active:scale-95" onclick="alert('Ahmet Arslan - Panoramik Dijital Röntgen (18.03.2026) açılıyor...')" type="button">
+<span class="material-symbols-outlined text-[18px]">radiology</span>
+<span>Panoramik Gör (1 Görsel)</span>
+</button>
+<button class="close-accordion-btn px-4 h-10 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors active:scale-95" type="button">
+            Kapat
+          </button>
+</div>
+</div>
+</article>
+<!-- Card 2: Selin Yılmaz (COLLAPSED) -->
+<article class="accordion-item w-full bg-surface-container-lowest rounded-2xl shadow-sm overflow-hidden transition-all duration-200" data-category="prosthetics" data-patient-id="p-10488">
+<button aria-controls="content-10488" aria-expanded="false" class="accordion-trigger w-full p-4 flex items-center justify-between text-left transition-colors hover:bg-surface-container-low/50" type="button">
+<div class="flex items-center gap-3 min-w-0">
+<div class="relative shrink-0">
+<img class="w-11 h-11 rounded-full object-cover shadow-sm" data-alt="Close up medical portrait of an elegant middle-aged female patient Selin with gentle smile, dental hygiene clinic backdrop with clean teal lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1k1PUEylUeVNFDA929Hz_-c95kx9mpDg0B1_JxhlpA0PYbhwlczGE6FGvmfB1RL3qYQ9wO53r2i3dsPowEZtdaRSMiINQqt70C-28Ox-FDvGG7G-kBZw9uDcZMs3bbEcjesiwUcrd6BP91ZpDELXH6MSxj2K0WXGl0q951Y-KsewqUAVKnL68wf_w_KikTGU51szRWj6rQw_NxzyxLxOwEbl7X3Gqw2YEjtObRR3c"/>
+<span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-[10px]">check</span>
+</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg text-on-surface truncate">Selin Yılmaz</span>
+<span class="text-[11px] font-label-sm px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant shrink-0">#D-10488</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant font-body-sm text-body-sm">
+<span>12 Mart 2026</span>
+<span>•</span>
+<span class="text-primary font-medium truncate">Zirkonyum Kaplama (2 Üye)</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-1.5 shrink-0 ml-2">
+<span class="status-indicator font-label-sm text-label-sm text-primary">Detayları Göster</span>
+<div class="w-8 h-8 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant chevron-icon transition-transform duration-300">
+<span class="material-symbols-outlined text-[20px]">expand_more</span>
+</div>
+</div>
+</button>
+<!-- Accordion Body: Hidden by default -->
+<div class="accordion-content hidden px-4 pb-4 flex-col gap-3" id="content-10488">
+<div class="grid grid-cols-2 gap-2 pt-1">
+<div class="p-2.5 rounded-xl bg-surface-container-low flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm text-outline">Tanı</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">11, 21 Estetik Form Kaybı</span>
+</div>
+<div class="p-2.5 rounded-xl bg-surface-container-low flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm text-outline">Yapılan İşlem</span>
+<span class="font-label-md text-label-md text-primary font-semibold">Zirkonya Simantasyon</span>
+</div>
+<div class="p-2.5 rounded-xl bg-surface-container-low flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm text-outline">Renk Skalası</span>
+<span class="font-label-md text-label-md text-on-surface">VITA Bleached BL2</span>
+</div>
+<div class="p-2.5 rounded-xl bg-surface-container-low flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm text-outline">Siman Malzemesi</span>
+<span class="font-label-md text-label-md text-on-surface">RelyX Unicem 2 Automix</span>
+</div>
+</div>
+<div class="p-3 rounded-xl bg-secondary-fixed/30 flex items-start gap-2.5">
+<span class="material-symbols-outlined text-secondary text-[20px] shrink-0 mt-0.5">edit_note</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary font-semibold">Randevu Notu</span>
+<p class="font-body-sm text-body-sm text-on-surface mt-0.5">Oklüzyon ve kenar uyumu mükemmel. Hastaya gece plağı ölçüsü alındı. 6 ay sonra rutin estetik kontrol.</p>
+</div>
+</div>
+<div class="flex items-center justify-between gap-2 pt-1">
+<button class="flex items-center gap-2 px-3 h-10 rounded-xl bg-secondary-fixed/50 hover:bg-secondary-fixed text-on-secondary-fixed-variant font-label-md text-label-md transition-colors active:scale-95" onclick="alert('Selin Yılmaz - Tedavi Öncesi/Sonrası Estetik Fotoğraflar (4 Görsel) açılıyor...')" type="button">
+<span class="material-symbols-outlined text-[18px]">photo_library</span>
+<span>Vaka Fotoğrafları (4 Görsel)</span>
+</button>
+<button class="close-accordion-btn px-4 h-10 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors active:scale-95" type="button">
+            Kapat
+          </button>
+</div>
+</div>
+</article>
+<!-- Card 3: Mehmet Demir (COLLAPSED) -->
+<article class="accordion-item w-full bg-surface-container-lowest rounded-2xl shadow-sm overflow-hidden transition-all duration-200" data-category="endodontics" data-patient-id="p-10476">
+<button aria-controls="content-10476" aria-expanded="false" class="accordion-trigger w-full p-4 flex items-center justify-between text-left transition-colors hover:bg-surface-container-low/50" type="button">
+<div class="flex items-center gap-3 min-w-0">
+<div class="relative shrink-0">
+<img class="w-11 h-11 rounded-full object-cover shadow-sm" data-alt="Portrait of an older Turkish male patient Mehmet wearing glasses, smiling gently, clean modern dental operatory background with soft teal accents" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnkjW3DOz7KcV5BJ_bDQSgS0kEu0jIB9SC4n9Xefto9lGQSXEH8trz_OHNrMisgWy09ETQ8004SgENoOpeX3T13oHltl3orhwngpDi-JBx90a3xcQIf7kYXN8D1GzICFfPG0jY8Xm-s7LOGFn2O8noaA0WZd0Kt1IKpXgNVTDlXgAXKhPIB6A2LFXZ85I_nZN8ZyyWaWwvInaBwHXkMoF1t5pKAjM2f56q1DBinjDn"/>
+<span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-[10px]">check</span>
+</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg text-on-surface truncate">Mehmet Demir</span>
+<span class="text-[11px] font-label-sm px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant shrink-0">#D-10476</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant font-body-sm text-body-sm">
+<span>04 Mart 2026</span>
+<span>•</span>
+<span class="text-primary font-medium truncate">Kanal Tedavisi (Sol Alt 36)</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-1.5 shrink-0 ml-2">
+<span class="status-indicator font-label-sm text-label-sm text-primary">Detayları Göster</span>
+<div class="w-8 h-8 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant chevron-icon transition-transform duration-300">
+<span class="material-symbols-outlined text-[20px]">expand_more</span>
+</div>
+</div>
+</button>
+<!-- Accordion Body -->
+<div class="accordion-content hidden px-4 pb-4 flex-col gap-3" id="content-10476">
+<div class="grid grid-cols-2 gap-2 pt-1">
+<div class="p-2.5 rounded-xl bg-surface-container-low flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm text-outline">Tanı</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">36 İrreversibl Pulpitis</span>
+</div>
+<div class="p-2.5 rounded-xl bg-surface-container-low flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm text-outline">Kanal Boyları</span>
+<span class="font-label-md text-label-md text-primary font-semibold">MB: 21mm, ML: 21mm, D: 22mm</span>
+</div>
+<div class="p-2.5 rounded-xl bg-surface-container-low flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm text-outline">Dolgu Malzemesi</span>
+<span class="font-label-md text-label-md text-on-surface">Gutta-percha + AH Plus</span>
+</div>
+<div class="p-2.5 rounded-xl bg-surface-container-low flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm text-outline">Üst Restorasyon</span>
+<span class="font-label-md text-label-md text-on-surface">Kompozit Onley Planlandı</span>
+</div>
+</div>
+<div class="p-3 rounded-xl bg-secondary-fixed/30 flex items-start gap-2.5">
+<span class="material-symbols-outlined text-secondary text-[20px] shrink-0 mt-0.5">edit_note</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary font-semibold">Randevu Notu</span>
+<p class="font-body-sm text-body-sm text-on-surface mt-0.5">Kök kanalları şekillendirildi ve hermetik olarak dolduruldu. Ağrı semptomu yok. Geçici dolgu yapıldı.</p>
+</div>
+</div>
+<div class="flex items-center justify-between gap-2 pt-1">
+<button class="flex items-center gap-2 px-3 h-10 rounded-xl bg-secondary-fixed/50 hover:bg-secondary-fixed text-on-secondary-fixed-variant font-label-md text-label-md transition-colors active:scale-95" onclick="alert('Mehmet Demir - Periapikal Röntgen Görüntüsü (2 Görsel) açılıyor...')" type="button">
+<span class="material-symbols-outlined text-[18px]">radiology</span>
+<span>Periapikal Gör (2 Görsel)</span>
+</button>
+<button class="close-accordion-btn px-4 h-10 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors active:scale-95" type="button">
+            Kapat
+          </button>
+</div>
+</div>
+</article>
+<!-- Card 4: Ayşe Öztürk (COLLAPSED) -->
+<article class="accordion-item w-full bg-surface-container-lowest rounded-2xl shadow-sm overflow-hidden transition-all duration-200" data-category="perio" data-patient-id="p-10460">
+<button aria-controls="content-10460" aria-expanded="false" class="accordion-trigger w-full p-4 flex items-center justify-between text-left transition-colors hover:bg-surface-container-low/50" type="button">
+<div class="flex items-center gap-3 min-w-0">
+<div class="relative shrink-0">
+<img class="w-11 h-11 rounded-full object-cover shadow-sm" data-alt="Professional medical headshot of young woman Ayşe in clean turquoise lighting, happy posture, clinical dental setting background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8pD7Qt-lzAP7xwmTs2ODa9COULZDO77CB71zl56JznMOg9NvML_J0N_ZS8SkpYwU9CFfkCmUUiGycT6uACybBQE2ryBai6hXn6rhd9K7KaB7GeQrltL58SR5Amnii0CNnE5vEHp44jhSAuz7G6hoTZILZ9fatNmrzbxkDMMOgGBC1r_ApFAduWDC0PPYr3P5aCIph46g28I1evpXBzoTQ32dDMaVMLS84eFt87c5F"/>
+<span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-[10px]">check</span>
+</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg text-on-surface truncate">Ayşe Öztürk</span>
+<span class="text-[11px] font-label-sm px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant shrink-0">#D-10460</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant font-body-sm text-body-sm">
+<span>27 Şubat 2026</span>
+<span>•</span>
+<span class="text-primary font-medium truncate">Diş Taşı Temizliği &amp; Detertraj</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-1.5 shrink-0 ml-2">
+<span class="status-indicator font-label-sm text-label-sm text-primary">Detayları Göster</span>
+<div class="w-8 h-8 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant chevron-icon transition-transform duration-300">
+<span class="material-symbols-outlined text-[20px]">expand_more</span>
+</div>
+</div>
+</button>
+<!-- Accordion Body -->
+<div class="accordion-content hidden px-4 pb-4 flex-col gap-3" id="content-10460">
+<div class="grid grid-cols-2 gap-2 pt-1">
+<div class="p-2.5 rounded-xl bg-surface-container-low flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm text-outline">Tanı</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">Marjinal Gingivitis</span>
+</div>
+<div class="p-2.5 rounded-xl bg-surface-container-low flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm text-outline">Yapılan İşlem</span>
+<span class="font-label-md text-label-md text-primary font-semibold">Ultrasonik Scaler + Polisaj</span>
+</div>
+<div class="p-2.5 rounded-xl bg-surface-container-low flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm text-outline">Flor Uygulaması</span>
+<span class="font-label-md text-label-md text-on-surface">Florür Vernik (Tüm Ağız)</span>
+</div>
+<div class="p-2.5 rounded-xl bg-surface-container-low flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm text-outline">Plak İndeksi</span>
+<span class="font-label-md text-label-md text-on-surface">%35'ten %5'e düşürüldü</span>
+</div>
+</div>
+<div class="p-3 rounded-xl bg-secondary-fixed/30 flex items-start gap-2.5">
+<span class="material-symbols-outlined text-secondary text-[20px] shrink-0 mt-0.5">edit_note</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary font-semibold">Randevu Notu</span>
+<p class="font-body-sm text-body-sm text-on-surface mt-0.5">Alt anterior lingual bölgedeki yoğun tartar temizlendi. Arayüz fırçası ve doğru fırçalama tekniği eğitimi verildi.</p>
+</div>
+</div>
+<div class="flex items-center justify-end gap-2 pt-1">
+<button class="close-accordion-btn px-4 h-10 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors active:scale-95" type="button">
+            Kapat
+          </button>
+</div>
+</div>
+</article>
+<!-- Card 5: Canan Kaya (COLLAPSED) -->
+<article class="accordion-item w-full bg-surface-container-lowest rounded-2xl shadow-sm overflow-hidden transition-all duration-200" data-category="implant" data-patient-id="p-10444">
+<button aria-controls="content-10444" aria-expanded="false" class="accordion-trigger w-full p-4 flex items-center justify-between text-left transition-colors hover:bg-surface-container-low/50" type="button">
+<div class="flex items-center gap-3 min-w-0">
+<div class="relative shrink-0">
+<img class="w-11 h-11 rounded-full object-cover shadow-sm" data-alt="Portrait of an elegant female patient Canan in her late forties, warm polite expression, pristine dental office lighting with cyan highlights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4b7wIb1qHPN_NgpePxweH4Xtzlz0umHeCxVfgyV9Gu1aSZBovwzkSN3CTEOmlRzVkJqFdO2UxpZw7HMowFrqiWGHn0WbzmNUC2a6fvrAxPVJ6e47X34i_ppis9ecYhtrs9BV2x4fQuAxDu45m-McnrTE0l0zLa09qYq5FbNJL1IIyxMkgnkLT3A0982idwfszqZv_ZM3GBGw0HW45a266e68jedoueyAOP4Y59kuE"/>
+<span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-[10px]">check</span>
+</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-2">
+<span class="font-label-lg text-label-lg text-on-surface truncate">Canan Kaya</span>
+<span class="text-[11px] font-label-sm px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant shrink-0">#D-10444</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant font-body-sm text-body-sm">
+<span>15 Şubat 2026</span>
+<span>•</span>
+<span class="text-primary font-medium truncate">Dental İmplant (Tek Diş)</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-1.5 shrink-0 ml-2">
+<span class="status-indicator font-label-sm text-label-sm text-primary">Detayları Göster</span>
+<div class="w-8 h-8 rounded-full bg-surface-container-low flex items-center justify-center text-on-surface-variant chevron-icon transition-transform duration-300">
+<span class="material-symbols-outlined text-[20px]">expand_more</span>
+</div>
+</div>
+</button>
+<!-- Accordion Body -->
+<div class="accordion-content hidden px-4 pb-4 flex-col gap-3" id="content-10444">
+<div class="grid grid-cols-2 gap-2 pt-1">
+<div class="p-2.5 rounded-xl bg-surface-container-low flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm text-outline">Tanı</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">46 Bölgesi Diş Eksikliği</span>
+</div>
+<div class="p-2.5 rounded-xl bg-surface-container-low flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm text-outline">İmplant Markası/Ölçü</span>
+<span class="font-label-md text-label-md text-primary font-semibold">Straumann BLX 4.0 x 10mm</span>
+</div>
+<div class="p-2.5 rounded-xl bg-surface-container-low flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm text-outline">Primer Stabilite</span>
+<span class="font-label-md text-label-md text-on-surface">38 Ncm (Mükemmel)</span>
+</div>
+<div class="p-2.5 rounded-xl bg-surface-container-low flex flex-col gap-0.5">
+<span class="font-label-sm text-label-sm text-outline">Kapatma Vidası</span>
+<span class="font-label-md text-label-md text-on-surface">Standart Healing Cap 2mm</span>
+</div>
+</div>
+<div class="p-3 rounded-xl bg-surface-container-low flex flex-col gap-1.5">
+<span class="font-label-sm text-label-sm text-on-secondary-container font-semibold">Yazılan Reçete</span>
+<div class="flex flex-wrap gap-1.5">
+<span class="px-2.5 py-1 rounded-lg bg-surface-container-lowest text-on-surface font-body-sm text-body-sm shadow-sm">
+              💊 Klamoks BID 1000mg
+            </span>
+<span class="px-2.5 py-1 rounded-lg bg-surface-container-lowest text-on-surface font-body-sm text-body-sm shadow-sm">
+              💊 Majezik 100mg
+            </span>
+</div>
+</div>
+<div class="p-3 rounded-xl bg-secondary-fixed/30 flex items-start gap-2.5">
+<span class="material-symbols-outlined text-secondary text-[20px] shrink-0 mt-0.5">edit_note</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary font-semibold">Randevu Notu</span>
+<p class="font-body-sm text-body-sm text-on-surface mt-0.5">Cerrahi komplikasyonsuz bitti. Kemik greftine ihtiyaç duyulmadı. 3 ay sonra osseointegrasyon kontrolü ve ölçü aşaması.</p>
+</div>
+</div>
+<div class="flex items-center justify-between gap-2 pt-1">
+<button class="flex items-center gap-2 px-3 h-10 rounded-xl bg-secondary-fixed/50 hover:bg-secondary-fixed text-on-secondary-fixed-variant font-label-md text-label-md transition-colors active:scale-95" onclick="alert('Canan Kaya - Post-Op İmplant Panoramik Röntgen açılıyor...')" type="button">
+<span class="material-symbols-outlined text-[18px]">radiology</span>
+<span>Post-Op Röntgen Gör</span>
+</button>
+<button class="close-accordion-btn px-4 h-10 rounded-xl bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md transition-colors active:scale-95" type="button">
+            Kapat
+          </button>
+</div>
+</div>
+</article>
+</section>
+<!-- Empty Search Feedback State (Hidden by default) -->
+<div class="hidden flex-col items-center justify-center p-8 text-center bg-surface-container-lowest rounded-2xl shadow-sm my-4" id="no-patients-state">
+<div class="w-14 h-14 rounded-full bg-surface-container flex items-center justify-center text-outline mb-3">
+<span class="material-symbols-outlined text-[28px]">search_off</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-on-surface">Eşleşen Hasta Bulunamadı</span>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-xs mt-1">Arama kriterlerinizi kontrol edebilir veya filtreleri sıfırlayabilirsiniz.</p>
+<button class="mt-4 px-4 h-10 rounded-xl bg-primary text-on-primary font-label-md text-label-md shadow-sm active:scale-95 transition-transform" id="reset-filter-btn" type="button">
+      Tüm Hastaları Göster
+    </button>
+</div>
+</div>
+<script>
+  (function () {
+    const accordionItems = document.querySelectorAll('.accordion-item');
+    const searchInput = document.getElementById('patient-search-input');
+    const clearSearchBtn = document.getElementById('clear-search-btn');
+    const filterChips = document.querySelectorAll('.filter-chip');
+    const emptyState = document.getElementById('no-patients-state');
+    const resetFilterBtn = document.getElementById('reset-filter-btn');
+
+    // Toggle Accordion Function
+    function toggleAccordion(item, forceState = null) {
+      const trigger = item.querySelector('.accordion-trigger');
+      const content = item.querySelector('.accordion-content');
+      const chevron = item.querySelector('.chevron-icon');
+      const indicator = item.querySelector('.status-indicator');
+      const isExpanded = trigger.getAttribute('aria-expanded') === 'true';
+      const nextState = forceState !== null ? forceState : !isExpanded;
+
+      if (nextState) {
+        content.classList.remove('hidden');
+        content.classList.add('flex');
+        trigger.setAttribute('aria-expanded', 'true');
+        chevron.classList.add('rotate-180');
+        if (indicator) indicator.textContent = 'Kapat';
+      } else {
+        content.classList.remove('flex');
+        content.classList.add('hidden');
+        trigger.setAttribute('aria-expanded', 'false');
+        chevron.classList.remove('rotate-180');
+        if (indicator) indicator.textContent = 'Detayları Göster';
+      }
+    }
+
+    // Attach trigger listeners
+    accordionItems.forEach(item => {
+      const trigger = item.querySelector('.accordion-trigger');
+      const closeBtn = item.querySelector('.close-accordion-btn');
+
+      trigger.addEventListener('click', () => {
+        toggleAccordion(item);
+      });
+
+      if (closeBtn) {
+        closeBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          toggleAccordion(item, false);
+        });
+      }
+    });
+
+    // Filter Chips Toggle
+    let activeFilter = 'all';
+
+    function applyFilter(filterKey) {
+      activeFilter = filterKey;
+
+      filterChips.forEach(chip => {
+        const isMatch = chip.dataset.filter === filterKey;
+        if (isMatch) {
+          chip.className = 'filter-chip flex items-center gap-1.5 px-3.5 h-9 rounded-full bg-primary text-on-primary font-label-md text-label-md shrink-0 shadow-sm transition-transform active:scale-95';
+        } else {
+          chip.className = 'filter-chip flex items-center gap-1.5 px-3.5 h-9 rounded-full bg-surface-container-low text-on-surface-variant font-label-md text-label-md shrink-0 hover:bg-surface-container transition-transform active:scale-95';
+        }
+      });
+
+      filterList();
+    }
+
+    filterChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        applyFilter(chip.dataset.filter);
+      });
+    });
+
+    // Search and Category Combined Filter
+    function filterList() {
+      const query = (searchInput.value || '').trim().toLowerCase();
+      let visibleCount = 0;
+
+      accordionItems.forEach(item => {
+        const textContent = item.textContent.toLowerCase();
+        const category = item.dataset.category || '';
+        const matchesQuery = !query || textContent.includes(query);
+
+        let matchesCategory = true;
+        if (activeFilter === 'month') {
+          // Represents March 2026 cases
+          matchesCategory = textContent.includes('mart 2026');
+        } else if (activeFilter === 'implant') {
+          matchesCategory = category === 'implant' || textContent.includes('implant');
+        } else if (activeFilter === 'cerrahi') {
+          matchesCategory = category === 'cerrahi' || textContent.includes('çekim') || textContent.includes('cerrahi');
+        }
+
+        if (matchesQuery && matchesCategory) {
+          item.classList.remove('hidden');
+          visibleCount++;
+        } else {
+          item.classList.add('hidden');
+        }
+      });
+
+      if (visibleCount === 0) {
+        emptyState.classList.remove('hidden');
+        emptyState.classList.add('flex');
+      } else {
+        emptyState.classList.add('hidden');
+        emptyState.classList.remove('flex');
+      }
+
+      if (query.length > 0) {
+        clearSearchBtn.classList.remove('hidden');
+        clearSearchBtn.classList.add('flex');
+      } else {
+        clearSearchBtn.classList.add('hidden');
+        clearSearchBtn.classList.remove('flex');
+      }
+    }
+
+    searchInput.addEventListener('input', filterList);
+
+    clearSearchBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      searchInput.focus();
+      filterList();
+    });
+
+    if (resetFilterBtn) {
+      resetFilterBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        applyFilter('all');
+      });
+    }
+  })();
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-2px_12px_rgba(10,77,104,0.05)]" data-active-classes="text-primary font-label-sm"><div class="flex justify-around items-center h-16 px-space-xs"><a class="flex flex-col items-center justify-center gap-0.5 min-w-[56px] h-12 text-on-surface-variant hover:text-on-surface transition-colors" data-path="ajanda" href="#"><span class="material-symbols-outlined text-[22px]">calendar_today</span><span class="font-label-sm text-label-sm">Ajanda</span></a><a class="flex flex-col items-center justify-center gap-0.5 min-w-[56px] h-12 text-on-surface-variant hover:text-on-surface transition-colors" data-path="recete-yaz" href="#"><span class="material-symbols-outlined text-[22px]">prescriptions</span><span class="font-label-sm text-label-sm">Reçete Yaz</span></a><a class="flex flex-col items-center justify-center gap-0.5 min-w-[56px] h-12 text-on-surface-variant hover:text-on-surface transition-colors" data-path="gecmis-hastalar" href="#"><span class="material-symbols-outlined text-[22px]">group</span><span class="font-label-sm text-label-sm">Geçmiş</span></a><a class="flex flex-col items-center justify-center gap-0.5 min-w-[56px] h-12 text-on-surface-variant hover:text-on-surface transition-colors" data-path="program" href="#"><span class="material-symbols-outlined text-[22px]">schedule</span><span class="font-label-sm text-label-sm">Program</span></a><a class="relative flex flex-col items-center justify-center gap-0.5 min-w-[56px] h-12 text-on-surface-variant hover:text-on-surface transition-colors" data-path="mesajlar" href="#"><div class="relative"><span class="material-symbols-outlined text-[22px]">chat_bubble</span><span class="absolute -top-1 -right-2 px-1 min-w-[16px] h-4 rounded-full bg-error text-on-error font-label-sm text-[10px] flex items-center justify-center">2</span></div><span class="font-label-sm text-label-sm">Mesajlar</span></a></div></nav></body></html>

@@ -1,0 +1,317 @@
+<!DOCTYPE html><html lang="tr"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"><meta content="mobile_stack" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { colors: { "primary-fixed": "#a3eeff", "tertiary-fixed": "#cfe6f3", "surface-container-highest": "#d3e4fe", "surface-container-lowest": "#ffffff", "on-secondary-container": "#2b637f", "outline-variant": "#bdc8cb", "on-background": "#0b1c30", "inverse-surface": "#213145", "on-surface-variant": "#3e494b", "outline": "#6e797c", "primary": "#006574", "surface-container": "#e5eeff", "inverse-primary": "#76d4e7", "surface-tint": "#006877", "primary-container": "#008092", "inverse-on-surface": "#eaf1ff", "on-tertiary-fixed": "#071e27", "on-secondary": "#ffffff", "on-tertiary": "#ffffff", "surface-dim": "#cbdbf5", "surface-variant": "#d3e4fe", "error-container": "#ffdad6", "background": "#f8f9ff", "error": "#ba1a1a", "on-primary-fixed": "#001f25", "secondary-fixed-dim": "#98cded", "on-tertiary-fixed-variant": "#344a54", "on-surface": "#0b1c30", "on-secondary-fixed": "#001e2c", "on-primary-container": "#f8fdff", "on-error-container": "#93000a", "surface-container-low": "#eff4ff", "tertiary-container": "#647a86", "on-primary": "#ffffff", "surface-container-high": "#dce9ff", "on-secondary-fixed-variant": "#084c67", "surface": "#f8f9ff", "tertiary-fixed-dim": "#b3cad6", "on-primary-fixed-variant": "#004e5a", "secondary-fixed": "#c3e8ff", "primary-fixed-dim": "#76d4e7", "on-error": "#ffffff", "surface-bright": "#f8f9ff", "secondary": "#2c6480", "tertiary": "#4c616c", "on-tertiary-container": "#00060b", "secondary-container": "#a9deff" }, borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, spacing: { "space-lg": "1.5rem", "gutter": "1rem", "margin-lg": "1.25rem", "space-xl": "2rem", "space-md": "1rem", "space-xs": "0.25rem", "space-sm": "0.5rem", "margin-sm": "0.75rem", "margin": "1rem", "gutter-sm": "0.75rem" }, fontFamily: { "headline-sm": ["Inter"], "headline-md": ["Inter"], "body-sm": ["Inter"], "headline-lg": ["Inter"], "label-sm": ["Inter"], "label-lg": ["Inter"], "body-md": ["Inter"], "label-md": ["Inter"], "headline-lg-mobile": ["Inter"], "body-lg": ["Inter"] }, fontSize: { "headline-sm": ["18px", { "lineHeight": "24px", "letterSpacing": "-0.005em", "fontWeight": "600" }], "headline-md": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "body-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "400" }], "headline-lg": ["34px", { "lineHeight": "41px", "letterSpacing": "-0.02em", "fontWeight": "700" }], "label-sm": ["11px", { "lineHeight": "14px", "letterSpacing": "0.03em", "fontWeight": "600" }], "label-lg": ["15px", { "lineHeight": "20px", "letterSpacing": "-0.005em", "fontWeight": "600" }], "body-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400" }], "label-md": ["13px", { "lineHeight": "18px", "letterSpacing": "0.01em", "fontWeight": "500" }], "headline-lg-mobile": ["28px", { "lineHeight": "34px", "letterSpacing": "-0.015em", "fontWeight": "700" }], "body-lg": ["16px", { "lineHeight": "22px", "letterSpacing": "-0.005em", "fontWeight": "400" }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-on-surface antialiased flex flex-col min-h-screen selection:bg-primary-fixed selection:text-on-primary-fixed"><header class="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-11 px-5 flex items-center justify-between text-on-surface"><span class="font-label-md text-label-md font-semibold tracking-tight">09:41</span><div class="flex items-center gap-1.5 text-on-surface"><span class="material-symbols-outlined text-[16px]">signal_cellular_alt</span><span class="material-symbols-outlined text-[16px]">wifi</span><span class="material-symbols-outlined text-[20px]">battery_full</span></div></div><div class="h-14 px-margin flex items-center justify-between"><button aria-label="Geri Dön" class="w-11 h-11 -ml-2 flex items-center justify-center rounded-full text-on-surface hover:text-primary transition-colors active:scale-95" onclick="history.back()" type="button"><span class="material-symbols-outlined text-[24px]">arrow_back_ios_new</span></button><h1 class="font-headline-sm text-headline-sm text-on-surface text-center flex-1 truncate px-space-xs">Randevu Al</h1><div class="flex items-center gap-space-xs -mr-2"><button aria-label="Bildirimler" class="w-11 h-11 flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors" type="button"><span class="material-symbols-outlined text-[24px]">notifications</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full px-margin pt-25 pb-36 bg-surface min-h-screen"><div class="flex flex-col w-full gap-space-lg">
+<!-- Üst Bilgi Başlığı -->
+<section class="flex flex-col gap-1">
+<div class="flex items-center gap-space-xs">
+<span class="inline-flex w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="font-label-sm text-label-sm text-primary uppercase tracking-wider font-semibold">Anlık Rezervasyon</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Hızlı Randevu Oluştur</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">İşleminizi, hekiminizi ve randevu saatinizi seçerek tek adımda planlayın.</p>
+</section>
+<!-- 1. İşlem / Tedavi Kategorisi (12 Kategori, Kompakt 3 Sütunlu Grid, Kesinlikle Fiyat/Süre Yok) -->
+<section class="flex flex-col gap-margin-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="w-5 h-5 rounded-full bg-primary-fixed flex items-center justify-center font-label-sm text-label-sm text-on-primary-fixed font-bold">1</span>
+<h3 class="font-label-lg text-label-lg text-on-surface font-semibold">İşlem Seçimi</h3>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-medium" id="selected-service-badge">Diş Temizliği Seçili</span>
+</div>
+<div class="grid grid-cols-3 gap-2.5" id="service-grid">
+<!-- 1. İlk Muayene -->
+<button class="service-item flex flex-col items-center justify-center p-2.5 rounded-xl bg-surface-container-lowest shadow-sm text-center transition-all duration-150 active:scale-95 group" data-service="İlk Muayene" type="button">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary-fixed/40 transition-colors">
+<span class="material-symbols-outlined text-[18px]">clinical_notes</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface font-medium mt-1.5 leading-tight">İlk Muayene</span>
+</button>
+<!-- 2. Diş Temizliği (Varsayılan Seçili) -->
+<button class="service-item flex flex-col items-center justify-center p-2.5 rounded-xl bg-primary text-on-primary shadow-sm text-center transition-all duration-150 active:scale-95 relative" data-service="Diş Temizliği" type="button">
+<div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-[18px]">clean_hands</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-primary font-semibold mt-1.5 leading-tight">Diş Temizliği</span>
+<div class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary-fixed flex items-center justify-center shadow">
+<span class="material-symbols-outlined text-on-primary-fixed text-[12px] font-bold">check</span>
+</div>
+</button>
+<!-- 3. Estetik Dolgu -->
+<button class="service-item flex flex-col items-center justify-center p-2.5 rounded-xl bg-surface-container-lowest shadow-sm text-center transition-all duration-150 active:scale-95 group" data-service="Estetik Dolgu" type="button">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary-fixed/40 transition-colors">
+<span class="material-symbols-outlined text-[18px]">hardware</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface font-medium mt-1.5 leading-tight">Estetik Dolgu</span>
+</button>
+<!-- 4. Kanal Tedavisi -->
+<button class="service-item flex flex-col items-center justify-center p-2.5 rounded-xl bg-surface-container-lowest shadow-sm text-center transition-all duration-150 active:scale-95 group" data-service="Kanal Tedavisi" type="button">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary-fixed/40 transition-colors">
+<span class="material-symbols-outlined text-[18px]">medication</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface font-medium mt-1.5 leading-tight">Kanal Tedavisi</span>
+</button>
+<!-- 5. Diş Beyazlatma -->
+<button class="service-item flex flex-col items-center justify-center p-2.5 rounded-xl bg-surface-container-lowest shadow-sm text-center transition-all duration-150 active:scale-95 group" data-service="Diş Beyazlatma" type="button">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary-fixed/40 transition-colors">
+<span class="material-symbols-outlined text-[18px]">auto_awesome</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface font-medium mt-1.5 leading-tight">Diş Beyazlatma</span>
+</button>
+<!-- 6. Zirkonyum -->
+<button class="service-item flex flex-col items-center justify-center p-2.5 rounded-xl bg-surface-container-lowest shadow-sm text-center transition-all duration-150 active:scale-95 group" data-service="Zirkonyum" type="button">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary-fixed/40 transition-colors">
+<span class="material-symbols-outlined text-[18px]">diamond</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface font-medium mt-1.5 leading-tight">Zirkonyum</span>
+</button>
+<!-- 7. Dental İmplant -->
+<button class="service-item flex flex-col items-center justify-center p-2.5 rounded-xl bg-surface-container-lowest shadow-sm text-center transition-all duration-150 active:scale-95 group" data-service="Dental İmplant" type="button">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary-fixed/40 transition-colors">
+<span class="material-symbols-outlined text-[18px]">build_circle</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface font-medium mt-1.5 leading-tight">Dental İmplant</span>
+</button>
+<!-- 8. 20'lik Çekim -->
+<button class="service-item flex flex-col items-center justify-center p-2.5 rounded-xl bg-surface-container-lowest shadow-sm text-center transition-all duration-150 active:scale-95 group" data-service="20'lik Çekim" type="button">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary-fixed/40 transition-colors">
+<span class="material-symbols-outlined text-[18px]">healing</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface font-medium mt-1.5 leading-tight">20'lik Çekim</span>
+</button>
+<!-- 9. Şeffaf Plak -->
+<button class="service-item flex flex-col items-center justify-center p-2.5 rounded-xl bg-surface-container-lowest shadow-sm text-center transition-all duration-150 active:scale-95 group" data-service="Şeffaf Plak" type="button">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary-fixed/40 transition-colors">
+<span class="material-symbols-outlined text-[18px]">layers</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface font-medium mt-1.5 leading-tight">Şeffaf Plak</span>
+</button>
+<!-- 10. Pedodonti -->
+<button class="service-item flex flex-col items-center justify-center p-2.5 rounded-xl bg-surface-container-lowest shadow-sm text-center transition-all duration-150 active:scale-95 group" data-service="Pedodonti" type="button">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary-fixed/40 transition-colors">
+<span class="material-symbols-outlined text-[18px]">child_care</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface font-medium mt-1.5 leading-tight">Pedodonti</span>
+</button>
+<!-- 11. Gülüş Tasarımı -->
+<button class="service-item flex flex-col items-center justify-center p-2.5 rounded-xl bg-surface-container-lowest shadow-sm text-center transition-all duration-150 active:scale-95 group" data-service="Gülüş Tasarımı" type="button">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary-fixed/40 transition-colors">
+<span class="material-symbols-outlined text-[18px]">mood</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface font-medium mt-1.5 leading-tight">Gülüş Tasarımı</span>
+</button>
+<!-- 12. Çene Cerrahisi -->
+<button class="service-item flex flex-col items-center justify-center p-2.5 rounded-xl bg-surface-container-lowest shadow-sm text-center transition-all duration-150 active:scale-95 group" data-service="Çene Cerrahisi" type="button">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary-fixed/40 transition-colors">
+<span class="material-symbols-outlined text-[18px]">medical_services</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface font-medium mt-1.5 leading-tight">Çene Cerrahisi</span>
+</button>
+</div>
+</section>
+<!-- 2. Diş Hekimi Seçimi (Yatay Kaydırılabilir iOS Kartları) -->
+
+<!-- 3. Tarih Seçimi (Mini Haftalık Takvim Bandı) -->
+<section class="flex flex-col gap-margin-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="w-5 h-5 rounded-full bg-primary-fixed flex items-center justify-center font-label-sm text-label-sm text-on-primary-fixed font-bold">3</span>
+<h3 class="font-label-lg text-label-lg text-on-surface font-semibold">Tarih Seçimi</h3>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="font-label-md text-label-md font-medium text-on-surface">Mart 2025</span>
+<span class="material-symbols-outlined text-[18px]">calendar_month</span>
+</div>
+</div>
+<div class="grid grid-cols-6 gap-2" id="date-strip">
+<!-- Pzt 16 -->
+<button class="date-chip flex flex-col items-center py-2.5 rounded-xl bg-surface-container-lowest shadow-sm transition-all active:scale-95" data-date="16 Mart" type="button">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Pzt</span>
+<span class="font-label-lg text-label-lg text-on-surface font-bold mt-1">16</span>
+</button>
+<!-- Sal 17 -->
+<button class="date-chip flex flex-col items-center py-2.5 rounded-xl bg-surface-container-lowest shadow-sm transition-all active:scale-95" data-date="17 Mart" type="button">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Sal</span>
+<span class="font-label-lg text-label-lg text-on-surface font-bold mt-1">17</span>
+</button>
+<!-- Çar 18 (Aktif / Seçili) -->
+<button class="date-chip flex flex-col items-center py-2.5 rounded-xl bg-primary text-on-primary shadow-sm transition-all active:scale-95 relative" data-date="18 Mart" type="button">
+<span class="font-label-sm text-label-sm text-on-primary/80 font-medium">Çar</span>
+<span class="font-label-lg text-label-lg text-on-primary font-bold mt-1">18</span>
+<span class="w-1 h-1 rounded-full bg-primary-fixed mt-1"></span>
+</button>
+<!-- Per 19 -->
+<button class="date-chip flex flex-col items-center py-2.5 rounded-xl bg-surface-container-lowest shadow-sm transition-all active:scale-95" data-date="19 Mart" type="button">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Per</span>
+<span class="font-label-lg text-label-lg text-on-surface font-bold mt-1">19</span>
+</button>
+<!-- Cum 20 -->
+<button class="date-chip flex flex-col items-center py-2.5 rounded-xl bg-surface-container-lowest shadow-sm transition-all active:scale-95" data-date="20 Mart" type="button">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Cum</span>
+<span class="font-label-lg text-label-lg text-on-surface font-bold mt-1">20</span>
+</button>
+<!-- Cmt 21 -->
+<button class="date-chip flex flex-col items-center py-2.5 rounded-xl bg-surface-container-lowest shadow-sm transition-all active:scale-95" data-date="21 Mart" type="button">
+<span class="font-label-sm text-label-sm text-on-surface-variant font-medium">Cmt</span>
+<span class="font-label-lg text-label-lg text-on-surface font-bold mt-1">21</span>
+</button>
+</div>
+</section>
+<!-- 4. Randevu Saati (Kompakt Hap Butonlar) -->
+<section class="flex flex-col gap-margin-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="w-5 h-5 rounded-full bg-primary-fixed flex items-center justify-center font-label-sm text-label-sm text-on-primary-fixed font-bold">4</span>
+<h3 class="font-label-lg text-label-lg text-on-surface font-semibold">Randevu Saati</h3>
+</div>
+<div class="flex items-center gap-1.5 text-primary font-label-sm text-label-sm font-semibold">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+<span>Öğleden Sonra</span>
+</div>
+</div>
+<!-- Saat Hap Butonları -->
+<div class="grid grid-cols-4 gap-2" id="time-grid">
+<button class="time-slot h-10 rounded-xl bg-surface-container-lowest shadow-sm font-label-md text-label-md text-on-surface font-medium flex items-center justify-center transition-all active:scale-95" data-time="09:30" type="button">09:30</button>
+<button class="time-slot h-10 rounded-xl bg-surface-container-lowest shadow-sm font-label-md text-label-md text-on-surface font-medium flex items-center justify-center transition-all active:scale-95" data-time="10:15" type="button">10:15</button>
+<button class="time-slot h-10 rounded-xl bg-surface-container-lowest shadow-sm font-label-md text-label-md text-on-surface font-medium flex items-center justify-center transition-all active:scale-95" data-time="11:00" type="button">11:00</button>
+<button class="time-slot h-10 rounded-xl bg-primary text-on-primary shadow-sm font-label-md text-label-md font-bold flex items-center justify-center transition-all active:scale-95 ring-2 ring-primary/20" data-time="14:30" type="button">14:30</button>
+<button class="time-slot h-10 rounded-xl bg-surface-container-lowest shadow-sm font-label-md text-label-md text-on-surface font-medium flex items-center justify-center transition-all active:scale-95" data-time="15:15" type="button">15:15</button>
+<button class="time-slot h-10 rounded-xl bg-surface-container-lowest shadow-sm font-label-md text-label-md text-on-surface font-medium flex items-center justify-center transition-all active:scale-95" data-time="16:00" type="button">16:00</button>
+<button class="time-slot h-10 rounded-xl bg-surface-container-lowest shadow-sm font-label-md text-label-md text-on-surface font-medium flex items-center justify-center transition-all active:scale-95" data-time="16:45" type="button">16:45</button>
+<button class="time-slot h-10 rounded-xl bg-surface-container-lowest shadow-sm font-label-md text-label-md text-on-surface font-medium flex items-center justify-center transition-all active:scale-95" data-time="17:30" type="button">17:30</button>
+</div>
+</section>
+<!-- 5. Not / Şikayet Ekleme (Opsiyonel & Minimalist) -->
+<section class="flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md text-on-surface font-semibold flex items-center gap-1.5" for="complaint-note">
+<span class="material-symbols-outlined text-primary text-[18px]">edit_note</span>
+<span>Hekime Not / Şikayet</span>
+</label>
+<span class="font-label-sm text-label-sm text-on-surface-variant">İsteğe Bağlı</span>
+</div>
+<div class="relative w-full">
+<input class="w-full h-12 px-3.5 rounded-xl bg-surface-container-lowest text-on-surface placeholder:text-on-surface-variant/60 font-body-md text-body-md shadow-sm outline-none focus:ring-2 focus:ring-primary/30 transition-all" id="complaint-note" placeholder="Örn: Hassasiyet şikayeti veya özel istek..." type="text">
+</div>
+</section>
+<!-- Bilgi Notu & Güven Rozeti -->
+
+<!-- Canlı Seçim Verilerini Alt Çubuğa Senkronize Eden Minimal Etkileşim Scripti -->
+<script>
+    (function() {
+      let currentService = 'Diş Temizliği';
+      let currentDate = '18 Mart';
+      let currentTime = '14:30';
+      let currentDoctor = 'Dt. Selin Yılmaz';
+
+      const serviceBadge = document.getElementById('selected-service-badge');
+
+      // Shell'deki alt bar öğelerini güncelleme
+      function updateShellBottomBar() {
+        const dateDisplay = document.querySelector('aside .font-label-lg');
+        const doctorDisplay = document.querySelector('aside .font-label-sm.font-medium');
+        if (dateDisplay) {
+          dateDisplay.textContent = `${currentDate} 2025, ${currentTime}`;
+        }
+        if (doctorDisplay) {
+          doctorDisplay.textContent = currentDoctor;
+        }
+        if (serviceBadge) {
+          serviceBadge.textContent = `${currentService} Seçili`;
+        }
+      }
+
+      // 1. İşlem Seçimi Etkileşimi
+      const serviceButtons = document.querySelectorAll('.service-item');
+      serviceButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          serviceButtons.forEach(b => {
+            b.className = 'service-item flex flex-col items-center justify-center p-2.5 rounded-xl bg-surface-container-lowest shadow-sm text-center transition-all duration-150 active:scale-95 group';
+            const iconWrap = b.querySelector('div');
+            if (iconWrap) iconWrap.className = 'w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary group-hover:bg-primary-fixed/40 transition-colors';
+            const label = b.querySelector('span');
+            if (label) label.className = 'font-label-sm text-label-sm text-on-surface font-medium mt-1.5 leading-tight';
+            const check = b.querySelector('.absolute');
+            if (check) check.remove();
+          });
+
+          btn.className = 'service-item flex flex-col items-center justify-center p-2.5 rounded-xl bg-primary text-on-primary shadow-sm text-center transition-all duration-150 active:scale-95 relative';
+          const iconWrap = btn.querySelector('div');
+          if (iconWrap) iconWrap.className = 'w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center text-on-primary';
+          const label = btn.querySelector('span');
+          if (label) label.className = 'font-label-sm text-label-sm text-on-primary font-semibold mt-1.5 leading-tight';
+
+          const badge = document.createElement('div');
+          badge.className = 'absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary-fixed flex items-center justify-center shadow';
+          badge.innerHTML = '<span class="material-symbols-outlined text-on-primary-fixed text-[12px] font-bold">check</span>';
+          btn.appendChild(badge);
+
+          currentService = btn.getAttribute('data-service') || 'İşlem';
+          updateShellBottomBar();
+        });
+      });
+
+      // 2. Doktor Seçimi Etkileşimi
+      const doctorCards = document.querySelectorAll('.doctor-card');
+      doctorCards.forEach(card => {
+        card.addEventListener('click', () => {
+          doctorCards.forEach(c => {
+            c.classList.remove('bg-secondary-container/40');
+            c.classList.add('bg-surface-container-lowest', 'opacity-85');
+          });
+          card.classList.remove('bg-surface-container-lowest', 'opacity-85');
+          card.classList.add('bg-secondary-container/40');
+          currentDoctor = card.getAttribute('data-doctor') || 'Hekim';
+          updateShellBottomBar();
+        });
+      });
+
+      // 3. Tarih Seçimi Etkileşimi
+      const dateChips = document.querySelectorAll('.date-chip');
+      dateChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+          dateChips.forEach(c => {
+            c.className = 'date-chip flex flex-col items-center py-2.5 rounded-xl bg-surface-container-lowest shadow-sm transition-all active:scale-95';
+            c.innerHTML = `
+              <span class="font-label-sm text-label-sm text-on-surface-variant font-medium">${c.children[0]?.textContent || ''}</span>
+              <span class="font-label-lg text-label-lg text-on-surface font-bold mt-1">${c.children[1]?.textContent || ''}</span>
+            `;
+          });
+          const dayName = chip.children[0]?.textContent || '';
+          const dayNum = chip.children[1]?.textContent || '';
+          chip.className = 'date-chip flex flex-col items-center py-2.5 rounded-xl bg-primary text-on-primary shadow-sm transition-all active:scale-95 relative';
+          chip.innerHTML = `
+            <span class="font-label-sm text-label-sm text-on-primary/80 font-medium">${dayName}</span>
+            <span class="font-label-lg text-label-lg text-on-primary font-bold mt-1">${dayNum}</span>
+            <span class="w-1 h-1 rounded-full bg-primary-fixed mt-1"></span>
+          `;
+          currentDate = chip.getAttribute('data-date') || 'Tarih';
+          updateShellBottomBar();
+        });
+      });
+
+      // 4. Saat Seçimi Etkileşimi
+      const timeSlots = document.querySelectorAll('.time-slot');
+      timeSlots.forEach(slot => {
+        slot.addEventListener('click', () => {
+          timeSlots.forEach(s => {
+            s.className = 'time-slot h-10 rounded-xl bg-surface-container-lowest shadow-sm font-label-md text-label-md text-on-surface font-medium flex items-center justify-center transition-all active:scale-95';
+          });
+          slot.className = 'time-slot h-10 rounded-xl bg-primary text-on-primary shadow-sm font-label-md text-label-md font-bold flex items-center justify-center transition-all active:scale-95 ring-2 ring-primary/20';
+          currentTime = slot.getAttribute('data-time') || '14:30';
+          updateShellBottomBar();
+        });
+      });
+
+      // Başlangıç senkronu
+      updateShellBottomBar();
+    })();
+  </script>
+</div></main><aside class="fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="px-margin py-margin flex flex-col gap-space-sm"><div class="flex items-center justify-between"><div class="flex flex-col"><span class="font-label-sm text-label-sm text-on-surface-variant">Seçilen Randevu</span><span class="font-label-lg text-label-lg text-on-surface font-semibold">14 Ekim 2024, 14:30</span></div><div class="flex items-center gap-space-xs bg-secondary-fixed/50 px-gutter-sm py-space-xs rounded-full"><span class="material-symbols-outlined text-secondary text-[16px]">person</span><span class="font-label-sm text-label-sm text-on-secondary-fixed-variant font-medium">Dt. Selin Kaya</span></div></div><button class="w-full h-[50px] min-h-[50px] rounded-xl bg-primary text-on-primary font-label-lg text-label-lg flex items-center justify-center gap-space-xs transition-transform active:scale-[0.98] shadow-[0_2px_8px_-2px_rgba(0,101,116,0.3)]" type="button"><span class="material-symbols-outlined text-[20px]">check_circle</span><span>Randevu Al</span></button></div></aside>
+
+</body></html>

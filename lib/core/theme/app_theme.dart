@@ -1,0 +1,143 @@
+import 'package:flutter/material.dart';
+import 'app_colors.dart';
+
+class AppTheme {
+  static ThemeData get lightTheme {
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: AppColors.primary,
+      brightness: Brightness.light,
+      primary: AppColors.primary,
+      onPrimary: AppColors.onPrimary,
+      primaryContainer: AppColors.primaryContainer,
+      onPrimaryContainer: AppColors.onPrimaryContainer,
+      secondary: AppColors.secondary,
+      onSecondary: AppColors.onSecondary,
+      secondaryContainer: AppColors.secondaryContainer,
+      onSecondaryContainer: AppColors.onSecondaryContainer,
+      tertiary: AppColors.tertiary,
+      onTertiary: AppColors.onTertiary,
+      tertiaryContainer: AppColors.tertiaryContainer,
+      onTertiaryContainer: AppColors.onTertiaryContainer,
+      error: AppColors.error,
+      onError: AppColors.onError,
+      errorContainer: AppColors.errorContainer,
+      onErrorContainer: AppColors.onErrorContainer,
+      surface: AppColors.surface,
+      onSurface: AppColors.onSurface,
+      onSurfaceVariant: AppColors.onSurfaceVariant,
+      outline: AppColors.outline,
+      outlineVariant: AppColors.outlineVariant,
+      inverseSurface: AppColors.inverseSurface,
+      onInverseSurface: AppColors.inverseOnSurface,
+      inversePrimary: AppColors.inversePrimary,
+      surfaceTint: AppColors.surfaceTint,
+    );
+
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: colorScheme,
+      scaffoldBackgroundColor: AppColors.surface,
+      fontFamily: 'Plus Jakarta Sans',
+      textTheme: const TextTheme(
+        displayLarge: TextStyle(
+          fontFamily: 'Plus Jakarta Sans',
+          fontSize: 34,
+          height: 41 / 34,
+          letterSpacing: -0.68,
+          fontWeight: FontWeight.w700,
+          color: AppColors.onSurface,
+        ),
+        displayMedium: TextStyle(
+          fontFamily: 'Plus Jakarta Sans',
+          fontSize: 28,
+          height: 34 / 28,
+          letterSpacing: -0.42,
+          fontWeight: FontWeight.w700,
+          color: AppColors.onSurface,
+        ),
+        headlineLarge: TextStyle(
+          fontFamily: 'Plus Jakarta Sans',
+          fontSize: 24,
+          height: 30 / 24,
+          letterSpacing: -0.24,
+          fontWeight: FontWeight.w600,
+          color: AppColors.onSurface,
+        ),
+        headlineMedium: TextStyle(
+          fontFamily: 'Plus Jakarta Sans',
+          fontSize: 20,
+          height: 26 / 20,
+          letterSpacing: -0.1,
+          fontWeight: FontWeight.w600,
+          color: AppColors.onSurface,
+        ),
+        headlineSmall: TextStyle(
+          fontFamily: 'Plus Jakarta Sans',
+          fontSize: 18,
+          height: 24 / 18,
+          letterSpacing: -0.09,
+          fontWeight: FontWeight.w600,
+          color: AppColors.onSurface,
+        ),
+        titleMedium: TextStyle(
+          fontFamily: 'Plus Jakarta Sans',
+          fontSize: 17,
+          height: 22 / 17,
+          fontWeight: FontWeight.w600,
+          color: AppColors.onSurface,
+        ),
+        bodyLarge: TextStyle(
+          fontFamily: 'Plus Jakarta Sans',
+          fontSize: 17,
+          height: 24 / 17,
+          fontWeight: FontWeight.w400,
+          color: AppColors.onSurface,
+        ),
+        bodyMedium: TextStyle(
+          fontFamily: 'Plus Jakarta Sans',
+          fontSize: 15,
+          height: 20 / 15,
+          fontWeight: FontWeight.w400,
+          color: AppColors.onSurface,
+        ),
+        bodySmall: TextStyle(
+          fontFamily: 'Plus Jakarta Sans',
+          fontSize: 12,
+          height: 16 / 12,
+          letterSpacing: 0.12,
+          fontWeight: FontWeight.w400,
+          color: AppColors.onSurfaceVariant,
+        ),
+        labelLarge: TextStyle(
+          fontFamily: 'Plus Jakarta Sans',
+          fontSize: 15,
+          height: 20 / 15,
+          letterSpacing: -0.075,
+          fontWeight: FontWeight.w600,
+          color: AppColors.onSurface,
+        ),
+        labelMedium: TextStyle(
+          fontFamily: 'Plus Jakarta Sans',
+          fontSize: 13,
+          height: 18 / 13,
+          fontWeight: FontWeight.w500,
+          color: AppColors.onSurface,
+        ),
+        labelSmall: TextStyle(
+          fontFamily: 'Plus Jakarta Sans',
+          fontSize: 11,
+          height: 14 / 11,
+          letterSpacing: 0.22,
+          fontWeight: FontWeight.w600,
+          color: AppColors.onSurfaceVariant,
+        ),
+      ),
+      dividerTheme: const DividerThemeData(
+        color: AppColors.surfaceContainerHigh,
+        thickness: 1,
+        space: 1,
+      ),
+    );
+  }
+}
+

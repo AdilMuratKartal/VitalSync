@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="tr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;min-height:100%;margin:0;padding:0;}body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 500,'GRAD' 0,'opsz' 24;display:inline-block;line-height:1;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: 'class', theme: { extend: { colors: { 'primary-fixed-dim': '#76d4e7', 'inverse-on-surface': '#eaf1ff', 'on-tertiary-container': '#00060b', 'on-tertiary-fixed': '#071e27', 'on-secondary': '#ffffff', 'tertiary': '#4c616c', 'surface-container': '#e5eeff', 'on-tertiary': '#ffffff', 'primary-container': '#008092', 'surface-dim': '#cbdbf5', 'surface-container-lowest': '#ffffff', 'on-secondary-fixed-variant': '#084c67', 'on-secondary-fixed': '#001e2c', 'on-tertiary-fixed-variant': '#344a54', 'error-container': '#ffdad6', 'secondary-fixed': '#c3e8ff', 'surface': '#f8f9ff', 'tertiary-fixed-dim': '#b3cad6', 'inverse-primary': '#76d4e7', 'on-surface-variant': '#3e494b', 'surface-bright': '#f8f9ff', 'on-surface': '#0b1c30', 'tertiary-container': '#647a86', 'secondary': '#2c6480', 'on-error-container': '#93000a', 'background': '#f8f9ff', 'surface-variant': '#d3e4fe', 'on-primary-container': '#f8fdff', 'on-primary-fixed': '#001f25', 'inverse-surface': '#213145', 'error': '#ba1a1a', 'surface-container-highest': '#d3e4fe', 'outline': '#6e797c', 'on-secondary-container': '#2b637f', 'surface-tint': '#006877', 'surface-container-low': '#eff4ff', 'tertiary-fixed': '#cfe6f3', 'primary': '#006574', 'on-primary-fixed-variant': '#004e5a', 'primary-fixed': '#a3eeff', 'secondary-fixed-dim': '#98cded', 'on-primary': '#ffffff', 'on-background': '#0b1c30', 'secondary-container': '#a9deff', 'outline-variant': '#bdc8cb', 'on-error': '#ffffff', 'surface-container-high': '#dce9ff' }, borderRadius: { 'DEFAULT': '0.25rem', 'lg': '0.5rem', 'xl': '0.75rem', 'full': '9999px' }, spacing: { 'gutter-sm': '0.75rem', 'space-md': '1rem', 'gutter': '1rem', 'space-xs': '0.25rem', 'margin': '1rem', 'space-xl': '2rem', 'margin-lg': '1.25rem', 'space-lg': '1.5rem', 'space-sm': '0.5rem', 'margin-sm': '0.75rem' }, fontFamily: { 'headline-sm': ['Inter'], 'body-lg': ['Inter'], 'label-md': ['Inter'], 'headline-md': ['Inter'], 'label-sm': ['Inter'], 'body-sm': ['Inter'], 'headline-lg-mobile': ['Inter'], 'headline-lg': ['Inter'], 'body-md': ['Inter'], 'label-lg': ['Inter'] }, fontSize: { 'headline-sm': ['18px', { lineHeight: '24px', letterSpacing: '-0.005em', fontWeight: '600' }], 'body-lg': ['16px', { lineHeight: '22px', letterSpacing: '-0.005em', fontWeight: '400' }], 'label-md': ['13px', { lineHeight: '18px', letterSpacing: '0.01em', fontWeight: '500' }], 'headline-md': ['22px', { lineHeight: '28px', letterSpacing: '-0.01em', fontWeight: '600' }], 'label-sm': ['11px', { lineHeight: '14px', letterSpacing: '0.03em', fontWeight: '600' }], 'body-sm': ['12px', { lineHeight: '16px', letterSpacing: '0.01em', fontWeight: '400' }], 'headline-lg-mobile': ['28px', { lineHeight: '34px', letterSpacing: '-0.015em', fontWeight: '700' }], 'headline-lg': ['34px', { lineHeight: '41px', letterSpacing: '-0.02em', fontWeight: '700' }], 'body-md': ['14px', { lineHeight: '20px', letterSpacing: '0em', fontWeight: '400' }], 'label-lg': ['15px', { lineHeight: '20px', letterSpacing: '-0.005em', fontWeight: '600' }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface text-on-surface font-body-md text-body-md flex flex-col min-h-screen selection:bg-secondary-container"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(10,77,104,0.04)]"><div class="h-20 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0 flex-1"><div class="w-11 h-11 rounded-full bg-primary-fixed flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-on-primary-fixed text-[24px]">person</span></div><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><h1 class="font-label-lg text-label-lg text-on-surface truncate">Dr. Selin Yılmaz</h1><span class="inline-flex items-center px-space-xs py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-label-sm flex-shrink-0">Nöbetçi</span></div><p class="font-body-sm text-body-sm text-on-surface-variant truncate">Ağız, Diş ve Çene Cerrahisi</p></div></div><div class="flex items-center gap-space-xs flex-shrink-0"><button aria-label="Bildirimler" class="relative w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container active:scale-95 transition-all" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-primary ring-2 ring-surface"></span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-20 pb-28 px-margin bg-surface flex-1"><div class="flex flex-col w-full pb-4">
+<!-- Search & Action Bar -->
+<div class="flex items-center gap-space-sm mb-margin">
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px] pointer-events-none">search</span>
+<input class="w-full h-11 pl-10 pr-4 bg-surface-container-lowest text-on-surface rounded-xl font-body-md text-body-md placeholder:text-outline focus:outline-none focus:bg-surface-container-low shadow-sm transition-all" id="chat-search" placeholder="Hasta veya mesaj ara..." type="search"/>
+</div>
+<button aria-label="Filtre Seçenekleri" class="w-11 h-11 flex items-center justify-center rounded-xl bg-surface-container-lowest text-primary shadow-sm hover:bg-surface-container active:scale-95 transition-all flex-shrink-0" id="btn-filter-settings" type="button">
+<span class="material-symbols-outlined text-[20px]">tune</span>
+</button>
+</div>
+<!-- Filter Chips (Horizontal Scrollable) -->
+<div class="flex items-center gap-space-xs overflow-x-auto no-scrollbar pb-1 mb-margin-lg">
+<button class="filter-pill flex items-center gap-1.5 px-3.5 h-9 rounded-full bg-primary text-on-primary font-label-md text-label-md shadow-sm active:scale-95 transition-all flex-shrink-0" data-filter="all" type="button">
+<span>Tümü</span>
+<span class="px-1.5 py-0.2 rounded-full bg-primary-container text-on-primary-container font-label-sm text-label-sm">4</span>
+</button>
+<button class="filter-pill flex items-center gap-1.5 px-3.5 h-9 rounded-full bg-surface-container-lowest text-on-surface-variant font-label-md text-label-md shadow-sm hover:bg-surface-container-low active:scale-95 transition-all flex-shrink-0" data-filter="unread" type="button">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span>Okunmamış</span>
+<span class="px-1.5 py-0.2 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-semibold">2</span>
+</button>
+<button class="filter-pill flex items-center gap-1.5 px-3.5 h-9 rounded-full bg-surface-container-lowest text-on-surface-variant font-label-md text-label-md shadow-sm hover:bg-surface-container-low active:scale-95 transition-all flex-shrink-0" data-filter="urgent" type="button">
+<span class="material-symbols-outlined text-error text-[16px]">emergency</span>
+<span>Acil / Ağrı</span>
+</button>
+<button class="filter-pill flex items-center gap-1.5 px-3.5 h-9 rounded-full bg-surface-container-lowest text-on-surface-variant font-label-md text-label-md shadow-sm hover:bg-surface-container-low active:scale-95 transition-all flex-shrink-0" data-filter="post-op" type="button">
+<span class="material-symbols-outlined text-secondary text-[16px]">healing</span>
+<span>Tedavi Sonrası</span>
+</button>
+</div>
+<!-- Medical Fast Notice Tonal Banner -->
+<div class="flex items-center gap-space-sm p-3 rounded-xl bg-surface-container-low text-on-secondary-container mb-margin shadow-sm">
+<div class="w-8 h-8 rounded-lg bg-secondary-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-on-secondary-container text-[18px]">verified_user</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="font-label-sm text-label-sm text-on-surface truncate">Dentora Şifreli Hekim-Hasta Hattı</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Mesajlar ve tıbbi görseller KVKK / HIPAA uyumludur.</p>
+</div>
+</div>
+<!-- Chat List -->
+<div class="flex flex-col gap-space-sm" id="patient-chat-list">
+<!-- 1. Ahmet Arslan (Unread, Pain/Urgent Post-op) -->
+<div class="chat-card relative flex items-start gap-space-sm p-space-md rounded-2xl bg-surface-container-lowest shadow-sm hover:bg-surface-container-low/60 active:scale-[0.99] transition-all cursor-pointer" data-category="unread urgent post-op" data-patient="Ahmet Arslan">
+<div class="relative flex-shrink-0">
+<div class="w-13 h-13 rounded-full bg-surface-container-high overflow-hidden shadow-sm">
+<img class="w-12 h-12 rounded-full object-cover" data-alt="Professional clinical headshot portrait of a 40-year-old Turkish male patient Ahmet Arslan looking calm, clean medical teal and white clinical lighting, photorealistic high detail." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVGJgLCWI70eOuy56RZJrKWeM6T-Fxl41ltj6F_K_NR2oNhBzGLigh6GrdWGQn2O8m1kR4f0mk5sZACY-zJQvNyWGbCNJH6oex_titY_Z0gxUDISh2VKeEM8vVC5i9bYz_ENm3_OZ1Zcbt2nvDdOXqVqSMKBYasUrbjyjWN3346uM4bs261H31Aso2quDn86hEHQ8cKpRUKcMfI9dbNPws6kgox6bFj8VyCtw1vYc3"/>
+</div>
+<span class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-primary ring-2 ring-surface-container-lowest"></span>
+</div>
+<div class="flex-1 min-w-0 flex flex-col gap-1">
+<div class="flex items-baseline justify-between gap-space-xs">
+<div class="flex items-center gap-1.5 min-w-0">
+<h2 class="font-label-lg text-label-lg text-on-surface font-semibold truncate">Ahmet Arslan</h2>
+<span class="inline-flex items-center px-1.5 py-0.2 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm flex-shrink-0">Ağrı</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-medium flex-shrink-0">11:45</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface font-medium line-clamp-2">
+          Hocam dikiş bölgesinde hafif sızı var, verilen Apranax'ı alabilir miyim?
+        </p>
+<div class="flex items-center justify-between pt-1">
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[15px] text-primary">dentistry</span>
+<span class="font-body-sm text-body-sm">20'lik Cerrahi Çekim (Diş #48)</span>
+</div>
+<span class="min-w-[20px] h-5 px-1.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm flex items-center justify-center font-bold">1</span>
+</div>
+</div>
+</div>
+<!-- 2. Canan Demir (Pharmacy / Meds Update, Read confirmation) -->
+<div class="chat-card relative flex items-start gap-space-sm p-space-md rounded-2xl bg-surface-container-lowest shadow-sm hover:bg-surface-container-low/60 active:scale-[0.99] transition-all cursor-pointer" data-category="post-op" data-patient="Canan Demir">
+<div class="relative flex-shrink-0">
+<div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center overflow-hidden shadow-sm">
+<img class="w-12 h-12 rounded-full object-cover" data-alt="Close-up portrait of a smiling 30-year-old female patient Canan Demir with healthy dental smile, warm indoor medical studio ambiance, cyan and mint color palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuzn5B28yGPsxTmVk5Aon2chOAPdS5MUIIKP7oD2XpAZ--j65V1Wzs1Er_-kNH4y3x-aBY-RZ3xLe_lerHgFJuhYmC5C71Ko8qwRf6hH6YbykPT3CGrQV0pgHNxIM0kvNm2wtBL259tLJ1RYiCnUZnr7L7oFlmcevvamllFxqBh0C3hZtPmytfKSOac7Mjy3Uh4XWft33Als0DE2KWLCRdpYMrWFK4A4FpTdQo-mXs"/>
+</div>
+<span class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-outline-variant ring-2 ring-surface-container-lowest"></span>
+</div>
+<div class="flex-1 min-w-0 flex flex-col gap-1">
+<div class="flex items-baseline justify-between gap-space-xs">
+<h2 class="font-label-lg text-label-lg text-on-surface truncate">Canan Demir</h2>
+<span class="font-label-sm text-label-sm text-on-surface-variant flex-shrink-0">10:15</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-1">
+          Selin Hanım, reçetedeki gargarayı eczaneden temin ettim, teşekkürler.
+        </p>
+<div class="flex items-center justify-between pt-1">
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[15px]">medication</span>
+<span class="font-body-sm text-body-sm">Periodontoloji Takip</span>
+</div>
+<div class="flex items-center text-primary" title="Okundu">
+<span class="material-symbols-outlined text-[17px]">done_all</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 3. Zeynep Kaya (Attachment: X-Ray / Pre-appointment) -->
+<div class="chat-card relative flex items-start gap-space-sm p-space-md rounded-2xl bg-surface-container-lowest shadow-sm hover:bg-surface-container-low/60 active:scale-[0.99] transition-all cursor-pointer" data-category="unread" data-patient="Zeynep Kaya">
+<div class="relative flex-shrink-0">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center overflow-hidden shadow-sm">
+<img class="w-12 h-12 rounded-full object-cover" data-alt="Editorial portrait of a 27-year-old woman Zeynep Kaya wearing light neutral shirt, clean architectural backdrop, soft medical morning light, photorealistic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDID92s97JLiuiBMb3w-rssL8mEOno7SeswDM1VvAQK7lu0wYE4pYb8Kgc0WYTeK41B-LV96rg8QHtJlxVgAz7hFp57pn_F2UpFXj72M7KfnFXhFwHlXkhxawtEmTt7RUY6FIUpsXC-FJu0UVDj5zskNpqyJLWu2BkcOx0HCLWMuDiVUVWtkYWmyTF2IKuwdAZ2qWctqjahcofABuUPsQ9bVSXGtCQW3l2t5faMwbTf"/>
+</div>
+<span class="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-primary ring-2 ring-surface-container-lowest"></span>
+</div>
+<div class="flex-1 min-w-0 flex flex-col gap-1">
+<div class="flex items-baseline justify-between gap-space-xs">
+<div class="flex items-center gap-1.5 min-w-0">
+<h2 class="font-label-lg text-label-lg text-on-surface font-semibold truncate">Zeynep Kaya</h2>
+<span class="w-2 h-2 rounded-full bg-primary flex-shrink-0"></span>
+</div>
+<span class="font-label-sm text-label-sm text-primary font-medium flex-shrink-0">Dün</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface font-medium line-clamp-1">
+          Röntgen sonucumu sisteme yükledim, yarınki randevu öncesi bakabilir misiniz?
+        </p>
+<div class="flex items-center justify-between pt-1">
+<div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-surface-container text-secondary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[15px]">radiology</span>
+<span>Panoramik_Rontgen_0324.dcm</span>
+</div>
+<span class="min-w-[20px] h-5 px-1.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm flex items-center justify-center font-bold">1</span>
+</div>
+</div>
+</div>
+<!-- 4. Burak Yılmaz (Treatment follow-up success) -->
+<div class="chat-card relative flex items-start gap-space-sm p-space-md rounded-2xl bg-surface-container-lowest shadow-sm hover:bg-surface-container-low/60 active:scale-[0.99] transition-all cursor-pointer" data-category="post-op" data-patient="Burak Yılmaz">
+<div class="relative flex-shrink-0">
+<div class="w-12 h-12 rounded-full bg-tertiary-fixed flex items-center justify-center overflow-hidden shadow-sm">
+<img class="w-12 h-12 rounded-full object-cover" data-alt="Studio portrait of a 35-year-old male patient Burak Yılmaz smiling showing bright white teeth, teal accents, contemporary healthcare photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5Xvw4VOyjJfdAgOvz8uHX53plAr2IPSXnKl2reMuGzMCwQHnweN1rLcSs_W_qAk6OcnXh3C4CQDFrqaDVRvZZBrkFT9P07AQyBeYVa2KmqiaBr9CSnwmVlE-R43Ppr9CJ1jADZdLwkopxKLl8sQIW3t7ebNX_NTNKg9c0EcRMhfqyilJtu8IsZmh1w1pfY1VE51np1GthXFor8fYPo4zfYsSZa5ZxRyr7_rj4BeF-"/>
+</div>
+</div>
+<div class="flex-1 min-w-0 flex flex-col gap-1">
+<div class="flex items-baseline justify-between gap-space-xs">
+<h2 class="font-label-lg text-label-lg text-on-surface truncate">Burak Yılmaz</h2>
+<span class="font-label-sm text-label-sm text-on-surface-variant flex-shrink-0">15 Mart</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-1">
+          Beyazlatma sonrası hassasiyet tamamen geçti. Teşekkür ederim!
+        </p>
+<div class="flex items-center justify-between pt-1">
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-[15px]">auto_awesome</span>
+<span class="font-body-sm text-body-sm">Ofis Tipi Beyazlatma (Bleaching)</span>
+</div>
+<div class="flex items-center text-outline" title="İletildi">
+<span class="material-symbols-outlined text-[17px]">done_all</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Empty Search Feedback State (Hidden by default) -->
+<div class="hidden flex-col items-center justify-center text-center p-space-xl my-6 rounded-2xl bg-surface-container-low" id="empty-state">
+<div class="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center mb-space-sm text-primary">
+<span class="material-symbols-outlined text-[32px]">chat_bubble_outline</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">Eşleşen Görüşme Bulunamadı</h3>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-xs">
+      Arama kriterinize uygun hasta veya mesaj kaydı bulunamadı. Lütfen adı veya randevu konusunu kontrol edin.
+    </p>
+<button class="mt-space-md px-4 py-2 rounded-xl bg-surface-container-lowest text-primary font-label-md text-label-md shadow-sm active:scale-95 transition-all" id="btn-reset-filters" type="button">
+      Filtreleri Temizle
+    </button>
+</div>
+<!-- Sticky Modern Quick Action: New Patient Message Button -->
+<div class="sticky bottom-4 w-full mt-margin-lg z-20 flex justify-end">
+<button class="flex items-center gap-space-sm px-5 h-12 rounded-xl bg-primary text-on-primary font-label-lg text-label-lg shadow-md hover:bg-primary-container active:scale-95 transition-all" id="btn-new-message" type="button">
+<span class="material-symbols-outlined text-[20px]">edit_square</span>
+<span>Yeni Hasta Mesajı Başlat</span>
+</button>
+</div>
+</div>
+<script>
+  (function initDentoraChat() {
+    const searchInput = document.getElementById('chat-search');
+    const filterButtons = document.querySelectorAll('.filter-pill');
+    const chatCards = document.querySelectorAll('.chat-card');
+    const emptyState = document.getElementById('empty-state');
+    const btnReset = document.getElementById('btn-reset-filters');
+    const btnNewMsg = document.getElementById('btn-new-message');
+
+    let currentFilter = 'all';
+
+    function applyFilters() {
+      const query = (searchInput.value || '').toLowerCase().trim();
+      let visibleCount = 0;
+
+      chatCards.forEach(card => {
+        const categories = (card.getAttribute('data-category') || '').split(' ');
+        const patientName = (card.getAttribute('data-patient') || '').toLowerCase();
+        const cardText = card.innerText.toLowerCase();
+
+        const matchesFilter = (currentFilter === 'all') || categories.includes(currentFilter);
+        const matchesQuery = query === '' || patientName.includes(query) || cardText.includes(query);
+
+        if (matchesFilter && matchesQuery) {
+          card.classList.remove('hidden');
+          card.classList.add('flex');
+          visibleCount++;
+        } else {
+          card.classList.add('hidden');
+          card.classList.remove('flex');
+        }
+      });
+
+      if (visibleCount === 0) {
+        emptyState.classList.remove('hidden');
+        emptyState.classList.add('flex');
+      } else {
+        emptyState.classList.add('hidden');
+        emptyState.classList.remove('flex');
+      }
+    }
+
+    // Filter pill toggles
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterButtons.forEach(b => {
+          b.classList.remove('bg-primary', 'text-on-primary');
+          b.classList.add('bg-surface-container-lowest', 'text-on-surface-variant');
+        });
+        btn.classList.add('bg-primary', 'text-on-primary');
+        btn.classList.remove('bg-surface-container-lowest', 'text-on-surface-variant');
+
+        currentFilter = btn.getAttribute('data-filter');
+        applyFilters();
+      });
+    });
+
+    // Search query listener
+    if (searchInput) {
+      searchInput.addEventListener('input', applyFilters);
+    }
+
+    // Reset filters
+    if (btnReset) {
+      btnReset.addEventListener('click', () => {
+        if (searchInput) searchInput.value = '';
+        currentFilter = 'all';
+        filterButtons.forEach((b, idx) => {
+          if (idx === 0) {
+            b.classList.add('bg-primary', 'text-on-primary');
+            b.classList.remove('bg-surface-container-lowest', 'text-on-surface-variant');
+          } else {
+            b.classList.remove('bg-primary', 'text-on-primary');
+            b.classList.add('bg-surface-container-lowest', 'text-on-surface-variant');
+          }
+        });
+        applyFilters();
+      });
+    }
+
+    // Gentle feedback on chat click
+    chatCards.forEach(card => {
+      card.addEventListener('click', () => {
+        const patient = card.getAttribute('data-patient');
+        const badge = card.querySelector('.bg-primary.text-on-primary.rounded-full');
+        if (badge) {
+          badge.style.display = 'none';
+        }
+      });
+    });
+
+    if (btnNewMsg) {
+      btnNewMsg.addEventListener('click', () => {
+        searchInput.focus();
+      });
+    }
+  })();
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-2px_12px_rgba(10,77,104,0.05)]" data-active-classes="text-primary font-label-sm"><div class="flex justify-around items-center h-16 px-space-xs"><a class="flex flex-col items-center justify-center gap-0.5 min-w-[56px] h-12 text-on-surface-variant hover:text-on-surface transition-colors" data-path="ajanda" href="#"><span class="material-symbols-outlined text-[22px]">calendar_today</span><span class="font-label-sm text-label-sm">Ajanda</span></a><a class="flex flex-col items-center justify-center gap-0.5 min-w-[56px] h-12 text-on-surface-variant hover:text-on-surface transition-colors" data-path="recete-yaz" href="#"><span class="material-symbols-outlined text-[22px]">prescriptions</span><span class="font-label-sm text-label-sm">Reçete Yaz</span></a><a class="flex flex-col items-center justify-center gap-0.5 min-w-[56px] h-12 text-on-surface-variant hover:text-on-surface transition-colors" data-path="gecmis-hastalar" href="#"><span class="material-symbols-outlined text-[22px]">group</span><span class="font-label-sm text-label-sm">Geçmiş</span></a><a class="flex flex-col items-center justify-center gap-0.5 min-w-[56px] h-12 text-on-surface-variant hover:text-on-surface transition-colors" data-path="program" href="#"><span class="material-symbols-outlined text-[22px]">schedule</span><span class="font-label-sm text-label-sm">Program</span></a><a aria-current="page" class="relative flex flex-col items-center justify-center gap-0.5 min-w-[56px] h-12 transition-colors text-primary font-label-sm" data-path="mesajlar" href="#"><div class="relative"><span class="material-symbols-outlined text-[22px]">chat_bubble</span><span class="absolute -top-1 -right-2 px-1 min-w-[16px] h-4 rounded-full bg-error text-on-error font-label-sm text-[10px] flex items-center justify-center">2</span></div><span class="font-label-sm text-label-sm">Mesajlar</span></a></div></nav></body></html>

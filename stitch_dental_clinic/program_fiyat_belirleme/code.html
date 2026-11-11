@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="tr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;min-height:100%;margin:0;padding:0;}body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}.material-symbols-outlined{font-variation-settings:'FILL' 0,'wght' 500,'GRAD' 0,'opsz' 24;display:inline-block;line-height:1;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: 'class', theme: { extend: { colors: { 'primary-fixed-dim': '#76d4e7', 'inverse-on-surface': '#eaf1ff', 'on-tertiary-container': '#00060b', 'on-tertiary-fixed': '#071e27', 'on-secondary': '#ffffff', 'tertiary': '#4c616c', 'surface-container': '#e5eeff', 'on-tertiary': '#ffffff', 'primary-container': '#008092', 'surface-dim': '#cbdbf5', 'surface-container-lowest': '#ffffff', 'on-secondary-fixed-variant': '#084c67', 'on-secondary-fixed': '#001e2c', 'on-tertiary-fixed-variant': '#344a54', 'error-container': '#ffdad6', 'secondary-fixed': '#c3e8ff', 'surface': '#f8f9ff', 'tertiary-fixed-dim': '#b3cad6', 'inverse-primary': '#76d4e7', 'on-surface-variant': '#3e494b', 'surface-bright': '#f8f9ff', 'on-surface': '#0b1c30', 'tertiary-container': '#647a86', 'secondary': '#2c6480', 'on-error-container': '#93000a', 'background': '#f8f9ff', 'surface-variant': '#d3e4fe', 'on-primary-container': '#f8fdff', 'on-primary-fixed': '#001f25', 'inverse-surface': '#213145', 'error': '#ba1a1a', 'surface-container-highest': '#d3e4fe', 'outline': '#6e797c', 'on-secondary-container': '#2b637f', 'surface-tint': '#006877', 'surface-container-low': '#eff4ff', 'tertiary-fixed': '#cfe6f3', 'primary': '#006574', 'on-primary-fixed-variant': '#004e5a', 'primary-fixed': '#a3eeff', 'secondary-fixed-dim': '#98cded', 'on-primary': '#ffffff', 'on-background': '#0b1c30', 'secondary-container': '#a9deff', 'outline-variant': '#bdc8cb', 'on-error': '#ffffff', 'surface-container-high': '#dce9ff' }, borderRadius: { 'DEFAULT': '0.25rem', 'lg': '0.5rem', 'xl': '0.75rem', 'full': '9999px' }, spacing: { 'gutter-sm': '0.75rem', 'space-md': '1rem', 'gutter': '1rem', 'space-xs': '0.25rem', 'margin': '1rem', 'space-xl': '2rem', 'margin-lg': '1.25rem', 'space-lg': '1.5rem', 'space-sm': '0.5rem', 'margin-sm': '0.75rem' }, fontFamily: { 'headline-sm': ['Inter'], 'body-lg': ['Inter'], 'label-md': ['Inter'], 'headline-md': ['Inter'], 'label-sm': ['Inter'], 'body-sm': ['Inter'], 'headline-lg-mobile': ['Inter'], 'headline-lg': ['Inter'], 'body-md': ['Inter'], 'label-lg': ['Inter'] }, fontSize: { 'headline-sm': ['18px', { lineHeight: '24px', letterSpacing: '-0.005em', fontWeight: '600' }], 'body-lg': ['16px', { lineHeight: '22px', letterSpacing: '-0.005em', fontWeight: '400' }], 'label-md': ['13px', { lineHeight: '18px', letterSpacing: '0.01em', fontWeight: '500' }], 'headline-md': ['22px', { lineHeight: '28px', letterSpacing: '-0.01em', fontWeight: '600' }], 'label-sm': ['11px', { lineHeight: '14px', letterSpacing: '0.03em', fontWeight: '600' }], 'body-sm': ['12px', { lineHeight: '16px', letterSpacing: '0.01em', fontWeight: '400' }], 'headline-lg-mobile': ['28px', { lineHeight: '34px', letterSpacing: '-0.015em', fontWeight: '700' }], 'headline-lg': ['34px', { lineHeight: '41px', letterSpacing: '-0.02em', fontWeight: '700' }], 'body-md': ['14px', { lineHeight: '20px', letterSpacing: '0em', fontWeight: '400' }], 'label-lg': ['15px', { lineHeight: '20px', letterSpacing: '-0.005em', fontWeight: '600' }] } } } };</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface text-on-surface font-body-md text-body-md flex flex-col min-h-screen selection:bg-secondary-container"><header class="fixed top-0 w-full z-50 pt-safe bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(10,77,104,0.04)]"><div class="h-20 px-margin flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0 flex-1"><div class="w-11 h-11 rounded-full bg-primary-fixed flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-on-primary-fixed text-[24px]">person</span></div><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-xs"><h1 class="font-label-lg text-label-lg text-on-surface truncate">Dr. Selin Yılmaz</h1><span class="inline-flex items-center px-space-xs py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-label-sm text-label-sm flex-shrink-0">Nöbetçi</span></div><p class="font-body-sm text-body-sm text-on-surface-variant truncate">Ağız, Diş ve Çene Cerrahisi</p></div></div><div class="flex items-center gap-space-xs flex-shrink-0"><button aria-label="Bildirimler" class="relative w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container active:scale-95 transition-all" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-primary ring-2 ring-surface"></span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center flex-shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-20 pb-28 px-margin bg-surface flex-1"><div class="flex flex-col w-full pb-8">
+<!-- Segmented Control Tabs (iOS Style) -->
+<div class="p-1 rounded-xl bg-surface-container flex items-center mb-space-md shadow-sm">
+<button class="flex-1 py-2 px-space-xs rounded-lg bg-surface-container-lowest text-primary font-label-md text-label-md shadow-sm flex items-center justify-center gap-1.5 transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">payments</span>
+<span class="truncate">Fiyatlandırma (12)</span>
+</button>
+<button class="flex-1 py-2 px-space-xs rounded-lg text-on-surface-variant font-label-md text-label-md hover:text-on-surface flex items-center justify-center gap-1.5 transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">more_time</span>
+<span class="truncate">Çalışma &amp; Mola</span>
+</button>
+</div>
+<!-- Clinical Info Callout Banner -->
+<div class="rounded-2xl bg-surface-container-low p-space-md mb-space-md flex items-start gap-space-sm shadow-sm relative overflow-hidden">
+<div class="w-9 h-9 rounded-xl bg-primary-fixed flex items-center justify-center flex-shrink-0 text-on-primary-fixed">
+<span class="material-symbols-outlined text-[20px]">verified</span>
+</div>
+<div class="flex-1 min-w-0">
+<h2 class="font-label-lg text-label-lg text-on-surface">Tedavi &amp; Hizmet Tarifesi</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5 leading-relaxed">
+        Randevu alırken veya faturalandırmada geçerli olacak birim fiyatlarınızı güncelleyin.
+      </p>
+</div>
+<div class="flex-shrink-0 self-center">
+<span class="inline-flex items-center px-2 py-1 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm">
+        12 Hizmet
+      </span>
+</div>
+</div>
+<!-- Weekly Schedule Snapshot Card -->
+<div class="rounded-2xl bg-surface-container-lowest p-space-md mb-space-lg shadow-sm">
+<div class="flex items-center justify-between gap-space-sm mb-space-sm">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-lg bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed">
+<span class="material-symbols-outlined text-[18px]">calendar_month</span>
+</div>
+<h3 class="font-label-lg text-label-lg text-on-surface">Haftalık Çalışma &amp; Nöbet</h3>
+</div>
+<button class="px-2.5 py-1 rounded-full bg-surface-container text-primary font-label-sm text-label-sm active:scale-95 transition-transform flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-[14px]">edit</span>
+        Düzenle
+      </button>
+</div>
+<div class="grid grid-cols-2 gap-space-sm pt-1">
+<div class="p-2.5 rounded-xl bg-surface-container-low flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Mesai Saatleri</span>
+<div class="flex items-center gap-1.5 mt-1">
+<span class="material-symbols-outlined text-primary text-[16px]">schedule</span>
+<span class="font-label-md text-label-md text-on-surface">Pzt - Cmt: 09:00 - 18:00</span>
+</div>
+</div>
+<div class="p-2.5 rounded-xl bg-surface-container-low flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Öğle Arası</span>
+<div class="flex items-center gap-1.5 mt-1">
+<span class="material-symbols-outlined text-secondary text-[16px]">restaurant</span>
+<span class="font-label-md text-label-md text-on-surface">12:30 - 13:30</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Category & Price Editor Section Header -->
+<div class="flex items-center justify-between mb-space-sm px-1">
+<div class="flex items-center gap-2">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Kategori Birim Fiyatları</h3>
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Otomatik Kayıt Aktif</span>
+</div>
+<!-- List of 12 Procedure Pricing Cards -->
+<div class="flex flex-col gap-space-sm">
+<!-- 1. İlk Muayene & Teşhis -->
+<div class="rounded-2xl bg-surface-container-lowest p-space-md shadow-sm transition-all price-card" data-category="muayene">
+<div class="flex items-start justify-between gap-space-sm mb-2.5">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-8 h-8 rounded-xl bg-primary-fixed flex items-center justify-center text-primary flex-shrink-0">
+<span class="material-symbols-outlined text-[18px]">stethoscope</span>
+</div>
+<div class="min-w-0">
+<h4 class="font-label-lg text-label-lg text-on-surface truncate">İlk Muayene &amp; Teşhis</h4>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Radyoloji Dahil</span>
+</div>
+</div>
+<!-- Online Toggle -->
+<label class="flex items-center gap-1.5 cursor-pointer flex-shrink-0">
+<span class="font-label-sm text-label-sm text-primary">Online Randevu</span>
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-on-primary after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary relative"></div>
+</label>
+</div>
+<div class="flex items-center justify-between gap-space-sm pt-1">
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md flex items-center justify-center active:scale-95 transition-transform" onclick="adjustPrice(this, -100)" type="button">
+            -100
+          </button>
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md flex items-center justify-center active:scale-95 transition-transform" onclick="adjustPrice(this, 100)" type="button">
+            +100
+          </button>
+</div>
+<div class="flex items-center gap-1.5 bg-surface-container-low px-3 py-1.5 rounded-xl">
+<input class="w-20 bg-transparent text-right font-headline-sm text-headline-sm text-primary focus:outline-none price-input" type="number" value="450"/>
+<span class="font-label-lg text-label-lg text-on-surface-variant">₺</span>
+<span class="material-symbols-outlined text-outline text-[16px]">edit</span>
+</div>
+</div>
+</div>
+<!-- 2. Diş Taşı Temizliği & Detertraj -->
+<div class="rounded-2xl bg-surface-container-lowest p-space-md shadow-sm transition-all price-card" data-category="detertraj">
+<div class="flex items-start justify-between gap-space-sm mb-2.5">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-8 h-8 rounded-xl bg-secondary-fixed flex items-center justify-center text-secondary flex-shrink-0">
+<span class="material-symbols-outlined text-[18px]">dentistry</span>
+</div>
+<div class="min-w-0">
+<h4 class="font-label-lg text-label-lg text-on-surface truncate">Diş Taşı Temizliği &amp; Detertraj</h4>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Ultrasonik Bakım</span>
+</div>
+</div>
+<label class="flex items-center gap-1.5 cursor-pointer flex-shrink-0">
+<span class="font-label-sm text-label-sm text-primary">Online Randevu</span>
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-on-primary after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary relative"></div>
+</label>
+</div>
+<div class="flex items-center justify-between gap-space-sm pt-1">
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md flex items-center justify-center active:scale-95 transition-transform" onclick="adjustPrice(this, -100)" type="button">-100</button>
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md flex items-center justify-center active:scale-95 transition-transform" onclick="adjustPrice(this, 100)" type="button">+100</button>
+</div>
+<div class="flex items-center gap-1.5 bg-surface-container-low px-3 py-1.5 rounded-xl">
+<input class="w-20 bg-transparent text-right font-headline-sm text-headline-sm text-primary focus:outline-none price-input" type="number" value="1450"/>
+<span class="font-label-lg text-label-lg text-on-surface-variant">₺</span>
+<span class="material-symbols-outlined text-outline text-[16px]">edit</span>
+</div>
+</div>
+</div>
+<!-- 3. Kompozit Estetik Dolgu -->
+<div class="rounded-2xl bg-surface-container-lowest p-space-md shadow-sm transition-all price-card" data-category="dolgu">
+<div class="flex items-start justify-between gap-space-sm mb-2.5">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-8 h-8 rounded-xl bg-tertiary-fixed flex items-center justify-center text-tertiary flex-shrink-0">
+<span class="material-symbols-outlined text-[18px]">format_paint</span>
+</div>
+<div class="min-w-0">
+<h4 class="font-label-lg text-label-lg text-on-surface truncate">Kompozit Estetik Dolgu</h4>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Tek Yüzlü Tabakalama</span>
+</div>
+</div>
+<label class="flex items-center gap-1.5 cursor-pointer flex-shrink-0">
+<span class="font-label-sm text-label-sm text-primary">Online Randevu</span>
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-on-primary after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary relative"></div>
+</label>
+</div>
+<div class="flex items-center justify-between gap-space-sm pt-1">
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md flex items-center justify-center active:scale-95 transition-transform" onclick="adjustPrice(this, -100)" type="button">-100</button>
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md flex items-center justify-center active:scale-95 transition-transform" onclick="adjustPrice(this, 100)" type="button">+100</button>
+</div>
+<div class="flex items-center gap-1.5 bg-surface-container-low px-3 py-1.5 rounded-xl">
+<input class="w-20 bg-transparent text-right font-headline-sm text-headline-sm text-primary focus:outline-none price-input" type="number" value="1800"/>
+<span class="font-label-lg text-label-lg text-on-surface-variant">₺</span>
+<span class="material-symbols-outlined text-outline text-[16px]">edit</span>
+</div>
+</div>
+</div>
+<!-- 4. Kanal Tedavisi (Endodonti) -->
+<div class="rounded-2xl bg-surface-container-lowest p-space-md shadow-sm transition-all price-card" data-category="endodonti">
+<div class="flex items-start justify-between gap-space-sm mb-2.5">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-8 h-8 rounded-xl bg-primary-fixed flex items-center justify-center text-primary flex-shrink-0">
+<span class="material-symbols-outlined text-[18px]">healing</span>
+</div>
+<div class="min-w-0">
+<h4 class="font-label-lg text-label-lg text-on-surface truncate">Kanal Tedavisi (Endodonti)</h4>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Tek Kök / Döner Alet</span>
+</div>
+</div>
+<label class="flex items-center gap-1.5 cursor-pointer flex-shrink-0">
+<span class="font-label-sm text-label-sm text-primary">Online Randevu</span>
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-on-primary after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary relative"></div>
+</label>
+</div>
+<div class="flex items-center justify-between gap-space-sm pt-1">
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md flex items-center justify-center active:scale-95 transition-transform" onclick="adjustPrice(this, -100)" type="button">-100</button>
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md flex items-center justify-center active:scale-95 transition-transform" onclick="adjustPrice(this, 100)" type="button">+100</button>
+</div>
+<div class="flex items-center gap-1.5 bg-surface-container-low px-3 py-1.5 rounded-xl">
+<input class="w-20 bg-transparent text-right font-headline-sm text-headline-sm text-primary focus:outline-none price-input" type="number" value="3200"/>
+<span class="font-label-lg text-label-lg text-on-surface-variant">₺</span>
+<span class="material-symbols-outlined text-outline text-[16px]">edit</span>
+</div>
+</div>
+</div>
+<!-- 5. Diş Beyazlatma (Ofis Tipi) -->
+<div class="rounded-2xl bg-surface-container-lowest p-space-md shadow-sm transition-all price-card" data-category="beyazlatma">
+<div class="flex items-start justify-between gap-space-sm mb-2.5">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-8 h-8 rounded-xl bg-secondary-fixed flex items-center justify-center text-secondary flex-shrink-0">
+<span class="material-symbols-outlined text-[18px]">light_mode</span>
+</div>
+<div class="min-w-0">
+<h4 class="font-label-lg text-label-lg text-on-surface truncate">Diş Beyazlatma (Ofis)</h4>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Lazer Destekli Seans</span>
+</div>
+</div>
+<label class="flex items-center gap-1.5 cursor-pointer flex-shrink-0">
+<span class="font-label-sm text-label-sm text-primary">Online Randevu</span>
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-on-primary after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary relative"></div>
+</label>
+</div>
+<div class="flex items-center justify-between gap-space-sm pt-1">
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md flex items-center justify-center active:scale-95 transition-transform" onclick="adjustPrice(this, -100)" type="button">-100</button>
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md flex items-center justify-center active:scale-95 transition-transform" onclick="adjustPrice(this, 100)" type="button">+100</button>
+</div>
+<div class="flex items-center gap-1.5 bg-surface-container-low px-3 py-1.5 rounded-xl">
+<input class="w-20 bg-transparent text-right font-headline-sm text-headline-sm text-primary focus:outline-none price-input" type="number" value="5500"/>
+<span class="font-label-lg text-label-lg text-on-surface-variant">₺</span>
+<span class="material-symbols-outlined text-outline text-[16px]">edit</span>
+</div>
+</div>
+</div>
+<!-- 6. Zirkonyum Kaplama -->
+<div class="rounded-2xl bg-surface-container-lowest p-space-md shadow-sm transition-all price-card" data-category="zirkonyum">
+<div class="flex items-start justify-between gap-space-sm mb-2.5">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-8 h-8 rounded-xl bg-tertiary-fixed flex items-center justify-center text-tertiary flex-shrink-0">
+<span class="material-symbols-outlined text-[18px]">diamond</span>
+</div>
+<div class="min-w-0">
+<h4 class="font-label-lg text-label-lg text-on-surface truncate">Zirkonyum Kaplama</h4>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Monolitik Diş Başı</span>
+</div>
+</div>
+<label class="flex items-center gap-1.5 cursor-pointer flex-shrink-0">
+<span class="font-label-sm text-label-sm text-primary">Online Randevu</span>
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-on-primary after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary relative"></div>
+</label>
+</div>
+<div class="flex items-center justify-between gap-space-sm pt-1">
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md flex items-center justify-center active:scale-95 transition-transform" onclick="adjustPrice(this, -100)" type="button">-100</button>
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md flex items-center justify-center active:scale-95 transition-transform" onclick="adjustPrice(this, 100)" type="button">+100</button>
+</div>
+<div class="flex items-center gap-1.5 bg-surface-container-low px-3 py-1.5 rounded-xl">
+<input class="w-20 bg-transparent text-right font-headline-sm text-headline-sm text-primary focus:outline-none price-input" type="number" value="4800"/>
+<span class="font-label-lg text-label-lg text-on-surface-variant">₺</span>
+<span class="material-symbols-outlined text-outline text-[16px]">edit</span>
+</div>
+</div>
+</div>
+<!-- 7. Dental İmplant -->
+<div class="rounded-2xl bg-surface-container-lowest p-space-md shadow-sm transition-all price-card" data-category="implant">
+<div class="flex items-start justify-between gap-space-sm mb-2.5">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-8 h-8 rounded-xl bg-primary-fixed flex items-center justify-center text-primary flex-shrink-0">
+<span class="material-symbols-outlined text-[18px]">build</span>
+</div>
+<div class="min-w-0">
+<h4 class="font-label-lg text-label-lg text-on-surface truncate">Dental İmplant</h4>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Titanyum / Üst Yapı Hariç</span>
+</div>
+</div>
+<label class="flex items-center gap-1.5 cursor-pointer flex-shrink-0">
+<span class="font-label-sm text-label-sm text-primary">Online Randevu</span>
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-on-primary after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary relative"></div>
+</label>
+</div>
+<div class="flex items-center justify-between gap-space-sm pt-1">
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md flex items-center justify-center active:scale-95 transition-transform" onclick="adjustPrice(this, -100)" type="button">-100</button>
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md flex items-center justify-center active:scale-95 transition-transform" onclick="adjustPrice(this, 100)" type="button">+100</button>
+</div>
+<div class="flex items-center gap-1.5 bg-surface-container-low px-3 py-1.5 rounded-xl">
+<input class="w-24 bg-transparent text-right font-headline-sm text-headline-sm text-primary focus:outline-none price-input" type="number" value="14500"/>
+<span class="font-label-lg text-label-lg text-on-surface-variant">₺</span>
+<span class="material-symbols-outlined text-outline text-[16px]">edit</span>
+</div>
+</div>
+</div>
+<!-- 8. 20'lik Gömülü Diş Çekimi -->
+<div class="rounded-2xl bg-surface-container-lowest p-space-md shadow-sm transition-all price-card" data-category="cekimi">
+<div class="flex items-start justify-between gap-space-sm mb-2.5">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-8 h-8 rounded-xl bg-secondary-fixed flex items-center justify-center text-secondary flex-shrink-0">
+<span class="material-symbols-outlined text-[18px]">personal_injury</span>
+</div>
+<div class="min-w-0">
+<h4 class="font-label-lg text-label-lg text-on-surface truncate">20'lik Gömülü Diş Çekimi</h4>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Cerrahi Operasyon</span>
+</div>
+</div>
+<label class="flex items-center gap-1.5 cursor-pointer flex-shrink-0">
+<span class="font-label-sm text-label-sm text-primary">Online Randevu</span>
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-on-primary after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary relative"></div>
+</label>
+</div>
+<div class="flex items-center justify-between gap-space-sm pt-1">
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md flex items-center justify-center active:scale-95 transition-transform" onclick="adjustPrice(this, -100)" type="button">-100</button>
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md flex items-center justify-center active:scale-95 transition-transform" onclick="adjustPrice(this, 100)" type="button">+100</button>
+</div>
+<div class="flex items-center gap-1.5 bg-surface-container-low px-3 py-1.5 rounded-xl">
+<input class="w-20 bg-transparent text-right font-headline-sm text-headline-sm text-primary focus:outline-none price-input" type="number" value="2400"/>
+<span class="font-label-lg text-label-lg text-on-surface-variant">₺</span>
+<span class="material-symbols-outlined text-outline text-[16px]">edit</span>
+</div>
+</div>
+</div>
+<!-- 9. Şeffaf Plak Tedavisi -->
+<div class="rounded-2xl bg-surface-container-lowest p-space-md shadow-sm transition-all price-card" data-category="plak">
+<div class="flex items-start justify-between gap-space-sm mb-2.5">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-8 h-8 rounded-xl bg-tertiary-fixed flex items-center justify-center text-tertiary flex-shrink-0">
+<span class="material-symbols-outlined text-[18px]">all_inclusive</span>
+</div>
+<div class="min-w-0">
+<h4 class="font-label-lg text-label-lg text-on-surface truncate">Şeffaf Plak Tedavisi</h4>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Telsiz Ortodonti Paketi</span>
+</div>
+</div>
+<label class="flex items-center gap-1.5 cursor-pointer flex-shrink-0">
+<span class="font-label-sm text-label-sm text-primary">Online Randevu</span>
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-on-primary after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary relative"></div>
+</label>
+</div>
+<div class="flex items-center justify-between gap-space-sm pt-1">
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md flex items-center justify-center active:scale-95 transition-transform" onclick="adjustPrice(this, -100)" type="button">-100</button>
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md flex items-center justify-center active:scale-95 transition-transform" onclick="adjustPrice(this, 100)" type="button">+100</button>
+</div>
+<div class="flex items-center gap-1.5 bg-surface-container-low px-3 py-1.5 rounded-xl">
+<input class="w-24 bg-transparent text-right font-headline-sm text-headline-sm text-primary focus:outline-none price-input" type="number" value="28000"/>
+<span class="font-label-lg text-label-lg text-on-surface-variant">₺</span>
+<span class="material-symbols-outlined text-outline text-[16px]">edit</span>
+</div>
+</div>
+</div>
+<!-- 10. Pedodonti (Çocuk Diş) -->
+<div class="rounded-2xl bg-surface-container-lowest p-space-md shadow-sm transition-all price-card" data-category="pedodonti">
+<div class="flex items-start justify-between gap-space-sm mb-2.5">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-8 h-8 rounded-xl bg-primary-fixed flex items-center justify-center text-primary flex-shrink-0">
+<span class="material-symbols-outlined text-[18px]">child_care</span>
+</div>
+<div class="min-w-0">
+<h4 class="font-label-lg text-label-lg text-on-surface truncate">Pedodonti (Çocuk Diş)</h4>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Flor &amp; Fissür Örtücü</span>
+</div>
+</div>
+<label class="flex items-center gap-1.5 cursor-pointer flex-shrink-0">
+<span class="font-label-sm text-label-sm text-primary">Online Randevu</span>
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-on-primary after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary relative"></div>
+</label>
+</div>
+<div class="flex items-center justify-between gap-space-sm pt-1">
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md flex items-center justify-center active:scale-95 transition-transform" onclick="adjustPrice(this, -100)" type="button">-100</button>
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md flex items-center justify-center active:scale-95 transition-transform" onclick="adjustPrice(this, 100)" type="button">+100</button>
+</div>
+<div class="flex items-center gap-1.5 bg-surface-container-low px-3 py-1.5 rounded-xl">
+<input class="w-20 bg-transparent text-right font-headline-sm text-headline-sm text-primary focus:outline-none price-input" type="number" value="1200"/>
+<span class="font-label-lg text-label-lg text-on-surface-variant">₺</span>
+<span class="material-symbols-outlined text-outline text-[16px]">edit</span>
+</div>
+</div>
+</div>
+<!-- 11. Gülüş Tasarımı / Lamine -->
+<div class="rounded-2xl bg-surface-container-lowest p-space-md shadow-sm transition-all price-card" data-category="lamine">
+<div class="flex items-start justify-between gap-space-sm mb-2.5">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-8 h-8 rounded-xl bg-secondary-fixed flex items-center justify-center text-secondary flex-shrink-0">
+<span class="material-symbols-outlined text-[18px]">sentiment_satisfied</span>
+</div>
+<div class="min-w-0">
+<h4 class="font-label-lg text-label-lg text-on-surface truncate">Gülüş Tasarımı / Lamine</h4>
+<span class="font-body-sm text-body-sm text-on-surface-variant">E-max Porselen Yaprak</span>
+</div>
+</div>
+<label class="flex items-center gap-1.5 cursor-pointer flex-shrink-0">
+<span class="font-label-sm text-label-sm text-primary">Online Randevu</span>
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-on-primary after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary relative"></div>
+</label>
+</div>
+<div class="flex items-center justify-between gap-space-sm pt-1">
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md flex items-center justify-center active:scale-95 transition-transform" onclick="adjustPrice(this, -100)" type="button">-100</button>
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md flex items-center justify-center active:scale-95 transition-transform" onclick="adjustPrice(this, 100)" type="button">+100</button>
+</div>
+<div class="flex items-center gap-1.5 bg-surface-container-low px-3 py-1.5 rounded-xl">
+<input class="w-20 bg-transparent text-right font-headline-sm text-headline-sm text-primary focus:outline-none price-input" type="number" value="6500"/>
+<span class="font-label-lg text-label-lg text-on-surface-variant">₺</span>
+<span class="material-symbols-outlined text-outline text-[16px]">edit</span>
+</div>
+</div>
+</div>
+<!-- 12. Çene Cerrahisi -->
+<div class="rounded-2xl bg-surface-container-lowest p-space-md shadow-sm transition-all price-card" data-category="cene">
+<div class="flex items-start justify-between gap-space-sm mb-2.5">
+<div class="flex items-center gap-2.5 min-w-0">
+<div class="w-8 h-8 rounded-xl bg-tertiary-fixed flex items-center justify-center text-tertiary flex-shrink-0">
+<span class="material-symbols-outlined text-[18px]">medical_services</span>
+</div>
+<div class="min-w-0">
+<h4 class="font-label-lg text-label-lg text-on-surface truncate">Çene Cerrahisi</h4>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Apikal Rezeksiyon &amp; Kist</span>
+</div>
+</div>
+<label class="flex items-center gap-1.5 cursor-pointer flex-shrink-0">
+<span class="font-label-sm text-label-sm text-primary">Online Randevu</span>
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-9 h-5 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-on-primary after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary relative"></div>
+</label>
+</div>
+<div class="flex items-center justify-between gap-space-sm pt-1">
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md flex items-center justify-center active:scale-95 transition-transform" onclick="adjustPrice(this, -100)" type="button">-100</button>
+<button class="w-8 h-8 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md flex items-center justify-center active:scale-95 transition-transform" onclick="adjustPrice(this, 100)" type="button">+100</button>
+</div>
+<div class="flex items-center gap-1.5 bg-surface-container-low px-3 py-1.5 rounded-xl">
+<input class="w-20 bg-transparent text-right font-headline-sm text-headline-sm text-primary focus:outline-none price-input" type="number" value="5000"/>
+<span class="font-label-lg text-label-lg text-on-surface-variant">₺</span>
+<span class="material-symbols-outlined text-outline text-[16px]">edit</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Clinical Quality & VAT Guarantee Note -->
+<div class="mt-space-md p-space-md rounded-2xl bg-surface-container-low flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-secondary text-[22px] flex-shrink-0">info</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+      Belirtilen tutarlar Türk Dişhekimleri Birliği (TDB) taban fiyat tarifesi ile uyumlu olup %10 KDV dahildir.
+    </p>
+</div>
+<!-- Sticky Save Changes Action Bar -->
+<div class="sticky bottom-0 left-0 right-0 pt-space-md pb-space-xs mt-space-md bg-gradient-to-t from-surface via-surface to-transparent">
+<button class="w-full h-[52px] rounded-xl bg-primary text-on-primary font-label-lg text-label-lg shadow-md flex items-center justify-center gap-2 active:scale-[0.98] transition-all hover:bg-primary-container" id="save-button" type="button">
+<span class="material-symbols-outlined text-[20px]" id="save-icon">check_circle</span>
+<span id="save-text">Fiyat ve Program Değişikliklerini Kaydet</span>
+</button>
+</div>
+</div>
+<script>
+  function adjustPrice(button, delta) {
+    const card = button.closest('.price-card');
+    const input = card.querySelector('.price-input');
+    let currentVal = parseInt(input.value, 10) || 0;
+    currentVal = Math.max(0, currentVal + delta);
+    input.value = currentVal;
+    
+    // Tactile micro-animation
+    card.classList.add('scale-[0.99]');
+    setTimeout(() => card.classList.remove('scale-[0.99]'), 120);
+  }
+
+  // Quick Save Feedback
+  const saveBtn = document.getElementById('save-button');
+  const saveText = document.getElementById('save-text');
+  const saveIcon = document.getElementById('save-icon');
+
+  if (saveBtn) {
+    saveBtn.addEventListener('click', () => {
+      saveBtn.classList.add('bg-primary-container');
+      saveIcon.textContent = 'done_all';
+      saveText.textContent = 'Değişiklikler Kaydedildi!';
+      
+      setTimeout(() => {
+        saveIcon.textContent = 'check_circle';
+        saveText.textContent = 'Fiyat ve Program Değişikliklerini Kaydet';
+        saveBtn.classList.remove('bg-primary-container');
+      }, 2000);
+    });
+  }
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface/90 backdrop-blur-xl shadow-[0_-2px_12px_rgba(10,77,104,0.05)]" data-active-classes="text-primary font-label-sm"><div class="flex justify-around items-center h-16 px-space-xs"><a class="flex flex-col items-center justify-center gap-0.5 min-w-[56px] h-12 text-on-surface-variant hover:text-on-surface transition-colors" data-path="ajanda" href="#"><span class="material-symbols-outlined text-[22px]">calendar_today</span><span class="font-label-sm text-label-sm">Ajanda</span></a><a class="flex flex-col items-center justify-center gap-0.5 min-w-[56px] h-12 text-on-surface-variant hover:text-on-surface transition-colors" data-path="recete-yaz" href="#"><span class="material-symbols-outlined text-[22px]">prescriptions</span><span class="font-label-sm text-label-sm">Reçete Yaz</span></a><a class="flex flex-col items-center justify-center gap-0.5 min-w-[56px] h-12 text-on-surface-variant hover:text-on-surface transition-colors" data-path="gecmis-hastalar" href="#"><span class="material-symbols-outlined text-[22px]">group</span><span class="font-label-sm text-label-sm">Geçmiş</span></a><a aria-current="page" class="flex flex-col items-center justify-center gap-0.5 min-w-[56px] h-12 transition-colors text-primary font-label-sm" data-path="program" href="#"><span class="material-symbols-outlined text-[22px]">schedule</span><span class="font-label-sm text-label-sm">Program</span></a><a class="relative flex flex-col items-center justify-center gap-0.5 min-w-[56px] h-12 text-on-surface-variant hover:text-on-surface transition-colors" data-path="mesajlar" href="#"><div class="relative"><span class="material-symbols-outlined text-[22px]">chat_bubble</span><span class="absolute -top-1 -right-2 px-1 min-w-[16px] h-4 rounded-full bg-error text-on-error font-label-sm text-[10px] flex items-center justify-center">2</span></div><span class="font-label-sm text-label-sm">Mesajlar</span></a></div></nav></body></html>
