@@ -1,7 +1,12 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/validators.dart';
+import '../../cubits/auth/auth_cubit.dart';
+import '../../cubits/auth/auth_state.dart';
 import '../../widgets/dentora_logo.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
@@ -14,21 +19,44 @@ class ForgotPasswordScreen extends StatefulWidget {
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final TextEditingController _emailController = TextEditingController();
   bool _showSentToast = false;
+  Timer? _toastTimer;
 
   @override
   void dispose() {
+    _toastTimer?.cancel();
     _emailController.dispose();
     super.dispose();
   }
 
   void _sendResetLink() {
-    if (_emailController.text.trim().isEmpty) {
-      _emailController.text = 'zeynep.demir@eposta.com';
+    final email = _emailController.text.trim();
+    final validationError = AppValidators.validateEmail(email);
+
+    if (validationError != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(validationError),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
+      return;
     }
+
+    final authCubit = context.read<AuthCubit>();
+    authCubit.clearMessages();
+    authCubit.sendPasswordReset(email: email);
+  }
+
+  void _triggerSuccessToast() {
+    _toastTimer?.cancel();
     setState(() {
       _showSentToast = true;
     });
-    Future.delayed(const Duration(seconds: 3), () {
+    _toastTimer = Timer(const Duration(seconds: 3), () {
       if (mounted) {
         setState(() {
           _showSentToast = false;
@@ -39,10 +67,53 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.surface,
-      body: Stack(
-        children: [
+    return BlocConsumer<AuthCubit, AuthState>(
+      listenWhen: (previous, current) =>
+          previous.actionStatus != current.actionStatus,
+      listener: (context, state) {
+        if (state.actionStatus.isSucceeded) {
+          _triggerSuccessToast();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                state.infoMessage ??
+                    'Şifre sıfırlama bağlantısı e-posta adresinize gönderildi.',
+              ),
+              backgroundColor: AppColors.primary,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          );
+          context.read<AuthCubit>().clearMessages();
+        } else if (state.actionStatus.isFailed) {
+          setState(() {
+            _showSentToast = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                state.errorMessage ??
+                    'Şifre sıfırlama bağlantısı gönderilemedi.',
+              ),
+              backgroundColor: AppColors.error,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          );
+          context.read<AuthCubit>().clearMessages();
+        }
+      },
+      builder: (context, authState) {
+        final isSubmitting = authState.actionStatus.isSubmitting;
+
+        return Scaffold(
+          backgroundColor: AppColors.surface,
+          body: Stack(
+            children: [
           SafeArea(
             child: Column(
               children: [
@@ -325,34 +396,63 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                                     ],
                                   ),
                                   child: ElevatedButton(
-                                    onPressed: _sendResetLink,
+                                    onPressed: isSubmitting
+                                        ? null
+                                        : _sendResetLink,
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.transparent,
                                       shadowColor: Colors.transparent,
+                                      disabledBackgroundColor:
+                                          Colors.transparent,
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(14),
                                       ),
                                     ),
-                                    child: const Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          'Şifre Sıfırlama Bağlantısı Gönder',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w700,
-                                            color: Colors.white,
+                                    child: isSubmitting
+                                        ? const Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              SizedBox(
+                                                width: 18,
+                                                height: 18,
+                                                child:
+                                                    CircularProgressIndicator(
+                                                      strokeWidth: 2.2,
+                                                      color: Colors.white,
+                                                    ),
+                                              ),
+                                              SizedBox(width: 10),
+                                              Text(
+                                                'Gönderiliyor...',
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        : const Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                'Şifre Sıfırlama Bağlantısı Gönder',
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                              SizedBox(width: 8),
+                                              Icon(
+                                                Symbols.send,
+                                                size: 18,
+                                                color: Colors.white,
+                                              ),
+                                            ],
                                           ),
-                                        ),
-                                        SizedBox(width: 8),
-                                        Icon(
-                                          Symbols.send,
-                                          size: 18,
-                                          color: Colors.white,
-                                        ),
-                                      ],
-                                    ),
                                   ),
                                 ),
                               ),
@@ -481,6 +581,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             ),
         ],
       ),
+    );
+      },
     );
   }
 }

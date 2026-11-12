@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/validators.dart';
+import '../../cubits/auth/auth_cubit.dart';
+import '../../cubits/auth/auth_state.dart';
 import '../../widgets/dentora_logo.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -62,11 +66,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
-    if (_isDoctorRole) {
-      context.go('/doctor/agenda');
-    } else {
-      context.go('/patient/home');
-    }
+    final authCubit = context.read<AuthCubit>();
+    authCubit.clearMessages();
+    authCubit.signUp(
+      email: _emailController.text.trim(),
+      password: pass,
+      fullName: _nameController.text.trim(),
+      role: _isDoctorRole ? AppConstants.roleDoctor : AppConstants.rolePatient,
+      phone: _phoneController.text.trim(),
+      tcNo: _tcController.text.trim(),
+    );
   }
 
   @override
@@ -90,105 +99,205 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final hasSpecial = AppValidators.hasSpecialChar(pass);
     final isPassMatch = pass.isNotEmpty && pass == confirmPass;
 
-    return Scaffold(
-      backgroundColor: AppColors.surface,
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    // 1. Minimal Top Bar
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return BlocConsumer<AuthCubit, AuthState>(
+      listenWhen: (previous, current) =>
+          previous.actionStatus != current.actionStatus ||
+          previous.sessionStatus != current.sessionStatus,
+      listener: (context, state) {
+        if (state.actionStatus.isSucceeded && state.isAuthenticated) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text(
+                'Hesabınız başarıyla oluşturuldu. Hoş geldiniz!',
+              ),
+              backgroundColor: AppColors.primary,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          );
+
+          context.read<AuthCubit>().clearMessages();
+          if (state.isDoctor) {
+            context.go('/doctor/agenda');
+          } else {
+            context.go('/patient/home');
+          }
+          return;
+        }
+
+        if (state.actionStatus.isFailed ||
+            state.sessionStatus.isProfileUnavailable) {
+          final rawError = state.errorMessage ?? '';
+          final isDoctorBlocked =
+              _isDoctorRole &&
+              (state.sessionStatus.isProfileUnavailable ||
+                  rawError.toLowerCase().contains('permission') ||
+                  rawError.toLowerCase().contains('yetki') ||
+                  rawError.toLowerCase().contains('beklenmeyen') ||
+                  rawError.toLowerCase().contains('profil'));
+
+          final message = isDoctorBlocked
+              ? 'Doktor kaydı Firebase güvenlik kuralları (Security Rules) tarafından engellendi: İstemci üzerinden doğrudan doktor rolü atanamaz, doktor hesapları klinik yönetimi tarafından tanımlanmalıdır.'
+              : (rawError.isNotEmpty
+                    ? rawError
+                    : 'Kayıt işlemi sırasında bir hata oluştu.');
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(message),
+              backgroundColor: AppColors.error,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          );
+          context.read<AuthCubit>().clearMessages();
+        }
+      },
+      builder: (context, authState) {
+        final isSubmitting = authState.actionStatus.isSubmitting;
+
+        return Scaffold(
+          backgroundColor: AppColors.surface,
+          body: SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 420),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
                       children: [
-                        IconButton(
-                          onPressed: () => context.go('/login'),
-                          icon: const Icon(
-                            Symbols.arrow_back,
-                            size: 20,
-                            color: AppColors.onSurface,
-                          ),
-                        ),
-                        const Row(
+                        // 1. Minimal Top Bar
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            DentoraLogo(size: 32),
-                            SizedBox(width: 8),
-                            Text(
-                              'Dentora',
-                              style: TextStyle(
-                                fontFamily: 'Plus Jakarta Sans',
-                                fontSize: 18,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.primary,
+                            IconButton(
+                              onPressed: () => context.go('/login'),
+                              icon: const Icon(
+                                Symbols.arrow_back,
+                                size: 20,
+                                color: AppColors.onSurface,
                               ),
                             ),
-                          ],
-                        ),
-                        const SizedBox(width: 40),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-
-                    // 2. Main Registration Card
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: AppColors.surfaceContainerLowest,
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(
-                          color: AppColors.surfaceContainerHigh,
-                        ),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Yeni Hesap Oluştur',
-                            style: TextStyle(
-                              fontFamily: 'Plus Jakarta Sans',
-                              fontSize: 20,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.onSurface,
-                            ),
-                          ),
-                          const SizedBox(height: 14),
-
-                          // Role Switcher
-                          Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: AppColors.surfaceContainerLow,
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            child: Row(
+                            const Row(
                               children: [
-                                Expanded(
-                                  child: _buildRoleTab(
-                                    label: 'Hasta',
-                                    icon: Symbols.person_add,
-                                    selected: !_isDoctorRole,
-                                    onTap: () =>
-                                        setState(() => _isDoctorRole = false),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: _buildRoleTab(
-                                    label: 'Doktor',
-                                    icon: Symbols.medical_services,
-                                    selected: _isDoctorRole,
-                                    onTap: () =>
-                                        setState(() => _isDoctorRole = true),
+                                DentoraLogo(size: 32),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Dentora',
+                                  style: TextStyle(
+                                    fontFamily: 'Plus Jakarta Sans',
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w800,
+                                    color: AppColors.primary,
                                   ),
                                 ),
                               ],
                             ),
+                            const SizedBox(width: 40),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+
+                        // 2. Main Registration Card
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceContainerLowest,
+                            borderRadius: BorderRadius.circular(24),
+                            border: Border.all(
+                              color: AppColors.surfaceContainerHigh,
+                            ),
                           ),
-                          const SizedBox(height: 14),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Yeni Hesap Oluştur',
+                                style: TextStyle(
+                                  fontFamily: 'Plus Jakarta Sans',
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.onSurface,
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+
+                              // Role Switcher
+                              Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: AppColors.surfaceContainerLow,
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: _buildRoleTab(
+                                        label: 'Hasta',
+                                        icon: Symbols.person_add,
+                                        selected: !_isDoctorRole,
+                                        onTap: () => setState(
+                                          () => _isDoctorRole = false,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: _buildRoleTab(
+                                        label: 'Doktor',
+                                        icon: Symbols.medical_services,
+                                        selected: _isDoctorRole,
+                                        onTap: () => setState(
+                                          () => _isDoctorRole = true,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (_isDoctorRole) ...[
+                                const SizedBox(height: 10),
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.errorContainer.withValues(
+                                      alpha: 0.45,
+                                    ),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: const Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Icon(
+                                        Symbols.info,
+                                        size: 16,
+                                        color: AppColors.onErrorContainer,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          'Güvenlik kuralları (Security Rules) gereği doktor hesapları klinik yönetimi tarafından tanımlanır; istemci üzerinden doktor kaydı engellenebilir.',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            height: 1.35,
+                                            color: AppColors.onErrorContainer,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                              const SizedBox(height: 14),
 
                           // Ad Soyad
                           _buildLabel('AD SOYAD'),
@@ -459,22 +568,49 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 borderRadius: BorderRadius.circular(14),
                               ),
                               child: ElevatedButton(
-                                onPressed: _handleRegister,
+                                onPressed: isSubmitting
+                                    ? null
+                                    : _handleRegister,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.transparent,
                                   shadowColor: Colors.transparent,
+                                  disabledBackgroundColor: Colors.transparent,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(14),
                                   ),
                                 ),
-                                child: const Text(
-                                  'Kayıt Ol',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white,
-                                  ),
-                                ),
+                                child: isSubmitting
+                                    ? const Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          SizedBox(
+                                            width: 18,
+                                            height: 18,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2.2,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          SizedBox(width: 10),
+                                          Text(
+                                            'Kayıt Oluşturuluyor...',
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w700,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : const Text(
+                                        'Kayıt Ol',
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white,
+                                        ),
+                                      ),
                               ),
                             ),
                           ),
@@ -513,6 +649,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         ),
       ),
+    );
+      },
     );
   }
 

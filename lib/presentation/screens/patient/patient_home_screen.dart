@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../cubits/appointment/appointment_cubit.dart';
+import '../../cubits/auth/auth_cubit.dart';
+import '../../cubits/doctor_schedule/doctor_schedule_cubit.dart';
 import '../../widgets/dentora_logo.dart';
 
 class PatientHomeScreen extends StatefulWidget {
@@ -74,6 +78,36 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = context.watch<AuthCubit>().state;
+    final appointmentState = context.watch<AppointmentCubit>().state;
+    final scheduleState = context.watch<DoctorScheduleCubit>().state;
+
+    final userName = authState.user?.fullName.trim();
+    final greetingName = (userName != null && userName.isNotEmpty)
+        ? userName
+        : 'Ahmet Bey';
+
+    final nextAppointment = appointmentState.nextAppointment;
+    final hasLiveAppointment = nextAppointment != null;
+    final isAuthenticated = authState.isAuthenticated;
+
+    final activeProcedures = scheduleState.activeProcedures;
+    final displayedTariffs = activeProcedures.isNotEmpty
+        ? activeProcedures
+              .map(
+                (p) => {
+                  'title': p.title,
+                  'subtitle': p.subtitle.isNotEmpty
+                      ? p.subtitle
+                      : (p.category.isNotEmpty
+                            ? p.category
+                            : '${p.durationMinutes} dk seans'),
+                  'price': '${p.price} ₺',
+                },
+              )
+              .toList(growable: false)
+        : _tariffs;
+
     return Scaffold(
       backgroundColor: AppColors.surface,
       body: SafeArea(
@@ -97,9 +131,9 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    const Text(
-                      'Merhaba, Ahmet Bey',
-                      style: TextStyle(
+                    Text(
+                      'Merhaba, $greetingName',
+                      style: const TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
                         letterSpacing: -0.5,
@@ -161,9 +195,11 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                                       ),
                                     ),
                                     const SizedBox(width: 6),
-                                    const Text(
-                                      'Yaklaşan Randevu',
-                                      style: TextStyle(
+                                    Text(
+                                      appointmentState.listStatus.isLoading
+                                          ? 'Randevular Yükleniyor...'
+                                          : 'Yaklaşan Randevu',
+                                      style: const TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w700,
                                         color: AppColors.onSecondaryFixed,
@@ -174,8 +210,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                               ),
                               InkWell(
                                 borderRadius: BorderRadius.circular(8),
-                                onTap: () =>
-                                    context.push('/patient/book-calendar'),
+                                onTap: () => context.go('/patient/appointments'),
                                 child: const Padding(
                                   padding: EdgeInsets.symmetric(
                                     horizontal: 4,
@@ -205,84 +240,171 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                           ),
                           const SizedBox(height: 16),
 
-                          // Doctor & Procedure Info
-                          Row(
-                            children: [
-                              Stack(
-                                clipBehavior: Clip.none,
+                          if (isAuthenticated &&
+                              !hasLiveAppointment &&
+                              !appointmentState.listStatus.isLoading) ...[
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                color: AppColors.surfaceContainerLow,
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: const Row(
                                 children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(14),
-                                    child: Image.asset(
-                                      'assets/images/dr_selin_home.png',
-                                      width: 56,
-                                      height: 56,
-                                      fit: BoxFit.cover,
-                                    ),
+                                  Icon(
+                                    Symbols.event_available,
+                                    size: 22,
+                                    color: AppColors.primary,
                                   ),
-                                  Positioned(
-                                    bottom: -4,
-                                    right: -4,
-                                    child: Container(
-                                      width: 22,
-                                      height: 22,
-                                      decoration: BoxDecoration(
-                                        color: AppColors.primary,
-                                        borderRadius: BorderRadius.circular(7),
-                                        border: Border.all(
-                                          color: Colors.white,
-                                          width: 1.5,
-                                        ),
-                                      ),
-                                      child: const Icon(
-                                        Symbols.verified,
-                                        size: 13,
-                                        fill: 1,
-                                        color: Colors.white,
+                                  SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      'Henüz planlanmış yaklaşan bir randevunuz bulunmuyor. Aşağıdan yeni randevu oluşturabilirsiniz.',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: AppColors.onSurfaceVariant,
                                       ),
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(width: 14),
-                              const Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                            ),
+                          ] else ...[
+                            // Doctor & Procedure Info
+                            Row(
+                              children: [
+                                Stack(
+                                  clipBehavior: Clip.none,
                                   children: [
-                                    Text(
-                                      'Dt. Selin Yılmaz',
-                                      style: TextStyle(
-                                        fontSize: 17,
-                                        fontWeight: FontWeight.w700,
-                                        color: AppColors.onSurface,
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(14),
+                                      child: Image.asset(
+                                        'assets/images/dr_selin_home.png',
+                                        width: 56,
+                                        height: 56,
+                                        fit: BoxFit.cover,
                                       ),
                                     ),
-                                    SizedBox(height: 2),
-                                    Text(
-                                      'Kanal Tedavisi & Genel Muayene',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        color: AppColors.onSurfaceVariant,
+                                    Positioned(
+                                      bottom: -4,
+                                      right: -4,
+                                      child: Container(
+                                        width: 22,
+                                        height: 22,
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primary,
+                                          borderRadius: BorderRadius.circular(7),
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        child: const Icon(
+                                          Symbols.verified,
+                                          size: 13,
+                                          fill: 1,
+                                          color: Colors.white,
+                                        ),
                                       ),
                                     ),
                                   ],
                                 ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-
-                          // Date & Time Bar
-                          Container(
-                            padding: const EdgeInsets.all(14),
-                            decoration: BoxDecoration(
-                              color: AppColors.surfaceContainerLow,
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            child: Row(
-                              children: [
+                                const SizedBox(width: 14),
                                 Expanded(
-                                  child: Row(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        'Dt. Selin Yılmaz',
+                                        style: TextStyle(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.onSurface,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        hasLiveAppointment &&
+                                                nextAppointment.title.isNotEmpty
+                                            ? nextAppointment.title
+                                            : 'Kanal Tedavisi & Genel Muayene',
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: AppColors.onSurfaceVariant,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Date & Time Bar
+                            Container(
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                color: AppColors.surfaceContainerLow,
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          width: 36,
+                                          height: 36,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          child: const Icon(
+                                            Symbols.event,
+                                            size: 20,
+                                            color: AppColors.primary,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            const Text(
+                                              'TARİH',
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w600,
+                                                color:
+                                                    AppColors.onSurfaceVariant,
+                                              ),
+                                            ),
+                                            Text(
+                                              hasLiveAppointment
+                                                  ? nextAppointment
+                                                        .formattedDate
+                                                  : '24 Ekim Perşembe',
+                                              style: const TextStyle(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w700,
+                                                color: AppColors.onSurface,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    width: 1,
+                                    height: 32,
+                                    color: AppColors.surfaceContainerHighest,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Row(
                                     children: [
                                       Container(
                                         width: 36,
@@ -293,18 +415,18 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                                               BorderRadius.circular(10),
                                         ),
                                         child: const Icon(
-                                          Symbols.event,
+                                          Symbols.schedule,
                                           size: 20,
                                           color: AppColors.primary,
                                         ),
                                       ),
                                       const SizedBox(width: 10),
-                                      const Column(
+                                      Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            'TARİH',
+                                          const Text(
+                                            'SAAT',
                                             style: TextStyle(
                                               fontSize: 10,
                                               fontWeight: FontWeight.w600,
@@ -312,8 +434,13 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                                             ),
                                           ),
                                           Text(
-                                            '24 Ekim Perşembe',
-                                            style: TextStyle(
+                                            hasLiveAppointment &&
+                                                    nextAppointment
+                                                        .timeSlot
+                                                        .isNotEmpty
+                                                ? nextAppointment.timeSlot
+                                                : '14:30',
+                                            style: const TextStyle(
                                               fontSize: 13,
                                               fontWeight: FontWeight.w700,
                                               color: AppColors.onSurface,
@@ -323,56 +450,10 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                                       ),
                                     ],
                                   ),
-                                ),
-                                Container(
-                                  width: 1,
-                                  height: 32,
-                                  color: AppColors.surfaceContainerHighest,
-                                ),
-                                const SizedBox(width: 12),
-                                Row(
-                                  children: [
-                                    Container(
-                                      width: 36,
-                                      height: 36,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: const Icon(
-                                        Symbols.schedule,
-                                        size: 20,
-                                        color: AppColors.primary,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    const Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'SAAT',
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w600,
-                                            color: AppColors.onSurfaceVariant,
-                                          ),
-                                        ),
-                                        Text(
-                                          '14:30',
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w700,
-                                            color: AppColors.onSurface,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                     ),

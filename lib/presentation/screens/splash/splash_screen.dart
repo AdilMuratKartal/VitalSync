@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../cubits/auth/auth_cubit.dart';
+import '../../cubits/auth/auth_state.dart';
 import '../../widgets/dentora_logo.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -22,6 +25,8 @@ class _SplashScreenState extends State<SplashScreen>
   late final Animation<double> _opacityAnimation;
   late final Animation<double> _elevationAnimation;
   Timer? _navigationTimer;
+  bool _isTimerCompleted = false;
+  bool _hasNavigated = false;
 
   @override
   void initState() {
@@ -67,12 +72,36 @@ class _SplashScreenState extends State<SplashScreen>
 
     _entranceController.forward();
 
-    // Navigate to welcome screen after ~2.7 seconds
-    _navigationTimer = Timer(const Duration(milliseconds: 2700), () {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        context.go('/welcome');
+        context.read<AuthCubit>().checkSession();
       }
     });
+
+    // Açılış animasyonu tamamlandığında oturum kontrol sonucuna göre yönlendirir.
+    _navigationTimer = Timer(const Duration(milliseconds: 2700), () {
+      if (!mounted) return;
+      _isTimerCompleted = true;
+      _tryNavigate(context.read<AuthCubit>().state);
+    });
+  }
+
+  void _tryNavigate(AuthState state) {
+    if (!mounted || _hasNavigated || !_isTimerCompleted) return;
+    if (state.sessionStatus.isInitial || state.sessionStatus.isChecking) {
+      return;
+    }
+
+    _hasNavigated = true;
+    if (state.isAuthenticated) {
+      if (state.isDoctor) {
+        context.go('/doctor/agenda');
+      } else {
+        context.go('/patient/home');
+      }
+    } else {
+      context.go('/welcome');
+    }
   }
 
   @override
@@ -86,9 +115,13 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: LayoutBuilder(
-        builder: (context, constraints) {
+    return BlocListener<AuthCubit, AuthState>(
+      listenWhen: (previous, current) =>
+          previous.sessionStatus != current.sessionStatus,
+      listener: (context, state) => _tryNavigate(state),
+      child: Scaffold(
+        body: LayoutBuilder(
+          builder: (context, constraints) {
           final shortestSide = math.min(
             constraints.maxWidth,
             constraints.maxHeight,
@@ -313,6 +346,7 @@ class _SplashScreenState extends State<SplashScreen>
           );
         },
       ),
-    );
+    ),
+  );
   }
 }

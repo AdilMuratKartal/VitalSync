@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/validators.dart';
+import '../../cubits/auth/auth_cubit.dart';
+import '../../cubits/auth/auth_state.dart';
 import '../../widgets/dentora_logo.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -16,7 +17,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _tcController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
   bool _isDoctorRole = false;
@@ -25,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
-    _tcController.dispose();
+    _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -33,15 +34,15 @@ class _LoginScreenState extends State<LoginScreen> {
   void _handleValidatedLogin() {
     final isFormValid = _formKey.currentState?.validate() ?? false;
     final pass = _passwordController.text;
-    final tc = _tcController.text.trim();
+    final email = _emailController.text.trim();
 
     if (!isFormValid ||
-        !AppValidators.isValidTc(tc) ||
+        !AppValidators.isValidEmail(email) ||
         !AppValidators.isPasswordStrong(pass)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text(
-            'Lütfen TC Kimlik ve şifre kurallarını eksiksiz tamamlayın.',
+            'Lütfen geçerli bir e-posta adresi ve şifre kurallarını eksiksiz tamamlayın.',
           ),
           backgroundColor: AppColors.error,
           behavior: SnackBarBehavior.floating,
@@ -53,22 +54,34 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    if (_isDoctorRole) {
-      context.go('/doctor/agenda');
-    } else {
-      context.go('/patient/home');
-    }
+    final authCubit = context.read<AuthCubit>();
+    authCubit.clearMessages();
+    authCubit.signIn(
+      email: email,
+      password: pass,
+    );
   }
 
   void _handleDemoLogin({bool? forceDoctorRole}) {
     final targetDoctor = forceDoctorRole ?? _isDoctorRole;
     setState(() {
       _isDoctorRole = targetDoctor;
-      _tcController.text = targetDoctor
-          ? AppConstants.demoDoctorTc
-          : AppConstants.demoPatientTc;
-      _passwordController.text = AppConstants.demoPassword;
     });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          targetDoctor
+              ? 'Demo önizleme modu (Doktor) açıldı. Gerçek Firebase oturumu oluşturulmadı.'
+              : 'Demo önizleme modu (Hasta) açıldı. Gerçek Firebase oturumu oluşturulmadı.',
+        ),
+        backgroundColor: AppColors.primary,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
 
     if (targetDoctor) {
       context.go('/doctor/agenda');
@@ -80,8 +93,8 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final pass = _passwordController.text;
-    final tc = _tcController.text.trim();
-    final isTcValid = AppValidators.isValidTc(tc);
+    final email = _emailController.text.trim();
+    final isEmailValid = AppValidators.isValidEmail(email);
 
     final hasMinLen = AppValidators.hasMinLength(pass);
     final hasUpper = AppValidators.hasUppercase(pass);
@@ -89,130 +102,186 @@ class _LoginScreenState extends State<LoginScreen> {
     final hasDigit = AppValidators.hasDigit(pass);
     final hasSpecial = AppValidators.hasSpecialChar(pass);
 
-    return Scaffold(
-      backgroundColor: AppColors.surface,
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    // 1. Minimal Brand Header
-                    const DentoraLogo(size: 56),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Dentora',
-                      style: TextStyle(
-                        fontFamily: 'Plus Jakarta Sans',
-                        fontSize: 24,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.6,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
+    return BlocConsumer<AuthCubit, AuthState>(
+      listenWhen: (previous, current) =>
+          previous.actionStatus != current.actionStatus ||
+          previous.sessionStatus != current.sessionStatus,
+      listener: (context, state) {
+        if (state.actionStatus.isSucceeded && state.isAuthenticated) {
+          final userName = state.user?.fullName ?? '';
+          final roleMismatch =
+              (_isDoctorRole && state.isPatient) ||
+              (!_isDoctorRole && state.isDoctor);
 
-                    // 2. Main Auth Card
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: AppColors.surfaceContainerLowest,
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(
-                          color: AppColors.surfaceContainerHigh,
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                roleMismatch
+                    ? 'Giriş başarılı. Doğrulanmış hesap rolünüze (${state.isDoctor ? "Doktor" : "Hasta"}) göre yönlendiriliyorsunuz.'
+                    : 'Hoş geldiniz${userName.isNotEmpty ? ", $userName" : ""}!',
+              ),
+              backgroundColor: AppColors.primary,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          );
+
+          context.read<AuthCubit>().clearMessages();
+          if (state.isDoctor) {
+            context.go('/doctor/agenda');
+          } else {
+            context.go('/patient/home');
+          }
+          return;
+        }
+
+        if (state.actionStatus.isFailed ||
+            state.sessionStatus.isProfileUnavailable) {
+          final message =
+              state.errorMessage ?? 'Giriş işlemi sırasında bir hata oluştu.';
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(message),
+              backgroundColor: AppColors.error,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          );
+          context.read<AuthCubit>().clearMessages();
+        }
+      },
+      builder: (context, authState) {
+        final isSubmitting = authState.actionStatus.isSubmitting;
+
+        return Scaffold(
+          backgroundColor: AppColors.surface,
+          body: SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 20,
+                ),
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 420),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        // 1. Minimal Brand Header
+                        const DentoraLogo(size: 56),
+                        const SizedBox(height: 10),
+                        const Text(
+                          'Dentora',
+                          style: TextStyle(
+                            fontFamily: 'Plus Jakarta Sans',
+                            fontSize: 24,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.6,
+                            color: AppColors.primary,
+                          ),
                         ),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Color(0x0D151D23),
-                            blurRadius: 24,
-                            offset: Offset(0, 8),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Segmented Role Switcher
-                          Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: AppColors.surfaceContainerLow,
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: _buildRoleTab(
-                                    label: 'Hasta',
-                                    icon: Symbols.person,
-                                    selected: !_isDoctorRole,
-                                    onTap: () =>
-                                        setState(() => _isDoctorRole = false),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: _buildRoleTab(
-                                    label: 'Doktor',
-                                    icon: Symbols.stethoscope,
-                                    selected: _isDoctorRole,
-                                    onTap: () =>
-                                        setState(() => _isDoctorRole = true),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 18),
+                        const SizedBox(height: 20),
 
-                          // Field 1: TC Kimlik No
-                          const Text(
-                            'TC KİMLİK NO',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.onSurfaceVariant,
+                        // 2. Main Auth Card
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceContainerLowest,
+                            borderRadius: BorderRadius.circular(24),
+                            border: Border.all(
+                              color: AppColors.surfaceContainerHigh,
                             ),
-                          ),
-                          const SizedBox(height: 6),
-                          TextFormField(
-                            controller: _tcController,
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                              LengthLimitingTextInputFormatter(11),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Color(0x0D151D23),
+                                blurRadius: 24,
+                                offset: Offset(0, 8),
+                              ),
                             ],
-                            validator: AppValidators.validateTc,
-                            onChanged: (_) => setState(() {}),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.onSurface,
-                            ),
-                            decoration: _buildInputDecoration(
-                              hint: '11 haneli TC Kimlik No',
-                              prefixIcon: Symbols.badge,
-                              isValid: isTcValid,
-                            ),
                           ),
-                          // TC yazdıkça altta çıkan validasyon satırı
-                          AnimatedSize(
-                            duration: const Duration(milliseconds: 180),
-                            alignment: Alignment.topCenter,
-                            child: tc.isEmpty
-                                ? const SizedBox.shrink()
-                                : Padding(
-                                    padding: const EdgeInsets.only(top: 6),
-                                    child: _buildCriteriaItem(
-                                      label: '11 Haneli TC (${tc.length}/11)',
-                                      passed: isTcValid,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Segmented Role Switcher
+                              Container(
+                                padding: const EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: AppColors.surfaceContainerLow,
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: _buildRoleTab(
+                                        label: 'Hasta',
+                                        icon: Symbols.person,
+                                        selected: !_isDoctorRole,
+                                        onTap: () => setState(
+                                          () => _isDoctorRole = false,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                          ),
-                          const SizedBox(height: 14),
+                                    Expanded(
+                                      child: _buildRoleTab(
+                                        label: 'Doktor',
+                                        icon: Symbols.stethoscope,
+                                        selected: _isDoctorRole,
+                                        onTap: () => setState(
+                                          () => _isDoctorRole = true,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 18),
+
+                              // Field 1: E-Posta Adresi (project.md gereği gerçek Firebase e-posta girişi)
+                              const Text(
+                                'E-POSTA ADRESİ',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.onSurfaceVariant,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              TextFormField(
+                                controller: _emailController,
+                                keyboardType: TextInputType.emailAddress,
+                                validator: AppValidators.validateEmail,
+                                onChanged: (_) => setState(() {}),
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.onSurface,
+                                ),
+                                decoration: _buildInputDecoration(
+                                  hint: 'ornek@eposta.com',
+                                  prefixIcon: Symbols.mail,
+                                  isValid: isEmailValid,
+                                ),
+                              ),
+                              // E-posta yazdıkça altta çıkan validasyon satırı
+                              AnimatedSize(
+                                duration: const Duration(milliseconds: 180),
+                                alignment: Alignment.topCenter,
+                                child: email.isEmpty
+                                    ? const SizedBox.shrink()
+                                    : Padding(
+                                        padding: const EdgeInsets.only(top: 6),
+                                        child: _buildCriteriaItem(
+                                          label: 'Geçerli E-posta Formatı',
+                                          passed: isEmailValid,
+                                        ),
+                                      ),
+                              ),
+                              const SizedBox(height: 14),
 
                           // Field 2: Şifre
                           const Text(
@@ -369,22 +438,49 @@ class _LoginScreenState extends State<LoginScreen> {
                                 borderRadius: BorderRadius.circular(14),
                               ),
                               child: ElevatedButton(
-                                onPressed: _handleValidatedLogin,
+                                onPressed: isSubmitting
+                                    ? null
+                                    : _handleValidatedLogin,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.transparent,
                                   shadowColor: Colors.transparent,
+                                  disabledBackgroundColor: Colors.transparent,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(14),
                                   ),
                                 ),
-                                child: const Text(
-                                  'Giriş Yap',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white,
-                                  ),
-                                ),
+                                child: isSubmitting
+                                    ? const Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          SizedBox(
+                                            width: 18,
+                                            height: 18,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2.2,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                          SizedBox(width: 10),
+                                          Text(
+                                            'Giriş Yapılıyor...',
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w700,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : const Text(
+                                        'Giriş Yap',
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white,
+                                        ),
+                                      ),
                               ),
                             ),
                           ),
@@ -395,7 +491,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             width: double.infinity,
                             height: 44,
                             child: OutlinedButton.icon(
-                              onPressed: () => _handleDemoLogin(),
+                              onPressed: isSubmitting
+                                  ? null
+                                  : () => _handleDemoLogin(),
                               style: OutlinedButton.styleFrom(
                                 foregroundColor: AppColors.primary,
                                 backgroundColor: AppColors.secondaryFixed
@@ -458,6 +556,8 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
+    );
+      },
     );
   }
 
