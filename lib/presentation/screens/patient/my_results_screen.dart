@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/dentora_state_view.dart';
+import '../../../data/datasources/clinic_mock_data.dart';
+import '../../cubits/auth/auth_cubit.dart';
+import '../../cubits/medical_records/medical_records_cubit.dart';
 import '../../widgets/dentora_logo.dart';
 
 class MyResultsScreen extends StatefulWidget {
@@ -17,6 +22,16 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
 
   bool _rx1Expanded = true;
   bool _rx2Expanded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authUser = context.read<AuthCubit>().state.user;
+      final patientId = authUser?.id ?? ClinicMockData.samplePatient.id;
+      context.read<MedicalRecordsCubit>().watchPatientRecords(patientId);
+    });
+  }
 
   void _showToast(String title, String subtitle) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -210,6 +225,11 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final recordsState = context.watch<MedicalRecordsCubit>().state;
+    final rxCount = recordsState.prescriptions.isNotEmpty
+        ? recordsState.prescriptions.length.toString()
+        : '2';
+
     return Scaffold(
       backgroundColor: AppColors.surface,
       body: SafeArea(
@@ -399,7 +419,7 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
                                         ),
                                       ),
                                       child: Text(
-                                        '2',
+                                        rxCount,
                                         style: TextStyle(
                                           fontSize: 10,
                                           fontWeight: FontWeight.w700,
@@ -524,6 +544,19 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
   }
 
   Widget _buildTestsAndXrayView() {
+    final recordsState = context.watch<MedicalRecordsCubit>().state;
+    if (recordsState.resultsStatus.isLoading && recordsState.results.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 32),
+        child: DentoraStateView(
+          icon: Symbols.radiology,
+          title: 'Tahlil ve Röntgenler Yükleniyor...',
+          subtitle: 'Klinik sonuçlarınız taranıyor',
+          isLoading: true,
+        ),
+      );
+    }
+
     final showXray =
         _selectedCategory == 'all' || _selectedCategory == 'xray';
     final showLab = _selectedCategory == 'all' || _selectedCategory == 'lab';
@@ -1157,6 +1190,19 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
   }
 
   Widget _buildPrescriptionsView() {
+    final recordsState = context.watch<MedicalRecordsCubit>().state;
+    if (recordsState.prescriptionsStatus.isLoading && recordsState.prescriptions.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 32),
+        child: DentoraStateView(
+          icon: Symbols.prescriptions,
+          title: 'Reçeteler Yükleniyor...',
+          subtitle: 'E-reçete kayıtlarınız getiriliyor',
+          isLoading: true,
+        ),
+      );
+    }
+
     return Column(
       children: [
         // Info Banner

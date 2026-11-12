@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../data/datasources/clinic_mock_data.dart';
+import '../../cubits/auth/auth_cubit.dart';
+import '../../cubits/chat/chat_cubit.dart';
 import '../../widgets/dentora_logo.dart';
 
 class DoctorMessagesScreen extends StatefulWidget {
@@ -209,20 +213,34 @@ class _DoctorMessagesScreenState extends State<DoctorMessagesScreen> {
               width: double.infinity,
               height: 48,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        '${chat['name']} adlı hastaya yanıtınız iletildi.',
+                onPressed: () async {
+                  final replyText = replyCtrl.text.trim();
+                  if (replyText.isNotEmpty) {
+                    final doctorId = context.read<AuthCubit>().state.user?.id ?? ClinicMockData.sampleDoctor.id;
+                    final patientId = ClinicMockData.samplePatient.id;
+                    await context.read<ChatCubit>().sendMessage(
+                      patientId: patientId,
+                      doctorId: doctorId,
+                      senderId: doctorId,
+                      receiverId: patientId,
+                      text: replyText,
+                    );
+                  }
+                  if (ctx.mounted) Navigator.pop(ctx);
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          '${chat['name']} adlı hastaya yanıtınız iletildi.',
+                        ),
+                        backgroundColor: AppColors.primary,
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
-                      backgroundColor: AppColors.primary,
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  );
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,

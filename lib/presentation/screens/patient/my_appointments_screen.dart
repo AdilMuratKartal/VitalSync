@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/dentora_state_view.dart';
+import '../../../data/models/appointment_model.dart';
+import '../../../data/datasources/clinic_mock_data.dart';
+import '../../cubits/auth/auth_cubit.dart';
+import '../../cubits/appointment/appointment_cubit.dart';
 import '../../widgets/dentora_logo.dart';
 
 class MyAppointmentsScreen extends StatefulWidget {
@@ -53,7 +59,55 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authUser = context.read<AuthCubit>().state.user;
+      final patientId = authUser?.id ?? ClinicMockData.samplePatient.id;
+      context.read<AppointmentCubit>().watchPatientAppointments(patientId);
+    });
+  }
+
+  void _confirmCancelAppointment(AppointmentModel appointment) {
+    showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Randevuyu İptal Et'),
+        content: Text(
+          '${appointment.serviceName} randevunuzu iptal etmek istediğinize emin misiniz?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Vazgeç'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('İptal Et'),
+          ),
+        ],
+      ),
+    ).then((confirmed) {
+      if (confirmed == true && mounted) {
+        context.read<AppointmentCubit>().cancelAppointment(appointment.id);
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final appointmentState = context.watch<AppointmentCubit>().state;
+    final realAppointments = appointmentState.appointments;
+    final upcomingList = appointmentState.upcomingAppointments;
+    final pastList = appointmentState.pastAppointments;
+    final cancelledList = appointmentState.cancelledAppointments;
+
+    final allCount = realAppointments.isNotEmpty ? realAppointments.length.toString() : '6';
+    final upcomingCount = realAppointments.isNotEmpty ? upcomingList.length.toString() : '2';
+    final pastCount = realAppointments.isNotEmpty ? pastList.length.toString() : '4';
+    final cancelledCount = realAppointments.isNotEmpty ? cancelledList.length.toString() : '0';
+
     final showUpcoming =
         _selectedFilter == 'all' || _selectedFilter == 'upcoming';
     final showPast = _selectedFilter == 'all' || _selectedFilter == 'past';
@@ -314,22 +368,48 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
-                          _buildFilterChip('all', 'Tümü', '6'),
+                          _buildFilterChip('all', 'Tümü', allCount),
                           const SizedBox(width: 8),
                           _buildFilterChip(
                             'upcoming',
                             'Yaklaşan',
-                            '2',
+                            upcomingCount,
                             dotColor: AppColors.secondaryContainer,
                           ),
                           const SizedBox(width: 8),
-                          _buildFilterChip('past', 'Geçmiş', '4'),
+                          _buildFilterChip('past', 'Geçmiş', pastCount),
                           const SizedBox(width: 8),
-                          _buildFilterChip('cancelled', 'İptal Edilen', '0'),
+                          _buildFilterChip('cancelled', 'İptal Edilen', cancelledCount),
                         ],
                       ),
                     ),
                     const SizedBox(height: 20),
+
+                    if (appointmentState.listStatus.isLoading && realAppointments.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 24),
+                        child: DentoraStateView(
+                          icon: Symbols.schedule,
+                          title: 'Randevularınız Yükleniyor...',
+                          subtitle: 'Klinik takviminiz güncelleniyor',
+                          isLoading: true,
+                        ),
+                      ),
+
+                    if (appointmentState.listStatus.isError && realAppointments.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 24),
+                        child: DentoraStateView(
+                          icon: Symbols.error,
+                          title: 'Randevular Alınamadı',
+                          subtitle: appointmentState.listError ?? 'Bağlantı hatası oluştu',
+                          onRetry: () {
+                            final authUser = context.read<AuthCubit>().state.user;
+                            final patientId = authUser?.id ?? ClinicMockData.samplePatient.id;
+                            context.read<AppointmentCubit>().watchPatientAppointments(patientId);
+                          },
+                        ),
+                      ),
 
                     // SECTION 1: YAKLAŞAN RANDEVULAR
                     if (showUpcoming) ...[
@@ -357,9 +437,9 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
                               ),
                             ],
                           ),
-                          const Text(
-                            '2 Kayıt',
-                            style: TextStyle(
+                          Text(
+                            '$upcomingCount Kayıt',
+                            style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
                               color: AppColors.onSurfaceVariant,
@@ -369,36 +449,65 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
                       ),
                       const SizedBox(height: 12),
 
-                      // Upcoming Card 1
-                      _buildUpcomingCard(
-                        badgeText: 'Planlandı • Yarın',
-                        badgeBg: AppColors.secondaryFixed,
-                        badgeFg: AppColors.onSecondaryFixed,
-                        price: '3.200 ₺',
-                        icon: Symbols.dentistry,
-                        title: 'Kanal Tedavisi & Kompozit Dolgu',
-                        subtitle:
-                            'Uzm. Dt. Selin Yılmaz • Endodonti Kliniği (Oda 3)',
-                        date: '19 Mart 2026, Per',
-                        time: '14:30 - 15:15',
-                        primaryBtnLabel: 'Detay & Hazırlık',
-                      ),
-                      const SizedBox(height: 14),
+                      if (realAppointments.isNotEmpty) ...[
+                        if (upcomingList.isEmpty)
+                          const Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            child: DentoraStateView(
+                              icon: Symbols.event_available,
+                              title: 'Yaklaşan Randevunuz Yok',
+                              subtitle: 'Yeni bir randevu almak için yukarıdaki butonu kullanabilirsiniz.',
+                            ),
+                          )
+                        else
+                          for (final apt in upcomingList) ...[
+                            _buildUpcomingCard(
+                              badgeText: apt.status == 'approved' ? 'Onaylandı' : 'Planlandı',
+                              badgeBg: apt.status == 'approved' ? AppColors.tertiaryFixed : AppColors.secondaryFixed,
+                              badgeFg: apt.status == 'approved' ? AppColors.onTertiaryFixedVariant : AppColors.onSecondaryFixed,
+                              price: '${apt.price} ₺',
+                              icon: Symbols.dentistry,
+                              title: apt.serviceName,
+                              subtitle: '${apt.doctorName} • Klinik',
+                              date: apt.date,
+                              time: apt.time,
+                              primaryBtnLabel: 'Detay & Hazırlık',
+                              onCancel: () => _confirmCancelAppointment(apt),
+                            ),
+                            const SizedBox(height: 14),
+                          ],
+                      ] else ...[
+                        // Upcoming Card 1 (Demo)
+                        _buildUpcomingCard(
+                          badgeText: 'Planlandı • Yarın',
+                          badgeBg: AppColors.secondaryFixed,
+                          badgeFg: AppColors.onSecondaryFixed,
+                          price: '3.200 ₺',
+                          icon: Symbols.dentistry,
+                          title: 'Kanal Tedavisi & Kompozit Dolgu',
+                          subtitle:
+                              'Uzm. Dt. Selin Yılmaz • Endodonti Kliniği (Oda 3)',
+                          date: '19 Mart 2026, Per',
+                          time: '14:30 - 15:15',
+                          primaryBtnLabel: 'Detay & Hazırlık',
+                        ),
+                        const SizedBox(height: 14),
 
-                      // Upcoming Card 2
-                      _buildUpcomingCard(
-                        badgeText: 'Onaylandı',
-                        badgeBg: AppColors.tertiaryFixed,
-                        badgeFg: AppColors.onTertiaryFixedVariant,
-                        price: '1.450 ₺',
-                        icon: Symbols.clean_hands,
-                        title: 'Ultrasonik Diş Taşı Temizliği (Detartraj)',
-                        subtitle:
-                            'Dt. Emre Karahan • Periodontoloji (Oda 1)',
-                        date: '21 Mart 2026, Cmt',
-                        time: '10:00 - 10:30',
-                        primaryBtnLabel: 'Takvime Ekle',
-                      ),
+                        // Upcoming Card 2 (Demo)
+                        _buildUpcomingCard(
+                          badgeText: 'Onaylandı',
+                          badgeBg: AppColors.tertiaryFixed,
+                          badgeFg: AppColors.onTertiaryFixedVariant,
+                          price: '1.450 ₺',
+                          icon: Symbols.clean_hands,
+                          title: 'Ultrasonik Diş Taşı Temizliği (Detartraj)',
+                          subtitle:
+                              'Dt. Emre Karahan • Periodontoloji (Oda 1)',
+                          date: '21 Mart 2026, Cmt',
+                          time: '10:00 - 10:30',
+                          primaryBtnLabel: 'Takvime Ekle',
+                        ),
+                      ],
                       const SizedBox(height: 24),
                     ],
 
@@ -428,9 +537,9 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
                               ),
                             ],
                           ),
-                          const Text(
-                            '4 Tamamlanan',
-                            style: TextStyle(
+                          Text(
+                            '$pastCount Tamamlanan',
+                            style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
                               color: AppColors.onSurfaceVariant,
@@ -440,14 +549,37 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
                       ),
                       const SizedBox(height: 12),
 
-                      for (final item in _pastAppointments) ...[
-                        _buildPastCard(item),
-                        const SizedBox(height: 12),
+                      if (realAppointments.isNotEmpty && pastList.isNotEmpty) ...[
+                        for (final apt in pastList) ...[
+                          _buildPastCard({
+                            'title': apt.serviceName,
+                            'doctor': apt.doctorName,
+                            'date': '${apt.date} • ${apt.time}',
+                            'price': '${apt.price} ₺',
+                          }),
+                          const SizedBox(height: 12),
+                        ],
+                      ] else ...[
+                        for (final item in _pastAppointments) ...[
+                          _buildPastCard(item),
+                          const SizedBox(height: 12),
+                        ],
                       ],
                     ],
 
-                    // SECTION 3: İPTAL EDİLEN RANDEVULAR (Empty State)
-                    if (showCancelled)
+                    // SECTION 3: İPTAL EDİLEN RANDEVULAR
+                    if (showCancelled) ...[
+                      if (realAppointments.isNotEmpty && cancelledList.isNotEmpty) ...[
+                        for (final apt in cancelledList) ...[
+                          _buildPastCard({
+                            'title': apt.serviceName,
+                            'doctor': apt.doctorName,
+                            'date': '${apt.date} • ${apt.time}',
+                            'price': 'İptal Edildi',
+                          }),
+                          const SizedBox(height: 12),
+                        ],
+                      ] else
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(28),
@@ -494,6 +626,7 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
                           ],
                         ),
                       ),
+                    ],
                   ],
                 ),
               ),
@@ -600,6 +733,7 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
     required String date,
     required String time,
     required String primaryBtnLabel,
+    VoidCallback? onCancel,
   }) {
     return Container(
       padding: const EdgeInsets.all(18),
@@ -814,7 +948,7 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
               ),
               const SizedBox(width: 10),
               OutlinedButton(
-                onPressed: () {
+                onPressed: onCancel ?? () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: const Text(

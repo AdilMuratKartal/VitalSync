@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../data/datasources/clinic_mock_data.dart';
+import '../../cubits/auth/auth_cubit.dart';
+import '../../cubits/chat/chat_cubit.dart';
 import '../../widgets/dentora_logo.dart';
 
 class PatientChatScreen extends StatefulWidget {
@@ -38,23 +42,38 @@ class _PatientChatScreenState extends State<PatientChatScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final patientId = context.read<AuthCubit>().state.user?.id ?? ClinicMockData.samplePatient.id;
+      final doctorId = ClinicMockData.sampleDoctor.id;
+      context.read<ChatCubit>().watchConversation(patientId: patientId, doctorId: doctorId);
+    });
+  }
+
+  @override
   void dispose() {
     _msgController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
 
-  void _sendMessage() {
+  Future<void> _sendMessage() async {
     final text = _msgController.text.trim();
     if (text.isEmpty && !_hasAttachedPhoto) return;
+
+    final msgText = text.isNotEmpty
+        ? text
+        : 'Sol alt çene dikiş bölgesi fotoğrafını ekledim hocam.';
+
+    final patientId = context.read<AuthCubit>().state.user?.id ?? ClinicMockData.samplePatient.id;
+    final doctorId = ClinicMockData.sampleDoctor.id;
 
     setState(() {
       _messages.add({
         'isMe': true,
-        'text': text.isNotEmpty
-            ? text
-            : 'Sol alt çene dikiş bölgesi fotoğrafını ekledim hocam.',
-        'time': '10:02',
+        'text': msgText,
+        'time': '${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}',
         'hasPhoto': _hasAttachedPhoto,
       });
       _msgController.clear();
@@ -70,10 +89,21 @@ class _PatientChatScreenState extends State<PatientChatScreen> {
         );
       }
     });
+
+    await context.read<ChatCubit>().sendMessage(
+      patientId: patientId,
+      doctorId: doctorId,
+      senderId: patientId,
+      receiverId: doctorId,
+      text: msgText,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final chatState = context.watch<ChatCubit>().state;
+    final patientId = context.watch<AuthCubit>().state.user?.id ?? ClinicMockData.samplePatient.id;
+    final realMessages = chatState.chronologicalMessages;
     final canSend =
         _msgController.text.trim().isNotEmpty || _hasAttachedPhoto;
 
@@ -214,9 +244,28 @@ class _PatientChatScreenState extends State<PatientChatScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  for (final msg in _messages) ...[
-                    _buildMessageBubble(msg),
-                    const SizedBox(height: 14),
+                  if (chatState.dataStatus.isLoading && realMessages.isEmpty)
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20),
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
+
+                  if (realMessages.isNotEmpty) ...[
+                    for (final msg in realMessages) ...[
+                      _buildMessageBubble({
+                        'isMe': msg.senderId == patientId,
+                        'text': msg.text,
+                        'time': '${msg.createdAt.hour.toString().padLeft(2, '0')}:${msg.createdAt.minute.toString().padLeft(2, '0')}',
+                      }),
+                      const SizedBox(height: 14),
+                    ],
+                  ] else ...[
+                    for (final msg in _messages) ...[
+                      _buildMessageBubble(msg),
+                      const SizedBox(height: 14),
+                    ],
                   ],
 
                   // Interactive Media Attachment Preview Card

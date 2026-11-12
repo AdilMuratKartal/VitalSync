@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../data/datasources/clinic_mock_data.dart';
+import '../../cubits/auth/auth_cubit.dart';
+import '../../cubits/doctor_schedule/doctor_schedule_cubit.dart';
 import '../../widgets/dentora_logo.dart';
 
 class SchedulePricingScreen extends StatefulWidget {
@@ -166,6 +170,15 @@ class _SchedulePricingScreenState extends State<SchedulePricingScreen> {
       'active': true,
     },
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final doctorId = context.read<AuthCubit>().state.user?.id ?? ClinicMockData.sampleDoctor.id;
+      context.read<DoctorScheduleCubit>().watchDoctorSchedule(doctorId);
+    });
+  }
 
   String _formatPrice(int val) {
     final s = val.toString();

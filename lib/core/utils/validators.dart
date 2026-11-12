@@ -98,5 +98,22 @@ class AppValidators {
     }
     return null;
   }
+
+  /// TC Kimlik veya E-posta girişinin geçerli olup olmadığını kontrol eder
+  static bool isValidTcOrEmail(String value) {
+    final clean = value.trim();
+    return isValidTc(clean) || isValidEmail(clean);
+  }
+
+  /// TextFormField için TC veya E-posta validatörü
+  static String? validateTcOrEmail(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'TC Kimlik veya E-posta adresi zorunludur.';
+    }
+    if (!isValidTcOrEmail(value)) {
+      return 'Geçerli bir TC Kimlik (11 hane) veya E-posta adresi giriniz.';
+    }
+    return null;
+  }
 }
 

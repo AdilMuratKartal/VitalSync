@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../data/datasources/clinic_mock_data.dart';
+import '../../cubits/auth/auth_cubit.dart';
+import '../../cubits/appointment/appointment_cubit.dart';
 import '../../widgets/dentora_logo.dart';
 
 class DoctorAgendaScreen extends StatefulWidget {
@@ -23,6 +27,10 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
       text:
           'Panoramik röntgende kök ucu lezyonu izlendi. Lokal anestezi (Artikain) uygulandı, 3 kanallı ekstirpasyon devam ediyor.',
     );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final doctorId = context.read<AuthCubit>().state.user?.id ?? ClinicMockData.sampleDoctor.id;
+      context.read<AppointmentCubit>().watchDoctorAppointments(doctorId);
+    });
   }
 
   @override
@@ -186,6 +194,13 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final appointmentState = context.watch<AppointmentCubit>().state;
+    final realApts = appointmentState.appointments;
+    final totalCount = realApts.isNotEmpty ? realApts.length.toString() : '6';
+    final completedCount = realApts.isNotEmpty ? appointmentState.pastAppointments.length.toString() : '2';
+    final activeCount = realApts.isNotEmpty ? realApts.where((a) => a.status == 'approved').length.toString() : '1';
+    final waitingCount = realApts.isNotEmpty ? realApts.where((a) => a.status == 'pending').length.toString() : '3';
+
     final showCompleted =
         _selectedFilter == 'all' || _selectedFilter == 'completed';
     final showActive = _selectedFilter == 'all' || _selectedFilter == 'active';
@@ -200,6 +215,8 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
             Column(
               children: [
                 const DoctorTopAppBar(),
+                if (appointmentState.listStatus.isLoading && realApts.isEmpty)
+                  const LinearProgressIndicator(minHeight: 2),
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
@@ -307,7 +324,7 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
                               Row(
                                 children: [
                                   _buildCounterBox(
-                                    count: '6',
+                                    count: totalCount,
                                     label: 'Toplam',
                                     bg: AppColors.doctorSurfaceContainerLow,
                                     countColor: AppColors.primary,
@@ -315,7 +332,7 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
                                   ),
                                   const SizedBox(width: 8),
                                   _buildCounterBox(
-                                    count: '2',
+                                    count: completedCount,
                                     label: 'Tamamlandı',
                                     bg: const Color(0xFFECFDF5),
                                     countColor: const Color(0xFF047857),
@@ -323,7 +340,7 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
                                   ),
                                   const SizedBox(width: 8),
                                   _buildCounterBox(
-                                    count: '1',
+                                    count: activeCount,
                                     label: 'Koltukta',
                                     bg: AppColors.secondaryFixedDoctor
                                         .withValues(alpha: 0.7),
@@ -334,7 +351,7 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
                                   ),
                                   const SizedBox(width: 8),
                                   _buildCounterBox(
-                                    count: '3',
+                                    count: waitingCount,
                                     label: 'Bekleyen',
                                     bg: const Color(0xFFFFFBEB),
                                     countColor: const Color(0xFFB45309),
@@ -352,18 +369,18 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
                           scrollDirection: Axis.horizontal,
                           child: Row(
                             children: [
-                              _buildFilterChip('all', 'Tüm Randevular (6)'),
+                              _buildFilterChip('all', 'Tüm Randevular ($totalCount)'),
                               const SizedBox(width: 8),
                               _buildFilterChip(
                                 'active',
-                                'Aktif / Koltukta (1)',
+                                'Aktif / Koltukta ($activeCount)',
                               ),
                               const SizedBox(width: 8),
-                              _buildFilterChip('waiting', 'Bekleyenler (3)'),
+                              _buildFilterChip('waiting', 'Bekleyenler ($waitingCount)'),
                               const SizedBox(width: 8),
                               _buildFilterChip(
                                 'completed',
-                                'Tamamlananlar (2)',
+                                'Tamamlananlar ($completedCount)',
                               ),
                             ],
                           ),

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../data/datasources/clinic_mock_data.dart';
+import '../../cubits/auth/auth_cubit.dart';
+import '../../cubits/appointment/appointment_cubit.dart';
 import '../../widgets/dentora_logo.dart';
 
 class PastPatientsScreen extends StatefulWidget {
@@ -15,6 +19,15 @@ class _PastPatientsScreenState extends State<PastPatientsScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _selectedFilter = 'all';
   final Set<int> _expandedIndices = {0}; // First card expanded by default
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final doctorId = context.read<AuthCubit>().state.user?.id ?? ClinicMockData.sampleDoctor.id;
+      context.read<AppointmentCubit>().watchDoctorAppointments(doctorId);
+    });
+  }
 
   static const List<Map<String, dynamic>> _patients = [
     {

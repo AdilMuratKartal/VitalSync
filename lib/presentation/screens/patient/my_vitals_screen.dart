@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../data/models/vital_model.dart';
+import '../../../data/datasources/clinic_mock_data.dart';
+import '../../cubits/auth/auth_cubit.dart';
+import '../../cubits/vital/vital_cubit.dart';
 import '../../widgets/dentora_logo.dart';
 
 class MyVitalsScreen extends StatefulWidget {
@@ -31,6 +36,12 @@ class _MyVitalsScreenState extends State<MyVitalsScreen> {
     _diaController = TextEditingController(text: _diaValue);
     _sugarController = TextEditingController(text: _sugarValue);
     _pulseController = TextEditingController(text: _pulseValue);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authUser = context.read<AuthCubit>().state.user;
+      final patientId = authUser?.id ?? ClinicMockData.samplePatient.id;
+      context.read<VitalCubit>().watchPatientVitals(patientId);
+    });
   }
 
   @override
@@ -42,25 +53,122 @@ class _MyVitalsScreenState extends State<MyVitalsScreen> {
     super.dispose();
   }
 
-  void _saveVitals() {
-    setState(() {
-      if (_sysController.text.isNotEmpty) _sysValue = _sysController.text;
-      if (_diaController.text.isNotEmpty) _diaValue = _diaController.text;
-      if (_sugarController.text.isNotEmpty) _sugarValue = _sugarController.text;
-      if (_pulseController.text.isNotEmpty) _pulseValue = _pulseController.text;
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('Yeni vital ölçüm değerleriniz kaydedildi!'),
-        backgroundColor: AppColors.primary,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
+  Future<void> _saveVitals() async {
+    final sys = int.tryParse(_sysController.text.trim());
+    final dia = int.tryParse(_diaController.text.trim());
+    final sugar = int.tryParse(_sugarController.text.trim());
+    final pulse = int.tryParse(_pulseController.text.trim());
+
+    if (sys == null || dia == null || sys <= 0 || dia <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Geçerli tansiyon değerleri giriniz (Örn: 120/80).'),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      );
+      return;
+    }
+
+    if (sys <= dia) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Büyük tansiyon, küçük tansiyondan yüksek olmalıdır.'),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      );
+      return;
+    }
+
+    if (sugar == null || sugar <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Geçerli bir kan şekeri değeri giriniz.'),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      );
+      return;
+    }
+
+    if (pulse == null || pulse <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Geçerli bir nabız değeri giriniz.'),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      );
+      return;
+    }
+
+    final authUser = context.read<AuthCubit>().state.user;
+    final patientId = authUser?.id ?? ClinicMockData.samplePatient.id;
+
+    final vital = VitalModel(
+      id: 'VTL-${DateTime.now().millisecondsSinceEpoch}',
+      patientId: patientId,
+      systolic: sys,
+      diastolic: dia,
+      bloodSugar: sugar,
+      pulse: pulse,
+      oxygen: 98,
+      createdAt: DateTime.now(),
     );
+
+    setState(() {
+      _sysValue = sys.toString();
+      _diaValue = dia.toString();
+      _sugarValue = sugar.toString();
+      _pulseValue = pulse.toString();
+    });
+
+    final vitalCubit = context.read<VitalCubit>();
+    await vitalCubit.createVital(vital);
+
+    if (mounted) {
+      if (vitalCubit.state.actionError != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(vitalCubit.state.actionError!),
+            backgroundColor: AppColors.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(vital.isCritical
+                ? 'Vital değer kaydedildi. DİKKAT: Kritik eşik aşıldı!'
+                : 'Yeni vital ölçüm değerleriniz başarıyla kaydedildi!'),
+            backgroundColor: vital.isCritical ? AppColors.error : AppColors.primary,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final vitalState = context.watch<VitalCubit>().state;
+    final latestVital = vitalState.latestVital;
+
+    final sysDisplay = latestVital != null ? latestVital.systolic.toString() : _sysValue;
+    final diaDisplay = latestVital != null ? latestVital.diastolic.toString() : _diaValue;
+    final sugarDisplay = latestVital != null ? latestVital.bloodSugar.toString() : _sugarValue;
+    final pulseDisplay = latestVital != null ? latestVital.pulse.toString() : _pulseValue;
+    final oxygenDisplay = latestVital != null ? '%${latestVital.oxygen}' : '%98';
+
+    final isCritical = vitalState.isLatestVitalCritical || (latestVital?.isCritical ?? false);
+
     return Scaffold(
       backgroundColor: AppColors.surface,
       body: SafeArea(
@@ -73,6 +181,12 @@ class _MyVitalsScreenState extends State<MyVitalsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (vitalState.dataStatus.isLoading && vitalState.vitals.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 12),
+                        child: LinearProgressIndicator(minHeight: 2),
+                      ),
+
                     // Hero Greeting
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -106,9 +220,11 @@ class _MyVitalsScreenState extends State<MyVitalsScreen> {
                             ],
                           ),
                         ),
-                        const Text(
-                          'Son Güncelleme: Bugün, 09:40',
-                          style: TextStyle(
+                        Text(
+                          latestVital != null
+                              ? 'Son: ${latestVital.createdAt.hour.toString().padLeft(2, '0')}:${latestVital.createdAt.minute.toString().padLeft(2, '0')}'
+                              : 'Son Güncelleme: Bugün, 09:40',
+                          style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w500,
                             color: AppColors.onSurfaceVariant,
@@ -136,6 +252,50 @@ class _MyVitalsScreenState extends State<MyVitalsScreen> {
                     ),
                     const SizedBox(height: 18),
 
+                    // Critical Vital Warning Banner
+                    if (isCritical) ...[
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: AppColors.errorContainer.withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: AppColors.error.withValues(alpha: 0.5),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Symbols.warning, color: AppColors.error, size: 28),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: const [
+                                  Text(
+                                    'Kritik Değer Uyarısı',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.error,
+                                    ),
+                                  ),
+                                  SizedBox(height: 2),
+                                  Text(
+                                    'Son ölçülen değerleriniz klinik eşiğin dışındadır. Doktorunuz bilgilendirildi.',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.onSurface,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+
                     // BENTO VITAL GRID (2x2)
                     GridView.count(
                       shrinkWrap: true,
@@ -148,27 +308,27 @@ class _MyVitalsScreenState extends State<MyVitalsScreen> {
                         // Card 1: Tansiyon
                         _buildVitalBentoCard(
                           icon: Symbols.blood_pressure,
-                          badgeText: 'İdeal',
+                          badgeText: (int.tryParse(sysDisplay) ?? 120) >= 140 ? 'Yüksek' : 'İdeal',
                           label: 'Tansiyon (KB)',
-                          value: '$_sysValue/$_diaValue',
+                          value: '$sysDisplay/$diaDisplay',
                           unit: 'mmHg',
                           subText: 'Sistolik / Diyastolik',
                         ),
                         // Card 2: Açlık Şekeri
                         _buildVitalBentoCard(
                           icon: Symbols.glucose,
-                          badgeText: 'Normal',
+                          badgeText: (int.tryParse(sugarDisplay) ?? 95) >= 180 ? 'Yüksek' : 'Normal',
                           label: 'Açlık Şekeri',
-                          value: _sugarValue,
+                          value: sugarDisplay,
                           unit: 'mg/dL',
                           subText: 'Hedef: 70 - 100 mg/dL',
                         ),
                         // Card 3: Nabız
                         _buildVitalBentoCard(
                           icon: Symbols.favorite,
-                          badgeText: 'Düzenli',
+                          badgeText: (int.tryParse(pulseDisplay) ?? 72) > 100 ? 'Hızlı' : 'Düzenli',
                           label: 'Kalp Atışı (Nabız)',
-                          value: _pulseValue,
+                          value: pulseDisplay,
                           unit: 'bpm',
                           subText: 'Dinlenme Hızı',
                           fillIcon: true,
@@ -178,7 +338,7 @@ class _MyVitalsScreenState extends State<MyVitalsScreen> {
                           icon: Symbols.spo2,
                           badgeText: 'Optimal',
                           label: 'Oksijen & Ateş',
-                          value: '%98',
+                          value: oxygenDisplay,
                           unit: '36.6°C',
                           subText: 'SpO₂ Satürasyon',
                         ),

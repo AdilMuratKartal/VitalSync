@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../data/models/prescription_model.dart';
+import '../../../data/datasources/clinic_mock_data.dart';
+import '../../cubits/auth/auth_cubit.dart';
+import '../../cubits/medical_records/medical_records_cubit.dart';
 import '../../widgets/dentora_logo.dart';
 
 class CreatePrescriptionScreen extends StatefulWidget {
@@ -875,19 +880,75 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
                           ],
                         ),
                         child: ElevatedButton.icon(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: const Text(
-                                  'E-Reçete (#ERX-94821) oluşturuldu ve hastaya SMS ile gönderildi!',
+                          onPressed: () async {
+                            final patientName = _patientSearchController.text.trim();
+                            if (patientName.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: const Text('Lütfen geçerli bir hasta seçimi yapınız.'),
+                                  backgroundColor: AppColors.error,
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                 ),
-                                backgroundColor: AppColors.primary,
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                              );
+                              return;
+                            }
+
+                            if (_medications.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: const Text('Reçeteye en az 1 ilaç kalemi eklenmelidir.'),
+                                  backgroundColor: AppColors.error,
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                 ),
-                              ),
+                              );
+                              return;
+                            }
+
+                            final medicines = _medications.map((m) => MedicineItem(
+                              name: m['name'] ?? '',
+                              dosage: m['barcode'] ?? '',
+                              frequency: m['freq'] ?? '1x1',
+                              duration: m['days'] ?? '5 Gün',
+                              instructions: m['meal'] ?? 'Tok karnına',
+                            )).toList();
+
+                            final doctorUser = context.read<AuthCubit>().state.user;
+                            final doctorId = doctorUser?.id ?? ClinicMockData.sampleDoctor.id;
+                            final doctorName = doctorUser?.fullName ?? ClinicMockData.sampleDoctor.fullName;
+                            final rxId = 'ERX-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
+
+                            final prescription = PrescriptionModel(
+                              id: rxId,
+                              patientId: ClinicMockData.samplePatient.id,
+                              patientName: patientName,
+                              doctorId: doctorId,
+                              doctorName: doctorName,
+                              diagnosis: 'K04.0 Pulpitis - Akut Apikal Periodontitis',
+                              medicines: medicines,
+                              doctorNote: _doctorNoteController.text.trim(),
+                              isApproved: true,
+                              createdAt: DateTime.now(),
                             );
+
+                            final cubit = context.read<MedicalRecordsCubit>();
+                            await cubit.createPrescription(prescription);
+
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'E-Reçete (#$rxId) başarıyla onaylandı ve hastaya SMS ile gönderildi!',
+                                  ),
+                                  backgroundColor: AppColors.emeraldOnline,
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              );
+                            }
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.transparent,
