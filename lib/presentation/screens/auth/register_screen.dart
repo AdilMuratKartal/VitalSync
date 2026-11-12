@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/validators.dart';
 import '../../widgets/dentora_logo.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -13,460 +14,467 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  final TextEditingController _tcController = TextEditingController();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _passwordConfirmController =
-      TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _tcController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
+  bool _isDoctorRole = false;
   bool _obscurePassword = true;
-  bool _obscureConfirm = true;
   bool _kvkkAccepted = false;
 
   @override
   void dispose() {
-    _tcController.dispose();
     _nameController.dispose();
+    _tcController.dispose();
     _phoneController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _passwordConfirmController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  int get _passwordStrength {
-    final val = _passwordController.text;
-    if (val.isEmpty) return 0;
-    int score = 0;
-    if (val.length >= 8) score++;
-    if (RegExp(r'[A-Z]').hasMatch(val) && RegExp(r'[a-z]').hasMatch(val)) {
-      score++;
+  void _handleRegister() {
+    final isFormValid = _formKey.currentState?.validate() ?? false;
+    final pass = _passwordController.text;
+    final confirmPass = _confirmPasswordController.text;
+    final isStrong = AppValidators.isPasswordStrong(pass);
+    final isMatch = pass.isNotEmpty && pass == confirmPass;
+
+    if (!isFormValid || !isStrong || !isMatch || !_kvkkAccepted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            !_kvkkAccepted
+                ? 'Lütfen KVKK metnini onaylayın.'
+                : 'Lütfen tüm alanları ve şifre kurallarını tamamlayın.',
+          ),
+          backgroundColor: AppColors.error,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
+      return;
     }
-    if (RegExp(r'[0-9]').hasMatch(val) ||
-        RegExp(r'[^A-Za-z0-9]').hasMatch(val)) {
-      score++;
+
+    if (_isDoctorRole) {
+      context.go('/doctor/agenda');
+    } else {
+      context.go('/patient/home');
     }
-    return score;
   }
 
   @override
   Widget build(BuildContext context) {
-    final tcLength = _tcController.text.length;
-    final strength = _passwordStrength;
+    final name = _nameController.text;
+    final tc = _tcController.text.trim();
+    final phone = _phoneController.text;
+    final email = _emailController.text;
+    final pass = _passwordController.text;
+    final confirmPass = _confirmPasswordController.text;
 
-    String strengthLabel = 'En az 8 karakter, 1 büyük harf ve rakam';
-    Color strengthTextColor = AppColors.outline;
-    Color barColor = AppColors.surfaceContainerHighest;
+    final isNameValid = AppValidators.isValidFullName(name);
+    final isTcValid = AppValidators.isValidTc(tc);
+    final isPhoneValid = AppValidators.isValidPhone(phone);
+    final isEmailValid = AppValidators.isValidEmail(email);
 
-    if (strength == 1) {
-      strengthLabel = 'Zayıf Şifre';
-      strengthTextColor = AppColors.error;
-      barColor = AppColors.error;
-    } else if (strength == 2) {
-      strengthLabel = 'Orta Güvenlik';
-      strengthTextColor = AppColors.tertiary;
-      barColor = AppColors.tertiary;
-    } else if (strength == 3) {
-      strengthLabel = 'Güçlü Şifre';
-      strengthTextColor = AppColors.primary;
-      barColor = AppColors.primary;
-    }
+    final hasMinLen = AppValidators.hasMinLength(pass);
+    final hasUpper = AppValidators.hasUppercase(pass);
+    final hasLower = AppValidators.hasLowercase(pass);
+    final hasDigit = AppValidators.hasDigit(pass);
+    final hasSpecial = AppValidators.hasSpecialChar(pass);
+    final isPassMatch = pass.isNotEmpty && pass == confirmPass;
 
     return Scaffold(
       backgroundColor: AppColors.surface,
       body: SafeArea(
-        child: Column(
-          children: [
-            // Sticky Header Bar
-            Container(
-              height: 56,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: BoxDecoration(
-                color: AppColors.surface.withValues(alpha: 0.92),
-                border: Border(
-                  bottom: BorderSide(
-                    color: AppColors.surfaceContainerHigh.withValues(
-                      alpha: 0.7,
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 420),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    // 1. Minimal Top Bar
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          onPressed: () => context.go('/login'),
+                          icon: const Icon(
+                            Symbols.arrow_back,
+                            size: 20,
+                            color: AppColors.onSurface,
+                          ),
+                        ),
+                        const Row(
+                          children: [
+                            DentoraLogo(size: 32),
+                            SizedBox(width: 8),
+                            Text(
+                              'Dentora',
+                              style: TextStyle(
+                                fontFamily: 'Plus Jakarta Sans',
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(width: 40),
+                      ],
                     ),
-                  ),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  InkWell(
-                    borderRadius: BorderRadius.circular(20),
-                    onTap: () => context.pop(),
-                    child: Container(
-                      width: 38,
-                      height: 38,
-                      decoration: const BoxDecoration(
-                        color: AppColors.surfaceContainerLow,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Symbols.arrow_back_ios_new,
-                        size: 18,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ),
-                  const Row(
-                    children: [
-                      DentoraLogo(size: 28),
-                      SizedBox(width: 8),
-                      Text(
-                        'Dentora',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.primary,
+                    const SizedBox(height: 12),
+
+                    // 2. Main Registration Card
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceContainerLowest,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(
+                          color: AppColors.surfaceContainerHigh,
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(width: 38),
-                ],
-              ),
-            ),
-
-            // Form Content
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Hero Section
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 5,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.secondaryFixed.withValues(alpha: 0.65),
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Symbols.verified_user,
-                            size: 14,
-                            fill: 1,
-                            color: AppColors.onSecondaryFixedVariant,
-                          ),
-                          SizedBox(width: 6),
-                          Text(
-                            'HASTA PORTALI KAYDI',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.4,
-                              color: AppColors.onSecondaryFixedVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Yeni Hesap Oluştur',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.5,
-                        color: AppColors.onSurface,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'Randevularınızı yönetmek, röntgen ve reçetelerinize anında ulaşmak için bilgilerinizi eksiksiz giriniz.',
-                      style: TextStyle(
-                        fontSize: 13,
-                        height: 1.45,
-                        color: AppColors.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 18),
-
-                    // Card 1: TC Kimlik Numarası
-                    _buildFormCard(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Flexible(
-                                child: Text(
-                                  'TC KİMLİK NUMARASI',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w700,
-                                    letterSpacing: 0.5,
-                                    color: AppColors.onSurfaceVariant,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: tcLength == 11
-                                      ? AppColors.secondaryFixed
-                                      : AppColors.surfaceContainerLow,
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Text(
-                                  '$tcLength/11 Hane',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w700,
-                                    color: tcLength == 11
-                                        ? AppColors.primary
-                                        : AppColors.outline,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          _buildInputField(
-                            controller: _tcController,
-                            hint: '11 haneli TC Kimlik Numaranız',
-                            icon: Symbols.badge,
-                            keyboardType: TextInputType.number,
-                            formatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                              LengthLimitingTextInputFormatter(11),
-                            ],
-                            onChanged: (_) => setState(() {}),
-                          ),
-                          const SizedBox(height: 6),
-                          const Row(
-                            children: [
-                              Icon(
-                                Symbols.info,
-                                size: 13,
-                                color: AppColors.outline,
-                              ),
-                              SizedBox(width: 5),
-                              Expanded(
-                                child: Text(
-                                  'e-Nabız ve klinik protokol eşleşmesi için zorunludur.',
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    color: AppColors.outline,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Card 2: Ad Soyad
-                    _buildFormCard(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'AD SOYAD',
+                            'Yeni Hesap Oluştur',
                             style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.5,
-                              color: AppColors.onSurfaceVariant,
+                              fontFamily: 'Plus Jakarta Sans',
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                              color: AppColors.onSurface,
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          _buildInputField(
+                          const SizedBox(height: 14),
+
+                          // Role Switcher
+                          Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceContainerLow,
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: _buildRoleTab(
+                                    label: 'Hasta',
+                                    icon: Symbols.person_add,
+                                    selected: !_isDoctorRole,
+                                    onTap: () =>
+                                        setState(() => _isDoctorRole = false),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: _buildRoleTab(
+                                    label: 'Doktor',
+                                    icon: Symbols.medical_services,
+                                    selected: _isDoctorRole,
+                                    onTap: () =>
+                                        setState(() => _isDoctorRole = true),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+
+                          // Ad Soyad
+                          _buildLabel('AD SOYAD'),
+                          const SizedBox(height: 4),
+                          TextFormField(
                             controller: _nameController,
-                            hint: 'Örn. Zeynep Kaya',
-                            icon: Symbols.person,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Card 3: İletişim Bilgileri (Telefon & E-posta)
-                    _buildFormCard(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'TELEFON NUMARASI',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.5,
-                              color: AppColors.onSurfaceVariant,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          _buildInputField(
-                            controller: _phoneController,
-                            hint: '05XX XXX XX XX',
-                            icon: Symbols.call,
-                            keyboardType: TextInputType.phone,
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 14),
-                            child: Divider(
-                              color: AppColors.surfaceContainerHigh,
-                              height: 1,
-                            ),
-                          ),
-                          const Text(
-                            'E-POSTA ADRESİ',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.5,
-                              color: AppColors.onSurfaceVariant,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          _buildInputField(
-                            controller: _emailController,
-                            hint: 'ornek@eposta.com',
-                            icon: Symbols.mail,
-                            keyboardType: TextInputType.emailAddress,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Card 4: Güvenlik & Şifre Belirleme
-                    _buildFormCard(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'ŞİFRE OLUŞTUR',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.5,
-                              color: AppColors.onSurfaceVariant,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          _buildInputField(
-                            controller: _passwordController,
-                            hint: 'En az 8 karakterli şifre',
-                            icon: Symbols.lock,
-                            obscureText: _obscurePassword,
+                            validator: AppValidators.validateFullName,
                             onChanged: (_) => setState(() {}),
-                            suffix: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  _obscurePassword = !_obscurePassword;
-                                });
-                              },
-                              icon: Icon(
-                                _obscurePassword
-                                    ? Symbols.visibility
-                                    : Symbols.visibility_off,
-                                size: 20,
-                                color: AppColors.outline,
-                              ),
+                            style: const TextStyle(
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            decoration: _buildInputDecoration(
+                              hint: 'Adınız Soyadınız',
+                              prefixIcon: Symbols.badge,
+                              isValid: isNameValid,
                             ),
                           ),
                           const SizedBox(height: 10),
-                          // 3-bar Strength Meter
-                          Row(
-                            children: [
-                              for (int i = 1; i <= 3; i++) ...[
-                                Expanded(
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 220),
-                                    height: 5,
-                                    decoration: BoxDecoration(
-                                      color: strength >= i
-                                          ? barColor
-                                          : AppColors.surfaceContainerHighest,
-                                      borderRadius: BorderRadius.circular(999),
+
+                          // TC Kimlik No
+                          _buildLabel('TC KİMLİK NO'),
+                          const SizedBox(height: 4),
+                          TextFormField(
+                            controller: _tcController,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(11),
+                            ],
+                            validator: AppValidators.validateTc,
+                            onChanged: (_) => setState(() {}),
+                            style: const TextStyle(
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            decoration: _buildInputDecoration(
+                              hint: '11 haneli TC Kimlik No',
+                              prefixIcon: Symbols.id_card,
+                              isValid: isTcValid,
+                            ),
+                          ),
+                          AnimatedSize(
+                            duration: const Duration(milliseconds: 180),
+                            alignment: Alignment.topCenter,
+                            child: tc.isEmpty
+                                ? const SizedBox.shrink()
+                                : Padding(
+                                    padding: const EdgeInsets.only(top: 5),
+                                    child: _buildCriteriaItem(
+                                      label: '11 Haneli TC (${tc.length}/11)',
+                                      passed: isTcValid,
+                                    ),
+                                  ),
+                          ),
+                          const SizedBox(height: 10),
+
+                          // Telefon
+                          _buildLabel('CEP TELEFONU'),
+                          const SizedBox(height: 4),
+                          TextFormField(
+                            controller: _phoneController,
+                            keyboardType: TextInputType.phone,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(11),
+                            ],
+                            validator: AppValidators.validatePhone,
+                            onChanged: (_) => setState(() {}),
+                            style: const TextStyle(
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            decoration: _buildInputDecoration(
+                              hint: '05XX XXX XX XX',
+                              prefixIcon: Symbols.call,
+                              isValid: isPhoneValid,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+
+                          // E-Posta
+                          _buildLabel('E-POSTA'),
+                          const SizedBox(height: 4),
+                          TextFormField(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            validator: AppValidators.validateEmail,
+                            onChanged: (_) => setState(() {}),
+                            style: const TextStyle(
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            decoration: _buildInputDecoration(
+                              hint: 'ornek@eposta.com',
+                              prefixIcon: Symbols.mail,
+                              isValid: isEmailValid,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+
+                          // Şifre
+                          _buildLabel('ŞİFRE'),
+                          const SizedBox(height: 4),
+                          TextFormField(
+                            controller: _passwordController,
+                            obscureText: _obscurePassword,
+                            validator: AppValidators.validatePassword,
+                            onChanged: (_) => setState(() {}),
+                            style: const TextStyle(
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            decoration:
+                                _buildInputDecoration(
+                                  hint: 'Şifre oluşturun',
+                                  prefixIcon: Symbols.lock,
+                                  isValid: AppValidators.isPasswordStrong(pass),
+                                ).copyWith(
+                                  suffixIcon: IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        _obscurePassword = !_obscurePassword;
+                                      });
+                                    },
+                                    icon: Icon(
+                                      _obscurePassword
+                                          ? Symbols.visibility
+                                          : Symbols.visibility_off,
+                                      size: 18,
+                                      color: AppColors.outline,
                                     ),
                                   ),
                                 ),
-                                if (i < 3) const SizedBox(width: 6),
-                              ],
-                            ],
                           ),
-                          const SizedBox(height: 6),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  strengthLabel,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                    color: strengthTextColor,
+
+                          // Şifre yazdıkça altta açılan validasyon kriterleri
+                          AnimatedSize(
+                            duration: const Duration(milliseconds: 200),
+                            alignment: Alignment.topCenter,
+                            child: pass.isEmpty
+                                ? const SizedBox.shrink()
+                                : Container(
+                                    width: double.infinity,
+                                    margin: const EdgeInsets.only(top: 8),
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.surfaceContainerLow,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Wrap(
+                                      spacing: 10,
+                                      runSpacing: 6,
+                                      children: [
+                                        _buildCriteriaItem(
+                                          label: '8+ Karakter',
+                                          passed: hasMinLen,
+                                        ),
+                                        _buildCriteriaItem(
+                                          label: 'Büyük Harf',
+                                          passed: hasUpper,
+                                        ),
+                                        _buildCriteriaItem(
+                                          label: 'Küçük Harf',
+                                          passed: hasLower,
+                                        ),
+                                        _buildCriteriaItem(
+                                          label: 'Rakam',
+                                          passed: hasDigit,
+                                        ),
+                                        _buildCriteriaItem(
+                                          label: 'Özel Karakter',
+                                          passed: hasSpecial,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                          ),
+                          const SizedBox(height: 10),
+
+                          // Şifre Tekrar
+                          _buildLabel('ŞİFRE TEKRAR'),
+                          const SizedBox(height: 4),
+                          TextFormField(
+                            controller: _confirmPasswordController,
+                            obscureText: _obscurePassword,
+                            validator: (val) {
+                              if (val == null || val.isEmpty) {
+                                return 'Şifrenizi tekrar giriniz.';
+                              }
+                              if (val != _passwordController.text) {
+                                return 'Şifreler eşleşmiyor.';
+                              }
+                              return null;
+                            },
+                            onChanged: (_) => setState(() {}),
+                            style: const TextStyle(
+                              fontSize: 13.5,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            decoration: _buildInputDecoration(
+                              hint: 'Şifrenizi tekrar giriniz',
+                              prefixIcon: Symbols.verified_user,
+                              isValid: isPassMatch,
+                            ),
+                          ),
+                          // Şifre tekrar yazdıkça altta açılan eşleşme kontrolü
+                          AnimatedSize(
+                            duration: const Duration(milliseconds: 180),
+                            alignment: Alignment.topCenter,
+                            child: confirmPass.isEmpty
+                                ? const SizedBox.shrink()
+                                : Padding(
+                                    padding: const EdgeInsets.only(top: 5),
+                                    child: _buildCriteriaItem(
+                                      label: isPassMatch
+                                          ? 'Şifreler eşleşti'
+                                          : 'Şifreler eşleşmiyor',
+                                      passed: isPassMatch,
+                                    ),
+                                  ),
+                          ),
+                          const SizedBox(height: 12),
+
+                          // KVKK Onayı
+                          GestureDetector(
+                            onTap: () =>
+                                setState(() => _kvkkAccepted = !_kvkkAccepted),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  _kvkkAccepted
+                                      ? Symbols.check_box
+                                      : Symbols.check_box_outline_blank,
+                                  size: 20,
+                                  fill: _kvkkAccepted ? 1 : 0,
+                                  color: _kvkkAccepted
+                                      ? AppColors.primary
+                                      : AppColors.outline,
+                                ),
+                                const SizedBox(width: 8),
+                                const Expanded(
+                                  child: Text(
+                                    'KVKK ve Kullanıcı Sözleşmesini kabul ediyorum.',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.onSurfaceVariant,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(width: 8),
-                              const Text(
-                                '256-bit SSL',
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.primary,
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Kayıt Ol Butonu
+                          SizedBox(
+                            width: double.infinity,
+                            height: 48,
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    AppColors.primary,
+                                    AppColors.primaryContainer,
+                                  ],
                                 ),
+                                borderRadius: BorderRadius.circular(14),
                               ),
-                            ],
-                          ),
-                          const Padding(
-                            padding: EdgeInsets.symmetric(vertical: 14),
-                            child: Divider(
-                              color: AppColors.surfaceContainerHigh,
-                              height: 1,
-                            ),
-                          ),
-                          const Text(
-                            'ŞİFRE TEKRAR',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.5,
-                              color: AppColors.onSurfaceVariant,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          _buildInputField(
-                            controller: _passwordConfirmController,
-                            hint: 'Şifrenizi tekrar giriniz',
-                            icon: Symbols.enhanced_encryption,
-                            obscureText: _obscureConfirm,
-                            suffix: IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  _obscureConfirm = !_obscureConfirm;
-                                });
-                              },
-                              icon: Icon(
-                                _obscureConfirm
-                                    ? Symbols.visibility
-                                    : Symbols.visibility_off,
-                                size: 20,
-                                color: AppColors.outline,
+                              child: ElevatedButton(
+                                onPressed: _handleRegister,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  shadowColor: Colors.transparent,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Kayıt Ol',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -475,260 +483,149 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     const SizedBox(height: 14),
 
-                    // KVKK Consent Checkbox Card
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _kvkkAccepted = !_kvkkAccepted;
-                        });
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceContainerLow,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: _kvkkAccepted
-                                ? AppColors.primary
-                                : AppColors.surfaceContainerHigh,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'Zaten hesabınız var mı? ',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.onSurfaceVariant,
                           ),
                         ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 20,
-                              height: 20,
-                              margin: const EdgeInsets.only(top: 2),
-                              decoration: BoxDecoration(
-                                color: _kvkkAccepted
-                                    ? AppColors.primary
-                                    : Colors.white,
-                                borderRadius: BorderRadius.circular(6),
-                                border: Border.all(
-                                  color: _kvkkAccepted
-                                      ? AppColors.primary
-                                      : AppColors.outlineVariant,
-                                ),
-                              ),
-                              child: _kvkkAccepted
-                                  ? const Icon(
-                                      Symbols.check,
-                                      size: 15,
-                                      color: Colors.white,
-                                    )
-                                  : null,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: RichText(
-                                text: const TextSpan(
-                                  style: TextStyle(
-                                    fontFamily: 'Plus Jakarta Sans',
-                                    fontSize: 12,
-                                    height: 1.45,
-                                    color: AppColors.onSurfaceVariant,
-                                  ),
-                                  children: [
-                                    TextSpan(
-                                      text: 'KVKK Aydınlatma Metni',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        color: AppColors.primary,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                    ),
-                                    TextSpan(text: '’ni ve '),
-                                    TextSpan(
-                                      text: 'Klinik Hasta Gizlilik Sözleşmesi',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        color: AppColors.primary,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text:
-                                          '’ni okudum, kişisel sağlık verilerimin işlenmesini onaylıyorum.',
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 18),
-
-                    // Primary CTA: Kayıt Oluştur
-                    SizedBox(
-                      width: double.infinity,
-                      height: 54,
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [
-                              AppColors.primary,
-                              AppColors.primaryContainer,
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppColors.primary.withValues(alpha: 0.25),
-                              blurRadius: 18,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
-                        ),
-                        child: ElevatedButton(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: const Text(
-                                  'Hasta kaydınız başarıyla oluşturuldu!',
-                                ),
-                                backgroundColor: AppColors.primary,
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            );
-                            context.go('/patient/home');
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                          ),
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Kayıt Oluştur',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              SizedBox(width: 8),
-                              Icon(
-                                Symbols.arrow_forward,
-                                size: 20,
-                                color: Colors.white,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Already Registered Link
-                    Center(
-                      child: Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          const Text(
-                            'Zaten bir hesabınız var mı? ',
+                        GestureDetector(
+                          onTap: () => context.go('/login'),
+                          child: const Text(
+                            'Giriş Yap',
                             style: TextStyle(
                               fontSize: 13,
-                              color: AppColors.onSurfaceVariant,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.primary,
                             ),
                           ),
-                          GestureDetector(
-                            onTap: () => context.go('/login'),
-                            child: const Text(
-                              'Giriş Yapın',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFormCard({required Widget child}) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.surfaceContainerHigh.withValues(alpha: 0.7),
-        ),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0A131B2E),
-            blurRadius: 16,
-            offset: Offset(0, 4),
           ),
-        ],
+        ),
       ),
-      child: child,
     );
   }
 
-  Widget _buildInputField({
-    required TextEditingController controller,
-    required String hint,
-    required IconData icon,
-    TextInputType keyboardType = TextInputType.text,
-    List<TextInputFormatter>? formatters,
-    bool obscureText = false,
-    Widget? suffix,
-    ValueChanged<String>? onChanged,
-  }) {
-    return TextField(
-      controller: controller,
-      keyboardType: keyboardType,
-      inputFormatters: formatters,
-      obscureText: obscureText,
-      onChanged: onChanged,
+  Widget _buildLabel(String text) {
+    return Text(
+      text,
       style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-        color: AppColors.onSurface,
+        fontSize: 10.5,
+        fontWeight: FontWeight.w700,
+        color: AppColors.onSurfaceVariant,
       ),
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: TextStyle(
-          fontSize: 14,
-          fontWeight: FontWeight.w400,
-          color: AppColors.outline.withValues(alpha: 0.7),
+    );
+  }
+
+  Widget _buildCriteriaItem({required String label, required bool passed}) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          passed ? Symbols.check_circle : Symbols.radio_button_unchecked,
+          size: 14,
+          fill: passed ? 1 : 0,
+          color: passed ? AppColors.emeraldOnline : AppColors.outline,
         ),
-        prefixIcon: Icon(icon, size: 20, color: AppColors.outline),
-        suffixIcon: suffix,
-        filled: true,
-        fillColor: AppColors.surfaceContainerLow,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 14,
-          vertical: 14,
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: passed ? FontWeight.w700 : FontWeight.w500,
+            color: passed
+                ? const Color(0xFF047857)
+                : AppColors.onSurfaceVariant,
+          ),
         ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
+      ],
+    );
+  }
+
+  InputDecoration _buildInputDecoration({
+    required String hint,
+    required IconData prefixIcon,
+    required bool isValid,
+  }) {
+    return InputDecoration(
+      hintText: hint,
+      prefixIcon: Icon(
+        prefixIcon,
+        size: 18,
+        color: isValid ? AppColors.emeraldOnline : AppColors.outline,
+      ),
+      filled: true,
+      fillColor: AppColors.surfaceContainerLow,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(
+          color: isValid
+              ? AppColors.emeraldOnline.withValues(alpha: 0.5)
+              : Colors.transparent,
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(
+          color: isValid ? AppColors.emeraldOnline : AppColors.primary,
+          width: 1.5,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRoleTab({
+    required String label,
+    required IconData icon,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(vertical: 9),
+        decoration: BoxDecoration(
+          color: selected
+              ? AppColors.surfaceContainerLowest
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: selected ? AppColors.primary : AppColors.onSurfaceVariant,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w700,
+                color: selected
+                    ? AppColors.primary
+                    : AppColors.onSurfaceVariant,
+              ),
+            ),
+          ],
         ),
       ),
     );

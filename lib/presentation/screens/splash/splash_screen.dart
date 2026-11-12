@@ -67,10 +67,10 @@ class _SplashScreenState extends State<SplashScreen>
 
     _entranceController.forward();
 
-    // Navigate to login after ~2.7 seconds
+    // Navigate to welcome screen after ~2.7 seconds
     _navigationTimer = Timer(const Duration(milliseconds: 2700), () {
       if (mounted) {
-        context.go('/login');
+        context.go('/welcome');
       }
     });
   }

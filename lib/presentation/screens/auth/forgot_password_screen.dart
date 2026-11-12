@@ -170,23 +170,22 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           'Şifrenizi mi Unuttunuz?',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 28,
+                            fontSize: 24,
                             fontWeight: FontWeight.w700,
                             letterSpacing: -0.5,
                             color: AppColors.onSurface,
                           ),
                         ),
-                        const SizedBox(height: 10),
+                        const SizedBox(height: 8),
                         const Text(
-                          'Hesabınıza kayıtlı e-posta adresinizi girin. Size şifrenizi güvenle yenileyebilmeniz için özel bir bağlantı göndereceğiz.',
+                          'Kayıtlı e-posta adresinize sıfırlama bağlantısı gönderilecektir.',
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontSize: 15,
-                            height: 1.5,
+                            fontSize: 13.5,
                             color: AppColors.onSurfaceVariant,
                           ),
                         ),
-                        const SizedBox(height: 28),
+                        const SizedBox(height: 24),
 
                         // Input Card
                         Container(

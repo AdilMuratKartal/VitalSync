@@ -20,6 +20,7 @@ import '../../presentation/screens/patient/patient_home_screen.dart';
 import '../../presentation/screens/patient/patient_shell_screen.dart';
 import '../../presentation/screens/patient/profile_settings_screen.dart';
 import '../../presentation/screens/splash/splash_screen.dart';
+import '../../presentation/screens/welcome/welcome_screen.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -31,6 +32,10 @@ class AppRouter {
       GoRoute(
         path: '/splash',
         builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: '/welcome',
+        builder: (context, state) => const WelcomeScreen(),
       ),
       GoRoute(
         path: '/login',
