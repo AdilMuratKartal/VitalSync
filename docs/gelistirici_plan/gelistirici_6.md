@@ -53,7 +53,7 @@ durumlarının doğru görüntülenmesini kontrol etmek.
 
 - Geliştirici 1'in hazırladığı Router ve Core yapısını kullanır.
 - Geliştirici 2'nin hazırladığı ortak widget ve tasarımları kullanır.
-- Geliştirici 3'ün Firebase servislerini kullanır.
+- Geliştirici 3'ün Firebase servislerini kullanır. *(Not: Proje ücretsiz Spark planında kaldığı için `StorageService` yükleme sonucunda `assets/` veya örnek URL fallback'i döndürebilir; görsel gösteriminde hem yerel asset hem ağ URL'si desteklenmelidir.)*
 - Geliştirici 4'ün modellerine uygun veri gösterir.
 - Geliştirici 5'in hazırladığı Cubit ve State yapılarını kullanır.
 

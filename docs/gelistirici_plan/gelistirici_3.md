@@ -64,8 +64,8 @@ Proje geliştirilirken kısa, anlamlı ve sade Türkçe yorum satırları eklene
 4. **Cloud Firestore Veritabanı Oluşturma:**
    - Firebase Console → **Build → Firestore Database → Create database** adımına tıklayın.
    - Konum olarak `eur3 (europe-west)` seçin ve başlangıç için **Test Mode** (veya giriş yapmış kullanıcılara izin veren kurallar) ile başlatın.
-5. **Firebase Storage (Dosya/Röntgen Yükleme) Açma:**
-   - Firebase Console → **Build → Storage → Get Started** adımından Storage alanını etkinleştirin.
+5. **Firebase Storage (Dosya/Röntgen Yükleme) — Spark Planı Notu:**
+   - Firebase Storage ilk kurulumda Blaze (ücretli/kart tanımlı) plan istediğinden, proje **ücretsiz Spark planında** tutulmuş ve Console üzerinden Storage etkinleştirilmemiştir. Kod tarafındaki `StorageService`, Storage kapalıyken uygulamanın çökmesini önlemek için güvenli yerel/örnek URL fallback'i ile çalışacak şekilde hazırlanmıştır.
 
 ### B. Kod Tarafında Yapılacaklar (Asistan / Geliştirici 3 Kod Görevleri)
 
@@ -76,7 +76,7 @@ Proje geliştirilirken kısa, anlamlı ve sade Türkçe yorum satırları eklene
 3. **Veritabanı Servisi (`lib/data/services/firestore_service.dart`):**
    - `users`, `appointments`, `tooth_records`, `treatments`, `payments` ve `prescriptions` koleksiyonları için CRUD (ekleme, okuma, güncelleme, silme) ve gerçek zamanlı `Stream` (canlı veri akışı) metotlarının hazırlanması.
 4. **Dosya Yükleme Servisi (`lib/data/services/storage_service.dart`):**
-   - Hasta röntgen/belge görsellerinin Firebase Storage'a yüklenip indirme bağlantısının (`downloadUrl`) Firestore'a kaydedilmesi.
+   - Hasta röntgen/belge görsellerini yükleyen (Spark planında Firebase Storage kapalıysa güvenli örnek/yerel `downloadUrl` fallback'i döndüren) ve bağlantıyı Firestore'a kaydeden servisin hazırlanması.
 5. **ServiceLocator Kaydı (`lib/core/di/service_locator.dart`):**
    - Hazırlanan `AuthService`, `FirestoreService` ve `StorageService` sınıflarının `ServiceLocator` içine kaydedilerek Geliştirici 5 ve 6'nın kullanımına sunulması.
 

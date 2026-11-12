@@ -35,7 +35,7 @@ Her ekranda gereksiz state sınıfları oluşturulmamalıdır.
 ## 4. Diğer Geliştiricilerle Bağımlılık
 
 - Geliştirici 1'in hazırladığı klasör yapısına uyar.
-- Geliştirici 3'ün hazırladığı Firebase servislerini kullanır.
+- Geliştirici 3'ün hazırladığı Firebase servislerini kullanır. *(Not: Proje ücretsiz Spark planında kaldığı için `StorageService` Storage kapalıyken güvenli fallback URL döndürür; Cubit tarafında ekstra Storage/Blaze işlemi gerekmez.)*
 - Geliştirici 4'ün hazırladığı modeller üzerinden çalışır.
 - Geliştirici 6, ekranlarını hazırlanan Cubit ve State yapılarına bağlar.
 
