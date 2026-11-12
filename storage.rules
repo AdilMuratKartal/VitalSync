@@ -1,0 +1,72 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isSignedIn() {
+      return request.auth != null && request.auth.uid != null && request.auth.uid.size() > 0;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAllowedImageContentType() {
+      return request.resource != null
+        && request.resource.contentType != null
+        && request.resource.contentType.matches('image/(png|jpeg|jpg|webp)');
+    }
+
+    function isAllowedPatientDocumentContentType() {
+      return request.resource != null
+        && request.resource.contentType != null
+        && (
+          request.resource.contentType.matches('image/(png|jpeg|jpg|webp)') ||
+          request.resource.contentType == 'application/pdf'
+        );
+    }
+
+    // -------------------------------------------------------------------------
+    // 1. Kullanıcı Profil Fotoğrafları (`users/{userId}/profile/{fileName}`)
+    // StorageService.uploadAndSaveProfilePhoto yolu ile birebir uyumludur.
+    // -------------------------------------------------------------------------
+    match /users/{userId}/profile/{fileName} {
+      allow read: if isOwner(userId);
+
+      allow create, update: if isOwner(userId)
+        && isAllowedImageContentType()
+        && request.resource.size > 0
+        && request.resource.size <= 5 * 1024 * 1024;
+
+      allow delete: if isOwner(userId);
+    }
+
+    // -------------------------------------------------------------------------
+    // 2. Hasta Röntgen ve Klinik Belgeleri (`patients/{patientId}/documents/{fileName}`)
+    // StorageService.uploadAndSavePatientDocument yolu ile birebir uyumludur.
+    //
+    // Güvenlik Notu:
+    // İstemci tarafından değiştirilebilen metadata alanları yetki kanıtı olarak
+    // kabul edilmez ve mevcut dosya yolunda doğrulanabilir doktor-hasta ilişkisi
+    // bulunmadığından genel doktor erişimi verilmemiştir. Yalnızca belge sahibi
+    // hasta erişebilir.
+    // -------------------------------------------------------------------------
+    match /patients/{patientId}/documents/{fileName} {
+      allow read: if isOwner(patientId);
+
+      allow create, update: if isOwner(patientId)
+        && isAllowedPatientDocumentContentType()
+        && request.resource.size > 0
+        && request.resource.size <= 10 * 1024 * 1024;
+
+      allow delete: if isOwner(patientId);
+    }
+
+    // -------------------------------------------------------------------------
+    // Varsayılan Kural: Diğer tüm dosya yollarına erişimi reddet
+    // -------------------------------------------------------------------------
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

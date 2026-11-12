@@ -494,17 +494,73 @@ class FirestoreService {
     descending: true,
   );
 
+  /// Henüz onaylanmamış (`isApproved == false`) bir reçeteyi transaction içinde günceller.
+  ///
+  /// Belge bulunamazsa `'prescription-not-found'`, reçete onaylanmışsa
+  /// (`isApproved == true`) `'prescription-already-approved'` kodlu
+  /// [FirestoreServiceException] fırlatır.
   Future<void> updatePrescription(
     String prescriptionId,
     Map<String, dynamic> data,
-  ) => updateDocument(
-    AppConstants.prescriptionsCollection,
-    prescriptionId,
-    data,
-  );
+  ) async {
+    final docRef = collectionRef(
+      AppConstants.prescriptionsCollection,
+    ).doc(prescriptionId);
 
-  Future<void> deletePrescription(String prescriptionId) =>
-      deleteDocument(AppConstants.prescriptionsCollection, prescriptionId);
+    await _firestore.runTransaction<void>((transaction) async {
+      final snapshot = await transaction.get(docRef);
+      if (!snapshot.exists) {
+        throw const FirestoreServiceException(
+          'prescription-not-found',
+          'Güncellenmek istenen reçete kaydı bulunamadı.',
+        );
+      }
+
+      final existingData = snapshot.data();
+      if (existingData?['isApproved'] != false) {
+        throw const FirestoreServiceException(
+          'prescription-already-approved',
+          'Onaylanmış reçete üzerinde değişiklik yapılamaz.',
+        );
+      }
+
+      transaction.update(docRef, {
+        ...data,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    });
+  }
+
+  /// Henüz onaylanmamış (`isApproved == false`) bir reçeteyi transaction içinde siler.
+  ///
+  /// Belge bulunamazsa `'prescription-not-found'`, reçete onaylanmışsa
+  /// (`isApproved == true`) `'prescription-already-approved'` kodlu
+  /// [FirestoreServiceException] fırlatır.
+  Future<void> deletePrescription(String prescriptionId) async {
+    final docRef = collectionRef(
+      AppConstants.prescriptionsCollection,
+    ).doc(prescriptionId);
+
+    await _firestore.runTransaction<void>((transaction) async {
+      final snapshot = await transaction.get(docRef);
+      if (!snapshot.exists) {
+        throw const FirestoreServiceException(
+          'prescription-not-found',
+          'Silinmek istenen reçete kaydı bulunamadı.',
+        );
+      }
+
+      final existingData = snapshot.data();
+      if (existingData?['isApproved'] != false) {
+        throw const FirestoreServiceException(
+          'prescription-already-approved',
+          'Onaylanmış reçete silinemez.',
+        );
+      }
+
+      transaction.delete(docRef);
+    });
+  }
 
   // ---------------------------------------------------------------------------
   // Ek Klinik Koleksiyonları (`vitals`, `results`, `messages`, `doctor_schedules`)
@@ -512,6 +568,15 @@ class FirestoreService {
 
   Future<String> createVital(Map<String, dynamic> data) =>
       addDocument(AppConstants.vitalsCollection, data);
+
+  Future<List<Map<String, dynamic>>> getVitalsByPatient(String patientId) =>
+      getCollection(
+        AppConstants.vitalsCollection,
+        filterField: 'patientId',
+        isEqualTo: patientId,
+        orderByField: 'createdAt',
+        descending: true,
+      );
 
   Stream<List<Map<String, dynamic>>> streamVitalsByPatient(String patientId) =>
       streamCollection(
@@ -522,8 +587,20 @@ class FirestoreService {
         descending: true,
       );
 
+  Future<void> updateVital(String vitalId, Map<String, dynamic> data) =>
+      updateDocument(AppConstants.vitalsCollection, vitalId, data);
+
   Future<String> createResult(Map<String, dynamic> data) =>
       addDocument(AppConstants.resultsCollection, data);
+
+  Future<List<Map<String, dynamic>>> getResultsByPatient(String patientId) =>
+      getCollection(
+        AppConstants.resultsCollection,
+        filterField: 'patientId',
+        isEqualTo: patientId,
+        orderByField: 'createdAt',
+        descending: true,
+      );
 
   Stream<List<Map<String, dynamic>>> streamResultsByPatient(String patientId) =>
       streamCollection(
@@ -537,6 +614,15 @@ class FirestoreService {
   Future<String> sendMessage(Map<String, dynamic> data) =>
       addDocument(AppConstants.messagesCollection, data);
 
+  Future<List<Map<String, dynamic>>> getMessagesByConversation(
+    String conversationId,
+  ) => getCollection(
+    AppConstants.messagesCollection,
+    filterField: 'conversationId',
+    isEqualTo: conversationId,
+    orderByField: 'createdAt',
+  );
+
   Stream<List<Map<String, dynamic>>> streamMessagesByConversation(
     String conversationId,
   ) => streamCollection(
@@ -545,6 +631,70 @@ class FirestoreService {
     isEqualTo: conversationId,
     orderByField: 'createdAt',
   );
+
+  /// Tek bir mesajın yalnızca okundu (`isRead: true`) durumunu günceller.
+  ///
+  /// Mesaj metni ve kimlik alanlarına dokunmaz; Firestore Security Rules gereği
+  /// yalnızca mesajın alıcısı (`receiverId == request.auth.uid`) tarafından çağrılmalıdır.
+  Future<void> markMessageAsRead(String messageId) => updateDocument(
+    AppConstants.messagesCollection,
+    messageId,
+    {'isRead': true},
+  );
+
+  /// Belirtilen konuşmada (`conversationId`) ilgili alıcıya (`receiverId`) ait
+  /// okunmamış mesajları toplu (`WriteBatch`) olarak okundu (`isRead: true`) işaretler.
+  ///
+  /// Güncellenen mesaj sayısını döndürür.
+  Future<int> markConversationMessagesAsRead({
+    required String conversationId,
+    required String receiverId,
+  }) async {
+    final cleanConversationId = conversationId.trim();
+    final cleanReceiverId = receiverId.trim();
+    if (cleanConversationId.isEmpty || cleanReceiverId.isEmpty) {
+      return 0;
+    }
+
+    final snapshot = await collectionRef(AppConstants.messagesCollection)
+        .where('conversationId', isEqualTo: cleanConversationId)
+        .where('receiverId', isEqualTo: cleanReceiverId)
+        .where('isRead', isEqualTo: false)
+        .get();
+
+    if (snapshot.docs.isEmpty) {
+      return 0;
+    }
+
+    final batch = _firestore.batch();
+    for (final doc in snapshot.docs) {
+      batch.update(doc.reference, {
+        'isRead': true,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+    }
+
+    await batch.commit();
+    return snapshot.docs.length;
+  }
+
+  Future<List<Map<String, dynamic>>> getMessagesByDoctor(String doctorId) =>
+      getCollection(
+        AppConstants.messagesCollection,
+        filterField: 'doctorId',
+        isEqualTo: doctorId,
+        orderByField: 'createdAt',
+        descending: true,
+      );
+
+  Stream<List<Map<String, dynamic>>> streamMessagesByDoctor(String doctorId) =>
+      streamCollection(
+        AppConstants.messagesCollection,
+        filterField: 'doctorId',
+        isEqualTo: doctorId,
+        orderByField: 'createdAt',
+        descending: true,
+      );
 
   Future<void> saveDoctorSchedule(
     String doctorId,

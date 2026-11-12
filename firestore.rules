@@ -1,0 +1,424 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // -------------------------------------------------------------------------
+    // Ortak Yardımcı Fonksiyonlar
+    // -------------------------------------------------------------------------
+
+    function isSignedIn() {
+      return request.auth != null && request.auth.uid != null && request.auth.uid.size() > 0;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Doktor yetkisi kontrolü:
+    // Not: 'users/{uid}' oluşturma ve güncelleme kuralları istemcinin kendi kendine
+    // 'doctor' rolü atamasını engellediği için, yalnızca sunucu/claim onaylı doktor
+    // profilleri veya Custom Claim ('request.auth.token.role == "doctor"') kabul edilir.
+    function isDoctor() {
+      return isSignedIn() && (
+        request.auth.token.role == 'doctor' ||
+        (
+          exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'doctor'
+        )
+      );
+    }
+
+    // -------------------------------------------------------------------------
+    // 1. Kullanıcılar (`users/{userId}`)
+    // -------------------------------------------------------------------------
+    match /users/{userId} {
+      // Kullanıcı kendi profilini okuyabilir.
+      // Oturum açmış kullanıcılar yalnızca doktor profillerini (randevu/hekim seçimi için) okuyabilir.
+      // Hasta profillerinin diğer kullanıcılar veya tüm doktorlar tarafından genel listelenmesi engellenmiştir.
+      allow read: if isOwner(userId) || (isSignedIn() && resource.data.role == 'doctor');
+
+      // Kayıt sırasında kullanıcı yalnızca kendi UID'si ile profil oluşturabilir.
+      // İstemci kendi kendine 'doctor' rolü atayamaz; 'doctor' rolü yalnızca doğrulanmış
+      // Custom Claim ('request.auth.token.role == "doctor"') varsa kabul edilir.
+      allow create: if isOwner(userId)
+        && request.resource.data.id == userId
+        && request.resource.data.uid == userId
+        && request.resource.data.email is string
+        && request.resource.data.email.size() > 0
+        && request.resource.data.fullName is string
+        && request.resource.data.fullName.size() > 0
+        && (
+          request.resource.data.role == 'patient' ||
+          (request.resource.data.role == 'doctor' && request.auth.token.role == 'doctor')
+        );
+
+      // Kullanıcı kendi profilini güncellerken 'role', 'id', 'uid' ve 'email' alanlarını değiştiremez.
+      allow update: if isOwner(userId)
+        && request.resource.data.role == resource.data.role
+        && request.resource.data.id == resource.data.id
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.email == resource.data.email;
+
+      allow delete: if false;
+    }
+
+    // -------------------------------------------------------------------------
+    // 2. Doktor Çalışma Programı ve İşlem Fiyatları (`doctor_schedules/{doctorId}`)
+    // -------------------------------------------------------------------------
+    match /doctor_schedules/{doctorId} {
+      // Randevu takvimi ve işlem ücretlerinin görüntülenebilmesi için oturum açmış kullanıcılara okuma izni.
+      allow read: if isSignedIn();
+
+      // Yalnızca ilgili doktor kendi çalışma programını ve fiyat tarifesini oluşturabilir/güncelleyebilir.
+      allow create, update: if isDoctor()
+        && isOwner(doctorId)
+        && request.resource.data.doctorId == doctorId
+        && request.resource.data.id == doctorId
+        && request.resource.data.workingDays is list
+        && request.resource.data.workingDays.size() == 7;
+
+      allow delete: if false;
+    }
+
+    // -------------------------------------------------------------------------
+    // 3. Randevular (`appointments/{appointmentId}`)
+    // -------------------------------------------------------------------------
+    match /appointments/{appointmentId} {
+      // Yalnızca randevunun sahibi hasta veya randevunun atandığı doktor okuyabilir.
+      allow read: if isSignedIn() && (
+        resource.data.patientId == request.auth.uid ||
+        (isDoctor() && resource.data.doctorId == request.auth.uid)
+      );
+
+      // Hasta kendi adına ('pending' durumunda) veya yetkili doktor kendi takvimi için randevu oluşturabilir.
+      allow create: if isSignedIn()
+        && request.resource.data.patientId is string
+        && request.resource.data.patientId.size() > 0
+        && request.resource.data.doctorId is string
+        && request.resource.data.doctorId.size() > 0
+        && request.resource.data.patientId != request.resource.data.doctorId
+        && request.resource.data.date is string
+        && request.resource.data.date.size() > 0
+        && request.resource.data.time is string
+        && request.resource.data.time.size() > 0
+        && request.resource.data.serviceName is string
+        && request.resource.data.serviceName.size() > 0
+        && (
+          (
+            request.resource.data.patientId == request.auth.uid &&
+            request.resource.data.status == 'pending'
+          ) ||
+          (
+            isDoctor() &&
+            request.resource.data.doctorId == request.auth.uid &&
+            request.resource.data.status in ['pending', 'approved']
+          )
+        );
+
+      // Güncellemede hasta/doktor kimlikleri, tarih ve saat sabit kalmalıdır.
+      // Hasta yalnızca kendi randevusunu iptal edebilir veya notunu güncelleyebilir.
+      // İlgili doktor randevu durumunu ('approved', 'completed', 'cancelled') ve notunu güncelleyebilir.
+      allow update: if isSignedIn()
+        && request.resource.data.patientId == resource.data.patientId
+        && request.resource.data.doctorId == resource.data.doctorId
+        && request.resource.data.date == resource.data.date
+        && request.resource.data.time == resource.data.time
+        && request.resource.data.serviceName == resource.data.serviceName
+        && request.resource.data.price == resource.data.price
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.status in ['pending', 'approved', 'completed', 'cancelled']
+        && (
+          (
+            resource.data.patientId == request.auth.uid &&
+            resource.data.status in ['pending', 'approved'] &&
+            (
+              request.resource.data.status == 'cancelled' ||
+              request.resource.data.status == resource.data.status
+            )
+          ) ||
+          (
+            isDoctor() &&
+            resource.data.doctorId == request.auth.uid
+          )
+        );
+
+      allow delete: if false;
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. Reçeteler (`prescriptions/{prescriptionId}`)
+    // -------------------------------------------------------------------------
+    match /prescriptions/{prescriptionId} {
+      // Yalnızca reçetenin yazıldığı hasta veya reçeteyi oluşturan yetkili doktor okuyabilir.
+      allow read: if isSignedIn() && (
+        resource.data.patientId == request.auth.uid ||
+        (isDoctor() && resource.data.doctorId == request.auth.uid)
+      );
+
+      // Reçete yalnızca doktor tarafından kendi 'doctorId' kimliğiyle oluşturulabilir.
+      allow create: if isDoctor()
+        && request.resource.data.doctorId == request.auth.uid
+        && request.resource.data.patientId is string
+        && request.resource.data.patientId.size() > 0
+        && request.resource.data.patientId != request.auth.uid
+        && request.resource.data.diagnosis is string
+        && request.resource.data.diagnosis.size() > 0
+        && request.resource.data.medicines is list
+        && request.resource.data.medicines.size() > 0
+        && request.resource.data.isApproved is bool;
+
+      // Onaylanmış ('resource.data.isApproved == true') reçeteler kesinlikle güncellenemez.
+      // Yalnızca reçeteyi yazan doktor, reçete henüz onaylanmamışken ('isApproved == false')
+      // taslağı güncelleyebilir veya onaylayabilir ('false -> true').
+      allow update: if isDoctor()
+        && resource.data.doctorId == request.auth.uid
+        && resource.data.isApproved == false
+        && request.resource.data.isApproved is bool
+        && request.resource.data.patientId == resource.data.patientId
+        && request.resource.data.doctorId == resource.data.doctorId
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.diagnosis is string
+        && request.resource.data.diagnosis.size() > 0
+        && request.resource.data.medicines is list
+        && request.resource.data.medicines.size() > 0;
+
+      // Onaylanmış reçete silinemez; yalnızca taslak ('isApproved == false') reçete sahibi doktorca silinebilir.
+      allow delete: if isDoctor()
+        && resource.data.doctorId == request.auth.uid
+        && resource.data.isApproved == false;
+    }
+
+    // -------------------------------------------------------------------------
+    // 5. Tahlil, Röntgen ve Tıbbi Sonuçlar (`results/{resultId}`)
+    // -------------------------------------------------------------------------
+    match /results/{resultId} {
+      // Yalnızca sonucun sahibi hasta veya sonuç belgesinde yetkili olan doktor okuyabilir.
+      allow read: if isSignedIn() && (
+        resource.data.patientId == request.auth.uid ||
+        (
+          isDoctor() &&
+          resource.data.doctorId is string &&
+          resource.data.doctorId == request.auth.uid
+        )
+      );
+
+      // Hasta kendi belgesini yükleyebilir veya yetkili doktor kendi 'doctorId' bilgisiyle sonuç ekleyebilir.
+      allow create: if isSignedIn()
+        && request.resource.data.patientId is string
+        && request.resource.data.patientId.size() > 0
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && (
+          request.resource.data.patientId == request.auth.uid ||
+          (
+            isDoctor() &&
+            request.resource.data.doctorId is string &&
+            request.resource.data.doctorId == request.auth.uid
+          )
+        );
+
+      // Güncellemede 'patientId' ve 'createdAt' değiştirilemez.
+      allow update: if isSignedIn()
+        && request.resource.data.patientId == resource.data.patientId
+        && request.resource.data.createdAt == resource.data.createdAt
+        && (
+          (
+            resource.data.patientId == request.auth.uid &&
+            request.resource.data.get('doctorId', '') == resource.data.get('doctorId', '')
+          ) ||
+          (
+            isDoctor() &&
+            resource.data.doctorId is string &&
+            resource.data.doctorId == request.auth.uid &&
+            request.resource.data.doctorId == resource.data.doctorId
+          )
+        );
+
+      allow delete: if false;
+    }
+
+    // -------------------------------------------------------------------------
+    // 6. Yaşamsal Sağlık Ölçümleri (`vitals/{vitalId}`)
+    // -------------------------------------------------------------------------
+    match /vitals/{vitalId} {
+      // Şema Notu: 'VitalModel' içinde 'doctorId' alanı veya deterministik bir hasta-doktor
+      // yetki belgesi bulunmadığından doktorlara tüm hastaların ölçümlerine genel erişim verilmez.
+      // Yalnızca verinin sahibi hasta kendi ölçümlerini okuyabilir, ekleyebilir ve güncelleyebilir.
+      allow read: if isSignedIn() && resource.data.patientId == request.auth.uid;
+
+      allow create: if isSignedIn()
+        && request.resource.data.patientId == request.auth.uid
+        && request.resource.data.systolic is int
+        && request.resource.data.diastolic is int
+        && request.resource.data.systolic > 0
+        && request.resource.data.diastolic > 0
+        && request.resource.data.systolic > request.resource.data.diastolic
+        && request.resource.data.bloodSugar is int
+        && request.resource.data.bloodSugar > 0
+        && request.resource.data.pulse is int
+        && request.resource.data.pulse > 0
+        && request.resource.data.oxygen is int
+        && request.resource.data.oxygen >= 1
+        && request.resource.data.oxygen <= 100;
+
+      allow update: if isSignedIn()
+        && resource.data.patientId == request.auth.uid
+        && request.resource.data.patientId == resource.data.patientId
+        && request.resource.data.createdAt == resource.data.createdAt
+        && request.resource.data.systolic is int
+        && request.resource.data.diastolic is int
+        && request.resource.data.systolic > 0
+        && request.resource.data.diastolic > 0
+        && request.resource.data.systolic > request.resource.data.diastolic
+        && request.resource.data.bloodSugar is int
+        && request.resource.data.bloodSugar > 0
+        && request.resource.data.pulse is int
+        && request.resource.data.pulse > 0
+        && request.resource.data.oxygen is int
+        && request.resource.data.oxygen >= 1
+        && request.resource.data.oxygen <= 100;
+
+      allow delete: if false;
+    }
+
+    // -------------------------------------------------------------------------
+    // 7. Mesajlaşma (`messages/{messageId}`)
+    // -------------------------------------------------------------------------
+    match /messages/{messageId} {
+      // Yalnızca konuşmanın tarafları (hasta veya ilgili doktor / gönderen veya alıcı) mesajları okuyabilir.
+      allow read: if isSignedIn() && (
+        resource.data.patientId == request.auth.uid ||
+        resource.data.doctorId == request.auth.uid ||
+        resource.data.senderId == request.auth.uid ||
+        resource.data.receiverId == request.auth.uid
+      );
+
+      // Mesaj gönderimi:
+      // - Gönderen ('senderId') aktif oturum sahibi olmalıdır.
+      // - 'senderId' ve 'receiverId' konuşmanın '{patientId, doctorId}' çiftiyle eşleşmelidir.
+      // - 'conversationId' standart '${patientId}_${doctorId}' formatında olmalıdır.
+      // - İlk oluşturmada 'isRead == false' olmalı ve en az bir içerik ('text' veya 'attachmentUrl') bulunmalıdır.
+      allow create: if isSignedIn()
+        && request.resource.data.senderId == request.auth.uid
+        && request.resource.data.patientId is string
+        && request.resource.data.patientId.size() > 0
+        && request.resource.data.doctorId is string
+        && request.resource.data.doctorId.size() > 0
+        && request.resource.data.patientId != request.resource.data.doctorId
+        && request.resource.data.senderId != request.resource.data.receiverId
+        && request.resource.data.conversationId == (request.resource.data.patientId + '_' + request.resource.data.doctorId)
+        && request.resource.data.isRead == false
+        && (
+          (
+            request.resource.data.senderId == request.resource.data.patientId &&
+            request.resource.data.receiverId == request.resource.data.doctorId
+          ) ||
+          (
+            isDoctor() &&
+            request.resource.data.senderId == request.resource.data.doctorId &&
+            request.resource.data.receiverId == request.resource.data.patientId
+          )
+        )
+        && (
+          (request.resource.data.text is string && request.resource.data.text.size() > 0) ||
+          (request.resource.data.attachmentUrl is string && request.resource.data.attachmentUrl.size() > 0)
+        );
+
+      // Mesaj güncelleme:
+      // - Yalnızca mesajın alıcısı ('resource.data.receiverId == request.auth.uid') güncelleyebilir.
+      // - Yalnızca 'isRead' (ve servis tarafından eklenen 'updatedAt') alanı değiştirilebilir.
+      // - 'isRead' yalnızca 'true' değerine çekilebilir; mesaj metni veya taraflar değiştirilemez.
+      allow update: if isSignedIn()
+        && resource.data.receiverId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['isRead', 'updatedAt'])
+        && request.resource.data.isRead == true;
+
+      allow delete: if false;
+    }
+
+    // -------------------------------------------------------------------------
+    // 8. Tedaviler (`treatments/{treatmentId}`)
+    // -------------------------------------------------------------------------
+    match /treatments/{treatmentId} {
+      allow read: if isSignedIn() && (
+        resource.data.patientId == request.auth.uid ||
+        (isDoctor() && resource.data.doctorId == request.auth.uid)
+      );
+
+      allow create: if isDoctor()
+        && request.resource.data.doctorId == request.auth.uid
+        && request.resource.data.patientId is string
+        && request.resource.data.patientId.size() > 0;
+
+      allow update: if isDoctor()
+        && resource.data.doctorId == request.auth.uid
+        && request.resource.data.doctorId == resource.data.doctorId
+        && request.resource.data.patientId == resource.data.patientId;
+
+      allow delete: if false;
+    }
+
+    // -------------------------------------------------------------------------
+    // 9. Diş Kayıtları (`tooth_records/{recordId}`) ve Ödemeler (`payments/{paymentId}`)
+    // -------------------------------------------------------------------------
+    match /tooth_records/{recordId} {
+      // Yalnızca ilgili hasta veya belge üzerinde 'doctorId' tanımlıysa ilgili yetkili doktor erişebilir.
+      allow read: if isSignedIn() && (
+        resource.data.patientId == request.auth.uid ||
+        (
+          isDoctor() &&
+          resource.data.doctorId is string &&
+          resource.data.doctorId == request.auth.uid
+        )
+      );
+
+      allow create: if isDoctor()
+        && request.resource.data.doctorId is string
+        && request.resource.data.doctorId == request.auth.uid
+        && request.resource.data.patientId is string
+        && request.resource.data.patientId.size() > 0;
+
+      allow update: if isDoctor()
+        && resource.data.doctorId is string
+        && resource.data.doctorId == request.auth.uid
+        && request.resource.data.doctorId == resource.data.doctorId
+        && request.resource.data.patientId == resource.data.patientId;
+
+      allow delete: if false;
+    }
+
+    match /payments/{paymentId} {
+      // Yalnızca ödemenin ait olduğu hasta veya belge üzerinde 'doctorId' tanımlıysa ilgili doktor erişebilir.
+      allow read: if isSignedIn() && (
+        resource.data.patientId == request.auth.uid ||
+        (
+          isDoctor() &&
+          resource.data.doctorId is string &&
+          resource.data.doctorId == request.auth.uid
+        )
+      );
+
+      allow create: if isDoctor()
+        && request.resource.data.doctorId is string
+        && request.resource.data.doctorId == request.auth.uid
+        && request.resource.data.patientId is string
+        && request.resource.data.patientId.size() > 0;
+
+      allow update: if isDoctor()
+        && resource.data.doctorId is string
+        && resource.data.doctorId == request.auth.uid
+        && request.resource.data.doctorId == resource.data.doctorId
+        && request.resource.data.patientId == resource.data.patientId;
+
+      allow delete: if false;
+    }
+
+    // -------------------------------------------------------------------------
+    // Varsayılan Kural: Tanımlanmamış tüm koleksiyon ve belgelere erişimi reddet
+    // -------------------------------------------------------------------------
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
