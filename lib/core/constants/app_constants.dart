@@ -10,11 +10,20 @@ class AppConstants {
   // Firestore Koleksiyon İsimleri (Geliştirici 3 ve 4 için ortak standart)
   static const String usersCollection = 'users';
   static const String appointmentsCollection = 'appointments';
+  static const String toothRecordsCollection = 'tooth_records';
+  static const String treatmentsCollection = 'treatments';
+  static const String paymentsCollection = 'payments';
   static const String vitalsCollection = 'vitals';
   static const String prescriptionsCollection = 'prescriptions';
   static const String messagesCollection = 'messages';
   static const String resultsCollection = 'results';
   static const String doctorSchedulesCollection = 'doctor_schedules';
+
+  // Spark planında Storage kapalıyken kullanılacak varsayılan görsel yolları
+  static const String defaultXrayFallbackAsset =
+      'assets/images/xray_panoramic_hd.png';
+  static const String defaultAvatarFallbackAsset =
+      'assets/images/avatar_profile_header.png';
 
   // Kullanıcı Rolleri
   static const String rolePatient = 'patient';

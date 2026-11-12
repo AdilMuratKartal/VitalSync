@@ -1,3 +1,7 @@
+import '../../data/services/auth_service.dart';
+import '../../data/services/firestore_service.dart';
+import '../../data/services/storage_service.dart';
+
 /// Ekstra paket bağımlılığı gerektirmeyen sade Dependency Injection (Servis Kayıt) yapısı.
 /// Geliştirici 3 ve Geliştirici 5 kendi servis/repository sınıflarını buraya kaydedebilir.
 class ServiceLocator {
@@ -34,7 +38,17 @@ class ServiceLocator {
 
   /// Temel uygulama servislerini başlatır.
   static void setup() {
-    // Geliştirici 3 Firebase servislerini hazırladığında buraya ekleyebilir.
+    if (!isRegistered<FirestoreService>()) {
+      registerSingleton<FirestoreService>(FirestoreService());
+    }
+    if (!isRegistered<AuthService>()) {
+      registerSingleton<AuthService>(AuthService());
+    }
+    if (!isRegistered<StorageService>()) {
+      registerSingleton<StorageService>(
+        StorageService(firestoreService: get<FirestoreService>()),
+      );
+    }
   }
 }
 

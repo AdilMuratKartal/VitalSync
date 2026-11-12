@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "273448128947",
+    "project_id": "vitalsync-dentora",
+    "storage_bucket": "vitalsync-dentora.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:273448128947:android:af9c3bd80f400c72c8bbc6",
+        "android_client_info": {
+          "package_name": "com.example.vitalsync"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2TSc15jVR6vZ3oj1M_H-Qllvb3e2SBvo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
