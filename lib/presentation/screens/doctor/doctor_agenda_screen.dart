@@ -28,6 +28,7 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
           'Panoramik röntgende kök ucu lezyonu izlendi. Lokal anestezi (Artikain) uygulandı, 3 kanallı ekstirpasyon devam ediyor.',
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       final doctorId = context.read<AuthCubit>().state.user?.id ?? ClinicMockData.sampleDoctor.id;
       context.read<AppointmentCubit>().watchDoctorAppointments(doctorId);
     });

@@ -27,6 +27,7 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       final authUser = context.read<AuthCubit>().state.user;
       final patientId = authUser?.id ?? ClinicMockData.samplePatient.id;
       context.read<MedicalRecordsCubit>().watchPatientRecords(patientId);

@@ -62,6 +62,7 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       final authUser = context.read<AuthCubit>().state.user;
       final patientId = authUser?.id ?? ClinicMockData.samplePatient.id;
       context.read<AppointmentCubit>().watchPatientAppointments(patientId);

@@ -45,6 +45,7 @@ class _PatientChatScreenState extends State<PatientChatScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       final patientId = context.read<AuthCubit>().state.user?.id ?? ClinicMockData.samplePatient.id;
       final doctorId = ClinicMockData.sampleDoctor.id;
       context.read<ChatCubit>().watchConversation(patientId: patientId, doctorId: doctorId);

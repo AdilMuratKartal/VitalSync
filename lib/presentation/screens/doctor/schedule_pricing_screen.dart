@@ -175,6 +175,7 @@ class _SchedulePricingScreenState extends State<SchedulePricingScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       final doctorId = context.read<AuthCubit>().state.user?.id ?? ClinicMockData.sampleDoctor.id;
       context.read<DoctorScheduleCubit>().watchDoctorSchedule(doctorId);
     });

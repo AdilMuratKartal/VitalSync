@@ -123,10 +123,15 @@ Proje genelinde oluşturulan Unit ve Widget testleri:
    - Bento sağlık metrik kartlarının render testi.
    - Kritik eşik aşıldığında uyarı banner'ının görüntülenme testi.
 
+6. **`test/widgets/tab_navigation_test.dart` (2 Widget Test):**
+   - Hasta sekmeleri (Ana Sayfa, Randevularım, Sonuçlarım, Verilerim, Mesajlaşma) arasında geçiş testi.
+   - Hekim sekmeleri (Ajanda, Reçete Yaz, Geçmiş, Program, Mesajlar) arasında geçiş testi.
+   - Provider/Cubit eksikliği kaynaklı çalışma zamanı istisnalarının tamamen önlendiğinin doğrulanması.
+
 ### Test ve Statik Analiz Sonuçları
 - **`flutter test` Sonucu:**
   ```text
-  00:01 +40: All tests passed! (40/40 Başarılı - %100 Başarı)
+  00:02 +42: All tests passed! (42/42 Başarılı - %100 Başarı)
   ```
 - **`flutter analyze --no-fatal-infos` Sonucu:**
   ```text
@@ -135,8 +140,17 @@ Proje genelinde oluşturulan Unit ve Widget testleri:
 
 ---
 
-## 6. Sürüm Kontrolü ve Git Durumu
+## 6. Sekmeler Arası Geçiş ve Provider Çözümü
+- **Karşılaşılan Sorun:** Sekmeler arasında geçiş yapıldığında ekranların üst widget ağacında `MultiBlocProvider` bulunmadığı için `Could not find the correct Provider<AuthCubit>`, `Provider<VitalCubit>`, `Provider<ChatCubit>`, `Provider<MedicalRecordsCubit>` hataları fırlatılıyordu.
+- **Uygulanan Çözüm:**
+  - `lib/main.dart` kök widget'ı (`DentoraApp`), `MultiBlocProvider` ile donatılarak 6 Cubit'in tamamı (`AuthCubit`, `AppointmentCubit`, `DoctorScheduleCubit`, `MedicalRecordsCubit`, `VitalCubit`, `ChatCubit`) uygulama genelinde tüm `GoRouter` dallarına ve modal yapılara global olarak sağlandı.
+  - Sekme ekranlarının `initState` içindeki `addPostFrameCallback` bloklarına `if (!mounted) return;` yaşam döngüsü korumaları eklendi.
+  - Hem hasta hem hekim sekmeleri için tam geçiş widget testi yazılarak sorunsuz çalıştığı doğrulandı.
+
+---
+
+## 7. Sürüm Kontrolü ve Git Durumu
 - **Branch:** `feature/dev6-screens-qa-test`
-- **Commit:** `feat(dev6): screen cubit integrations, form validations, four-state handling and QA test suite` (Hash: `1cca9ec`)
 - **Push:** `origin/feature/dev6-screens-qa-test` dalına başarıyla gönderildi.
 - **Çalışma Alanı:** Temiz (`working tree clean`).
+

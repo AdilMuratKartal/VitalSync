@@ -24,6 +24,7 @@ class _PastPatientsScreenState extends State<PastPatientsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       final doctorId = context.read<AuthCubit>().state.user?.id ?? ClinicMockData.sampleDoctor.id;
       context.read<AppointmentCubit>().watchDoctorAppointments(doctorId);
     });

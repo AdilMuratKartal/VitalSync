@@ -38,6 +38,7 @@ class _MyVitalsScreenState extends State<MyVitalsScreen> {
     _pulseController = TextEditingController(text: _pulseValue);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       final authUser = context.read<AuthCubit>().state.user;
       final patientId = authUser?.id ?? ClinicMockData.samplePatient.id;
       context.read<VitalCubit>().watchPatientVitals(patientId);
