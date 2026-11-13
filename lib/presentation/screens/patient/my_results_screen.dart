@@ -67,20 +67,13 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
     _selectedPrescriptionId = prescriptionId.trim();
     _selectedTimeRange = 'all';
 
-    final isRx1 =
-        _matchesRx(_selectedPrescriptionId, 'rec-89412', '#REC-2026-89412');
-    final isRx2 =
-        _matchesRx(_selectedPrescriptionId, 'rec-44109', '#REC-2025-44109');
-
-    if (isRx2) {
-      _rx1Expanded = false;
-      _rx2Expanded = true;
-    } else if (isRx1) {
-      _rx1Expanded = true;
-      _rx2Expanded = false;
-    } else {
-      _rx1Expanded = false;
-      _rx2Expanded = false;
+    for (final rx in ClinicMockData.patientPrescriptions) {
+      final code = rx['code'] as String? ?? '';
+      final id = rx['id'] as String? ?? '';
+      if (_matchesRx(_selectedPrescriptionId, id, code)) {
+        _expandedRxCodes.add(code);
+        break;
+      }
     }
   }
 
@@ -1401,6 +1394,7 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
 
         for (final rx in prescriptions) ...[
           _buildPrescriptionCard(
+            id: rx['id'] as String? ?? rx['code'] as String? ?? '',
             isExpanded: _expandedRxCodes.contains(rx['code']),
             onToggle: () => setState(() {
               final code = rx['code'] as String? ?? '';
