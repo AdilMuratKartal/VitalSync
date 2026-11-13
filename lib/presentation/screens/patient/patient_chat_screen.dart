@@ -81,7 +81,7 @@ class _PatientChatScreenState extends State<PatientChatScreen> {
 
             // Doctor Conversation Sub-Header
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               decoration: const BoxDecoration(
                 color: AppColors.surfaceContainerLowest,
                 border: Border(
@@ -89,91 +89,48 @@ class _PatientChatScreenState extends State<PatientChatScreen> {
                 ),
               ),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(
-                    child: Row(
-                      children: [
-                        Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(20),
-                              child: Image.asset(
-                                'assets/images/dr_selin_chat.png',
-                                width: 40,
-                                height: 40,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: Container(
-                                width: 11,
-                                height: 11,
-                                decoration: BoxDecoration(
-                                  color: AppColors.emeraldOnline,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: Colors.white,
-                                    width: 2,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                  Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Image.asset(
+                          'assets/images/dr_selin_chat.png',
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
                         ),
-                        const SizedBox(width: 12),
-                        const Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Flexible(
-                                    child: Text(
-                                      'Dt. Selin Yılmaz',
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w700,
-                                        color: AppColors.onSurface,
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(width: 4),
-                                  Icon(
-                                    Symbols.verified,
-                                    size: 15,
-                                    fill: 1,
-                                    color: AppColors.primary,
-                                  ),
-                                ],
-                              ),
-                              Text(
-                                'Çene Cerrahisi & İmplantoloji • Çevrimiçi',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w500,
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                            ],
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          width: 11,
+                          height: 11,
+                          decoration: BoxDecoration(
+                            color: AppColors.emeraldOnline,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: Colors.white,
+                              width: 2,
+                            ),
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Row(
-                    children: [
-                      _buildCircleActionButton(Symbols.call),
-                      const SizedBox(width: 6),
-                      _buildCircleActionButton(Symbols.more_vert),
+                      ),
                     ],
+                  ),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Text(
+                      'Dt. Selin Yılmaz',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.onSurface,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -301,18 +258,6 @@ class _PatientChatScreenState extends State<PatientChatScreen> {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildCircleActionButton(IconData icon) {
-    return Container(
-      width: 36,
-      height: 36,
-      decoration: const BoxDecoration(
-        color: AppColors.surfaceContainerLow,
-        shape: BoxShape.circle,
-      ),
-      child: Icon(icon, size: 18, color: AppColors.primary),
     );
   }
 

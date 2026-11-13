@@ -16,7 +16,6 @@ class _MyVitalsScreenState extends State<MyVitalsScreen> {
   String _sugarValue = '95';
   String _pulseValue = '72';
 
-  bool _isMonthlyPeriod = false;
   int _selectedChartMetric = 0; // 0: Tansiyon, 1: Şeker, 2: Nabız
 
   late final TextEditingController _sysController;
@@ -425,74 +424,30 @@ class _MyVitalsScreenState extends State<MyVitalsScreen> {
                                 ),
                               ),
                               const SizedBox(width: 8),
-                              // Period Toggle (7 Gün / Aylık)
+                              // Period Badge (7 Gün)
                               Container(
                                 padding: const EdgeInsets.all(3),
                                 decoration: BoxDecoration(
                                   color: AppColors.surfaceContainerLow,
                                   borderRadius: BorderRadius.circular(10),
                                 ),
-                                child: Row(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () => setState(
-                                        () => _isMonthlyPeriod = false,
-                                      ),
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                          vertical: 5,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: !_isMonthlyPeriod
-                                              ? AppColors.primary
-                                              : Colors.transparent,
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          '7 Gün',
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w700,
-                                            color: !_isMonthlyPeriod
-                                                ? Colors.white
-                                                : AppColors.onSurfaceVariant,
-                                          ),
-                                        ),
-                                      ),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 5,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Text(
+                                    '7 Gün',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
                                     ),
-                                    GestureDetector(
-                                      onTap: () => setState(
-                                        () => _isMonthlyPeriod = true,
-                                      ),
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                          vertical: 5,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: _isMonthlyPeriod
-                                              ? AppColors.primary
-                                              : Colors.transparent,
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          'Aylık',
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w700,
-                                            color: _isMonthlyPeriod
-                                                ? Colors.white
-                                                : AppColors.onSurfaceVariant,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
                               ),
                             ],
@@ -616,7 +571,6 @@ class _MyVitalsScreenState extends State<MyVitalsScreen> {
                                   child: CustomPaint(
                                     painter: _VitalTrendChartPainter(
                                       metricIndex: _selectedChartMetric,
-                                      isMonthly: _isMonthlyPeriod,
                                     ),
                                   ),
                                 ),
@@ -922,9 +876,8 @@ class _MyVitalsScreenState extends State<MyVitalsScreen> {
 
 class _VitalTrendChartPainter extends CustomPainter {
   final int metricIndex;
-  final bool isMonthly;
 
-  _VitalTrendChartPainter({required this.metricIndex, required this.isMonthly});
+  _VitalTrendChartPainter({required this.metricIndex});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -945,11 +898,9 @@ class _VitalTrendChartPainter extends CustomPainter {
       }
     }
 
-    // Points based on metric & period
+    // Points based on metric
     final List<double> yRatios = metricIndex == 0
-        ? (isMonthly
-              ? [0.40, 0.32, 0.44, 0.36, 0.30, 0.38, 0.34]
-              : [0.38, 0.34, 0.42, 0.31, 0.36, 0.39, 0.35])
+        ? [0.38, 0.34, 0.42, 0.31, 0.36, 0.39, 0.35]
         : (metricIndex == 1
               ? [0.48, 0.42, 0.50, 0.44, 0.39, 0.46, 0.41]
               : [0.55, 0.48, 0.52, 0.46, 0.50, 0.54, 0.49]);
@@ -1042,7 +993,6 @@ class _VitalTrendChartPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _VitalTrendChartPainter oldDelegate) {
-    return oldDelegate.metricIndex != metricIndex ||
-        oldDelegate.isMonthly != isMonthly;
+    return oldDelegate.metricIndex != metricIndex;
   }
 }
