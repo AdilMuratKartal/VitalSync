@@ -417,7 +417,7 @@ class _AppointmentRescheduleSheetState
                   parent: BouncingScrollPhysics(),
                 ),
                 itemCount: _selectableDays.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                separatorBuilder: (_, _) => const SizedBox(width: 8),
                 itemBuilder: (context, index) {
                   final day = _selectableDays[index];
                   final isSelected = index == _selectedDayIndex;

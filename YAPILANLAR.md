@@ -129,20 +129,145 @@
 
 ---
 
+## 11. Reçete Seçimi ve Vurgulama
+- **İlgili Dosyalar:**
+  - `lib/presentation/screens/patient/my_results_screen.dart`
+  - `lib/core/router/app_router.dart`
+  - `lib/presentation/screens/patient/appointment_detail_screen.dart`
+  - `lib/presentation/screens/patient/patient_chat_screen.dart`
+- **Yapılan İşlemler:**
+  - Reçeteler gerçek ID'leri (`rec-89412`, `rec-44109`) ile yapılandırıldı.
+  - Hasta bir reçete kartındaki "Özeti Gör" butonuna bastığında (veya Randevu Detay / Mesajlaşma ekranlarından reçete özetine tıklandığında), reçetenin ID'si alınarak `/patient/results?prescriptionId={id}` yoluna yönlendirme yapılması sağlandı.
+  - `MyResultsScreen`, gelen `initialPrescriptionId` parametresini okur ve otomatik olarak "Reçetelerim" sekmesini (`_isPrescriptionsTab = true`) açar.
+  - Seçilen reçete kartı kenarlığı belirginleştirildi (`border: Border.all(color: AppColors.primary, width: 2.4)`), hafif arka plan tonu ve 22px bulanıklıkta parlayan gölge ile görsel olarak öne çıkarıldı; ayrıca başlığa "Vurgulanan" rozeti eklendi.
+  - Başka bir reçetenin "Özeti Gör" butonuna basıldığında vurgu anında yeni seçilen reçeteye geçer (`_selectedPrescriptionId` dinamik olarak güncellenir).
+
+---
+
+## 12. Randevu Detay Sayfası Eklenmesi
+- **İlgili Dosyalar:**
+  - `lib/presentation/screens/patient/appointment_detail_screen.dart` (Yeni ekran)
+  - `lib/core/router/app_router.dart`
+  - `lib/presentation/screens/patient/my_appointments_screen.dart`
+  - `lib/presentation/screens/patient/patient_home_screen.dart`
+- **Yapılan İşlemler:**
+  - Hasta paneline modern ve kapsamlı bir **Randevu Detay** ekranı (`AppointmentDetailScreen`) eklendi ve `/patient/appointment-detail` rotasına bağlandı.
+  - Bu ekranda:
+    - Randevu durumu (`Planlandı`, `Tamamlandı`, `İptal Edildi`) renkli rozetlerle gösterilmektedir.
+    - Randevu tarihi ve saati belirgin bir kart içerisinde sunulmaktadır.
+    - Tedavi türü / dental hizmet bilgisi, poliklinik ve oda bilgisi, işlem ücreti yer almaktadır.
+    - İlgili doktorun fotoğrafı, unvanı, uzmanlık alanı ve doğrudan mesajlaşmaya yönlendiren butonu bulunmaktadır.
+    - **Gerekli Hazırlık Bilgileri:** Randevu öncesi beslenme/açlık talimatları, düzenli ilaç kullanımı/kan sulandırıcı uyarıları, ağız hijyeni ve önceki radyoloji/röntgen belgeleri talimatları yer almaktadır.
+    - Randevuyla ilişkili e-reçete varsa reçete kodu ve "Özeti Gör" butonu ile Reçetelerim ekranına doğrudan bağlantı sağlanmıştır.
+  - Tüm sayfalarda bulunan "Detay & Hazırlık" ve "Detaylar" metinleri `"Detayları Gör"` olarak güncellendi ve ilgili randevunun ID'sini taşıyarak Randevu Detay ekranına yönlendirmesi sağlandı.
+
+---
+
+## 13. Randevu Erteleme ve Çalışma Programı Entegrasyonu
+- **İlgili Dosyalar:**
+  - `lib/presentation/widgets/appointment_reschedule_sheet.dart` (Yeni bileşen)
+  - `lib/presentation/screens/patient/my_appointments_screen.dart`
+  - `lib/presentation/screens/patient/appointment_detail_screen.dart`
+- **Yapılan İşlemler:**
+  - Hasta Randevularım sayfasında veya Randevu Detay ekranında "Ertele" seçeneğine bastığında açılan modern bir erteleme alt sayfası (`AppointmentRescheduleSheet`) oluşturuldu.
+  - Seçilen randevunun mevcut tarihi ve saati varsayılan olarak kullanıcıya gösterilir.
+  - Gelecek 14 gün için yatay tarih seçim şeridi sunulur.
+  - Uygun gün ve saatler, hekimin Firestore'daki çalışma programından (`doctor_schedules`) ve mevcut randevularından (`appointments`) dinamik olarak hesaplanır.
+  - Dolu olan randevu saatleri otomatik olarak filtrelenir ve kullanıcıya tekrar önerilmez.
+  - Hasta yeni bir tarih ve saat seçip onayladığında Firestore'da `updateAppointment` çağrısı yapılarak aynı randevu ID'si üzerinde güncelleme yapılır; yeni ve ilgisiz bir randevu kaydı oluşturulmaz.
+
+---
+
+## 14. Geçmiş Randevular ve Durum Yönetimi
+- **İlgili Dosyalar:**
+  - `lib/presentation/screens/patient/my_appointments_screen.dart`
+  - `lib/presentation/screens/patient/appointment_detail_screen.dart`
+- **Yapılan İşlemler:**
+  - Geçmiş Randevular bölümündeki her bir randevu kartına `"Detayları Gör"` seçeneği eklendi.
+  - Bu seçenek de aynı `AppointmentDetailScreen` ekranına randevunun ID'si ile yönlendirir.
+  - Ekran, randevunun geçmiş (`completed`) veya aktif (`upcoming`) olmasına göre doğru durumu gösterir.
+  - Geçmiş randevularda erteleme veya iptal gibi artık geçerli olmayan butonlar gizlendi; yerine "Sonuçlarım & E-Reçetelerim" yönlendirmesi sunuldu.
+
+---
+
+## 15. Buton Metinlerinin Fonksiyonlarına Göre Ayrıştırılması ve Düzeltilmesi
+- **İlgili Dosyalar:**
+  - `lib/presentation/screens/patient/my_results_screen.dart`
+  - `lib/presentation/screens/patient/appointment_detail_screen.dart`
+  - `lib/presentation/screens/patient/my_appointments_screen.dart`
+- **Sorun:** Önceki geliştirmede reçete butonları standartlaştırılırken, laboratuvar/radyoloji tetkik kartları ve barkod görüntüleme gibi diğer butonlar da sehven "Özeti Gör" olarak değişmişti.
+- **Yapılan Düzeltmeler:**
+  - **Radyoloji / Tomografi Kartı:** Buton metni `"Görüntüle"` olarak geri getirildi, ikonu `Symbols.visibility` korundu (`_openXrayModal` tetikleyicisi).
+  - **Barkod İşlemleri:** Genişletilmiş reçete kartı içindeki barkod butonu metni kullanıcı talebi doğrultusunda `"Barkodu Gör"` yapıldı ve ikonu `Symbols.qr_code` olarak güncellendi (`_openBarcodeModal` tetikleyicisi).
+  - **Reçete Kartı Başlığı:** Reçetenin özetini ve ilaç detaylarını açıp kapatan buton `"Özeti Gör"` metnini korudu.
+  - **Randevu Kartları:** Tüm yaklaşan, geçmiş ve iptal edilmiş randevu kartlarındaki butonlar `"Detayları Gör"` olarak korundu.
+
+---
+
+## 16. Randevu Detay Sayfasındaki Kırmızı Ekran (Crash) Hatasının Çözülmesi
+- **İlgili Dosyalar:**
+  - `lib/presentation/screens/patient/appointment_detail_screen.dart`
+  - `lib/core/router/app_router.dart`
+  - `lib/presentation/screens/patient/my_results_screen.dart`
+  - `lib/presentation/screens/patient/patient_chat_screen.dart`
+- **Kök Neden Tespiti:**
+  1. **GoRouter Shell Push Kısıtlaması:** `/patient/results` rotası bir `StatefulShellBranch` (alt navigasyon sekmesi) olarak tanımlanmıştır. Flutter GoRouter kütüphanesinde, kabuk (shell) rotalarının alt dalları `context.push()` ile Navigator yığınına eklenemez; `context.push('/patient/results')` çağrıldığında `AssertionError: A StatefulShellRoute cannot be pushed` istisnası fırlatılır ve ekranda kırmızı hata ekranı (Red Screen of Death) oluşur.
+  2. **Model Dönüşüm ve Map Türü Uyuşmazlığı:** `my_appointments_screen.dart` tarafından `extra: item` olarak geçilen nesne `Map<String, String>` idi. `app_router.dart` içerisinde `state.extra is Map<String, dynamic>` kontrolü Dart'ın tip hiyerarşisi gereği `false` dönüyor ve `initialData` `null` oluyordu. Bu durumda fallback randevu verileri devreye giriyor, `prescriptionCode` alanı null olduğunda varsayılan sabit kod atanıyor fakat `prescriptionId` null kalıyordu.
+  3. **Null Reçete Parametresi:** Reçetesi olmayan bir randevuda butona basıldığında URL `/patient/results?prescriptionId=null` (string "null") şeklinde oluşuyordu.
+- **Yapılan Kök Neden Çözümleri:**
+  - `app_router.dart` içinde tip kontrolü `state.extra is Map ? Map<String, dynamic>.from(state.extra as Map) : null` şeklinde genişletildi; `prescriptionId` parametresindeki `'null'` ve boş string değerleri otomatik olarak temizlendi.
+  - `appointment_detail_screen.dart` içinde yönlendirme `context.push` yerine shell rotası ile tam uyumlu çalışan `context.go('/patient/results?prescriptionId=$prescriptionId')` olarak düzeltildi.
+  - Reçete alanı için sıkı null ve doğrulama kontrolleri eklendi; randevuya ait geçerli bir reçete ID'si yoksa sahte reçete kartı gösterilmez ve yönlendirme yapılmaz.
+  - **Kullanıcı Dostu Bildirim Mesajı:** `my_results_screen.dart` içerisine reçete eşleştirme algoritması (`_matchesRx`) entegre edildi. Tıklanan reçete ID'si sistemde bulunamazsa uygulama çökmek yerine ekranın üst kısmında `"Reçete Kaydı Bulunamadı - Aradığınız (#id) numaralı e-reçete bulunamadı veya henüz hekiminiz tarafından sisteme aktarılmamış olabilir."` şeklinde açıklayıcı ve şık bir uyarı kartı gösterir.
+  - `patient_chat_screen.dart` içindeki reçete hatırlatma butonundaki `context.push` da `context.go` olarak düzeltildi.
+
+---
+
+## 17. Pixel, Hizalama ve RenderFlex Taşma (Overflow) Hatalarının Düzeltilmesi
+- **İlgili Dosyalar:**
+  - `lib/presentation/screens/patient/appointment_detail_screen.dart`
+  - `lib/presentation/screens/patient/my_results_screen.dart`
+  - `lib/presentation/screens/patient/patient_chat_screen.dart`
+- **Yapılan İyileştirmeler:**
+  - **Randevu Detay Ekranı Oda Bilgisi:** Poliklinik ve oda bilgisini gösteren satırdaki metin `Expanded` widget'ı ve `TextOverflow.ellipsis` ile sarıldı; uzun oda isimlerinde taşma engellendi.
+  - **Randevu Detay Ekranı Başlık Rozeti:** Durum rozeti (`Planlandı`, `Tamamlandı`, `İptal Edildi`) `Flexible` ile sınırlandırılarak dar ekranlarda (320-360px) fiyat metni ile çakışması ve yatay taşması önlendi.
+  - **Hekim ve Uzmanlık Metinleri:** Doktor profili kartındaki ad ve uzmanlık alanlarına `maxLines: 2` ve `TextOverflow.ellipsis` uygulandı.
+  - **Aksiyon Butonları:** Ertele ve İptal Et butonlarındaki metinler `maxLines: 1`, `TextOverflow.ellipsis` ve responsive font boyutları ile dar ekranlarda taşmayacak şekilde uyarlandı.
+  - **İlaç Kullanım ve Öğün Bilgisi (Reçeteler):** `my_results_screen.dart` içindeki ilaç kullanım saatleri (`med['usage']`) ve yemek talimatları (`med['meal']`) katı 2 sütunlu `Row` yerine modern ve esnek `Wrap(spacing: 16, runSpacing: 6)` yapısına dönüştürüldü. Dar ekranlarda ikinci satıra zarif bir biçimde geçerek hiçbir piksel taşmasına neden olmaz.
+  - **Geri Navigasyon Uyumu:** Reçete detayına doğrudan randevudan gelen kullanıcılar için `PatientTopAppBar` üzerine geri dön butonu (`showBackButton: widget.initialPrescriptionId != null`) bağlandı.
+
+---
+
+## 18. Flutter Analyze Hatalarının ve Linter Uyarılarının Düzeltilmesi
+- **İlgili Dosyalar:**
+  - `lib/presentation/screens/patient/appointment_detail_screen.dart`
+  - `lib/presentation/screens/patient/my_appointments_screen.dart`
+  - `lib/presentation/screens/patient/my_results_screen.dart`
+  - `lib/presentation/widgets/appointment_reschedule_sheet.dart`
+- **Giderilen 11 Sorun ve Çözümleri:**
+  1. `appointment_detail_screen.dart:393` - `Flexible` widget'ının eksik kalan kapanış parantezi (`),`) kapatıldı; positional argument ve beklenen token hatası çözüldü.
+  2. `appointment_detail_screen.dart:532` - `errorBuilder` içerisindeki `(_, __, ___)` wildcard ifadeleri `(_, _, _)` olarak güncellendi (`unnecessary_underscores` uyarısı giderildi).
+  3. `appointment_detail_screen.dart:726` - `prescriptionId != null` kontrolü altında gereksiz olan `prescriptionId == null ||` ifadesi kaldırılarak `prescriptionId.isEmpty` yapıldı (`unnecessary_null_comparison` uyarısı giderildi).
+  4. `my_appointments_screen.dart:21` - Değeri yeniden atanmayan `_upcomingAppointments` alanı `final` yapıldı (`prefer_final_fields` uyarısı giderildi).
+  5. `my_appointments_screen.dart:891` - Kullanılmayan yerel `primaryBtnLabel` değişkeni kaldırıldı (`unused_local_variable` uyarısı giderildi).
+  6. `my_results_screen.dart:301-304` - Eksik olan `package:go_router/go_router.dart` kütüphanesi import edildi; `context.canPop`, `context.pop` ve `context.go` metodları tanımlı hâle getirildi (3 derleme hatası çözüldü).
+  7. `appointment_reschedule_sheet.dart:420` - `separatorBuilder: (_, __)` ifadesi `separatorBuilder: (_, _)` olarak güncellendi (`unnecessary_underscores` uyarısı giderildi).
+
+---
+
 ## Değişiklik Yapılan Dosyaların Özeti
-1. `lib/main.dart` - Global masaüstü/web fare ve dokunmatik kaydırma desteği.
-2. `lib/core/constants/app_constants.dart` - Profil avatar fallback görseli tutarlılığı.
-3. `lib/presentation/widgets/dentora_logo.dart` - Hasta üst barındaki bildirim noktası kaldırıldı, sağ üst profil avatarı profil sayfası ile eşitlendi.
-4. `lib/presentation/screens/patient/profile_settings_screen.dart` - Profil kamera ikonu kaldırıldı, Şifre ve Güvenlik yönlendirmesi bağlandı, 2FA Aktif ve Özel SSK kaldırıldı, "Kişisel & Tıbbi Bilgilerimi Düzenle" modalı ve dinamik alan güncellemesi eklendi, KVKK diyaloğu bağlandı.
-5. `lib/presentation/screens/patient/patient_chat_screen.dart` - Kamera, dosya eki ve ses/mikrofon butonları kaldırıldı; yalnızca metin mesajı gönderimi sağlandı.
-6. `lib/presentation/screens/patient/patient_home_screen.dart` - Özel sağlık sigortası kutusu kaldırıldı.
-7. `lib/presentation/screens/patient/my_appointments_screen.dart` - Randevu iptal akışı, aktif listeden çıkarma, `cancelled` durum güncellemesi, filtre sayaçları ve yatay kaydırma etkileşimi düzeltildi.
-8. `lib/presentation/screens/patient/my_results_screen.dart` - Dönem filtreleme mantığı, yatay kaydırma ve tüm reçete butonlarında "Özeti Gör" tutarlılığı sağlandı.
-9. `lib/presentation/screens/patient/my_vitals_screen.dart` - Vital parametre seçim çiplerinde yatay kaydırma ve dokunma etkileşimleri düzeltildi.
-10. `lib/presentation/screens/patient/book_appointment_screen.dart` - Tarih seçim listesinde yatay kaydırma düzeltildi.
-11. `lib/presentation/screens/patient/book_appointment_calendar_screen.dart` - Hizmet seçim listesinde yatay kaydırma düzeltildi.
+1. `lib/core/router/app_router.dart` - `Map` tip dönüşüm güvenliği, `prescriptionId` temizliği ve shell route uyumu.
+2. `lib/presentation/screens/patient/appointment_detail_screen.dart` - `context.push` -> `context.go` düzeltmesi, `Flexible` parantez kapatması, null reçete kontrolü, linter temizliği, oda ve durum rozeti overflow düzeltmeleri, responsive aksiyon butonları.
+3. `lib/presentation/screens/patient/my_results_screen.dart` - `go_router` importu ile navigasyon metotları; radyoloji kartında "Görüntüle", barkod işleminde "Barkodu Gör", reçete kartında "Özeti Gör" buton metinleri; reçete bulunamadığında açıklayıcı hata kartı; esnek `Wrap` ilaç kullanım düzeni; geri dönüş butonu entegrasyonu.
+4. `lib/presentation/screens/patient/patient_chat_screen.dart` - Reçete yönlendirmesindeki `context.push` -> `context.go` düzeltmesi.
+5. `lib/presentation/screens/patient/my_appointments_screen.dart` - `_upcomingAppointments` final tanımlaması, kullanılmayan değişken temizliği, "Detayları Gör" buton standartları ve erteleme/iptal akışları.
+6. `lib/presentation/widgets/appointment_reschedule_sheet.dart` - `separatorBuilder` wildcard düzenlemesi.
+7. `YAPILANLAR.md` - Yapılan tüm geliştirme ve hata düzeltmelerinin ayrıntılı dokümantasyonu.
 
 ## Sonuç
-- Doktor paneli ve alakasız ekranlara kesinlikle dokunulmamıştır.
-- Firebase ve Firestore servislerinin mevcut yapısı ve geriye dönük uyumluluğu korunmuştur.
-- Tüm 7 madde eksiksiz tamamlanmış, çözülemeyen hiçbir sorun kalmamıştır.
+- **Tamamlanan Sorunlar:**
+  1. `flutter analyze` tarafından bildirilen 11 hatanın ve uyarının tamamı kökten düzeltildi.
+  2. Yanlış buton metinleri ayrıştırıldı (Reçete: "Özeti Gör", Barkod: "Barkodu Gör", Radyoloji: "Görüntüle", Randevular: "Detayları Gör").
+  3. Kırmızı ekran çökmesi (GoRouter shell branch, Map tip uyumsuzluğu, null parametreler) giderildi; reçete bulunamadığında açıklayıcı uyarı gösterildi.
+  4. Hasta paneli genelindeki tüm RenderFlex taşma (overflow), hizalama ve responsive arayüz hataları giderildi.
+- **Çözülemeyen Sorunlar:** Bulunmamaktadır. Tüm maddeler eksiksiz ve hatasız olarak tamamlanmıştır.

@@ -1,22 +1,88 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../widgets/dentora_logo.dart';
 
 class MyResultsScreen extends StatefulWidget {
-  const MyResultsScreen({super.key});
+  final String? initialPrescriptionId;
+
+  const MyResultsScreen({
+    super.key,
+    this.initialPrescriptionId,
+  });
 
   @override
   State<MyResultsScreen> createState() => _MyResultsScreenState();
 }
 
 class _MyResultsScreenState extends State<MyResultsScreen> {
-  bool _isPrescriptionsTab = false;
+  late bool _isPrescriptionsTab;
+  String? _selectedPrescriptionId;
   String _selectedTimeRange = 'all';
   String _selectedCategory = 'all';
 
   bool _rx1Expanded = true;
   bool _rx2Expanded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _isPrescriptionsTab = false;
+    _applyInitialPrescription(widget.initialPrescriptionId);
+  }
+
+  @override
+  void didUpdateWidget(covariant MyResultsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialPrescriptionId != null &&
+        widget.initialPrescriptionId != oldWidget.initialPrescriptionId) {
+      setState(() {
+        _applyInitialPrescription(widget.initialPrescriptionId);
+      });
+    }
+  }
+
+  bool _matchesRx(String? targetId, String rxId, String rxCode) {
+    if (targetId == null) return false;
+    final cleanTarget =
+        targetId.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '').toLowerCase();
+    final cleanId =
+        rxId.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '').toLowerCase();
+    final cleanCode =
+        rxCode.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '').toLowerCase();
+    return cleanTarget == cleanId ||
+        cleanTarget == cleanCode ||
+        cleanTarget.contains(cleanId) ||
+        cleanId.contains(cleanTarget);
+  }
+
+  void _applyInitialPrescription(String? prescriptionId) {
+    if (prescriptionId == null ||
+        prescriptionId.trim().isEmpty ||
+        prescriptionId.trim().toLowerCase() == 'null') {
+      return;
+    }
+    _isPrescriptionsTab = true;
+    _selectedPrescriptionId = prescriptionId.trim();
+    _selectedTimeRange = 'all';
+
+    final isRx1 =
+        _matchesRx(_selectedPrescriptionId, 'rec-89412', '#REC-2026-89412');
+    final isRx2 =
+        _matchesRx(_selectedPrescriptionId, 'rec-44109', '#REC-2025-44109');
+
+    if (isRx2) {
+      _rx1Expanded = false;
+      _rx2Expanded = true;
+    } else if (isRx1) {
+      _rx1Expanded = true;
+      _rx2Expanded = false;
+    } else {
+      _rx1Expanded = false;
+      _rx2Expanded = false;
+    }
+  }
 
   bool _matchesTimeRange(String dateString) {
     if (_selectedTimeRange == 'all') return true;
@@ -230,7 +296,16 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            const PatientTopAppBar(),
+            PatientTopAppBar(
+              showBackButton: widget.initialPrescriptionId != null,
+              onBack: () {
+                if (context.canPop()) {
+                  context.pop();
+                } else {
+                  context.go('/patient/appointments');
+                }
+              },
+            ),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
@@ -943,7 +1018,7 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
                         ),
                         icon: const Icon(Symbols.visibility, size: 17),
                         label: const Text(
-                          'Özeti Gör',
+                          'Görüntüle',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
@@ -1236,8 +1311,64 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
     final showRx2 = _matchesTimeRange('18 Kasım 2025');
     final hasAnyRx = showRx1 || showRx2;
 
+    final isKnownRx =
+        _matchesRx(_selectedPrescriptionId, 'rec-89412', '#REC-2026-89412') ||
+            _matchesRx(_selectedPrescriptionId, 'rec-44109', '#REC-2025-44109');
+    final showNotFoundNotice = _selectedPrescriptionId != null &&
+        _selectedPrescriptionId!.trim().isNotEmpty &&
+        _selectedPrescriptionId!.toLowerCase() != 'null' &&
+        !isKnownRx;
+
     return Column(
       children: [
+        if (showNotFoundNotice) ...[
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: AppColors.errorContainer.withValues(alpha: 0.55),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: AppColors.error.withValues(alpha: 0.35),
+              ),
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Symbols.info,
+                  color: AppColors.error,
+                  size: 22,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Reçete Kaydı Bulunamadı',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.error,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Aradığınız (#$_selectedPrescriptionId) numaralı e-reçete bulunamadı veya henüz hekiminiz tarafından sisteme aktarılmamış olabilir.',
+                        style: const TextStyle(
+                          fontSize: 11.5,
+                          height: 1.3,
+                          color: AppColors.onSurface,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+        ],
+
         // Info Banner
         Container(
           padding: const EdgeInsets.all(14),
@@ -1270,8 +1401,12 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
         if (showRx1) ...[
           // Prescription 1: #REC-2026-89412
           _buildPrescriptionCard(
+            id: 'rec-89412',
             isExpanded: _rx1Expanded,
-            onToggle: () => setState(() => _rx1Expanded = !_rx1Expanded),
+            onToggle: () => setState(() {
+              _selectedPrescriptionId = 'rec-89412';
+              _rx1Expanded = !_rx1Expanded;
+            }),
             code: '#REC-2026-89412',
             statusBadge: 'Aktif Tedavi',
             dateText: '14 Mart 2026',
@@ -1309,8 +1444,12 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
         if (showRx2) ...[
           // Prescription 2: #REC-2025-44109
           _buildPrescriptionCard(
+            id: 'rec-44109',
             isExpanded: _rx2Expanded,
-            onToggle: () => setState(() => _rx2Expanded = !_rx2Expanded),
+            onToggle: () => setState(() {
+              _selectedPrescriptionId = 'rec-44109';
+              _rx2Expanded = !_rx2Expanded;
+            }),
             code: '#REC-2025-44109',
             statusBadge: 'Tamamlandı',
             dateText: '18 Kasım 2025',
@@ -1387,6 +1526,7 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
   }
 
   Widget _buildPrescriptionCard({
+    required String id,
     required bool isExpanded,
     required VoidCallback onToggle,
     required String code,
@@ -1397,16 +1537,26 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
     required List<Map<String, String>> medications,
     String? note,
   }) {
-    return Container(
+    final isSelected = _matchesRx(_selectedPrescriptionId, id, code);
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 240),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
+        color: isSelected
+            ? AppColors.primary.withValues(alpha: 0.035)
+            : AppColors.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.surfaceContainerHigh),
-        boxShadow: const [
+        border: Border.all(
+          color: isSelected ? AppColors.primary : AppColors.surfaceContainerHigh,
+          width: isSelected ? 2.4 : 1.0,
+        ),
+        boxShadow: [
           BoxShadow(
-            color: Color(0x0D131B2E),
-            blurRadius: 24,
-            offset: Offset(0, 8),
+            color: isSelected
+                ? AppColors.primary.withValues(alpha: 0.25)
+                : const Color(0x0D131B2E),
+            blurRadius: isSelected ? 22 : 24,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -1462,6 +1612,38 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
                               ),
                             ),
                           ),
+                          if (isSelected) ...[
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary,
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Symbols.check_circle,
+                                    size: 11,
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(width: 3),
+                                  Text(
+                                    'Vurgulanan',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                       Text(
@@ -1501,35 +1683,52 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
                           ],
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              isExpanded
-                                  ? Symbols.expand_less
-                                  : Symbols.visibility,
-                              size: 15,
-                              color: AppColors.primary,
-                            ),
-                            const SizedBox(width: 4),
-                            const Text(
-                              'Özeti Gör',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.primary,
+                      InkWell(
+                        borderRadius: BorderRadius.circular(10),
+                        onTap: () {
+                          setState(() {
+                            _selectedPrescriptionId = id;
+                            if (!isExpanded) {
+                              onToggle();
+                            }
+                          });
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? AppColors.primary
+                                : AppColors.primary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                isExpanded
+                                    ? Symbols.expand_less
+                                    : Symbols.visibility,
+                                size: 15,
+                                color: isSelected
+                                    ? Colors.white
+                                    : AppColors.primary,
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 4),
+                              Text(
+                                'Özeti Gör',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : AppColors.primary,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -1644,51 +1843,47 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
                             height: 1,
                           ),
                           const SizedBox(height: 8),
-                          Row(
+                          Wrap(
+                            spacing: 16,
+                            runSpacing: 6,
                             children: [
-                              Expanded(
-                                child: Row(
-                                  children: [
-                                    const Icon(
-                                      Symbols.schedule,
-                                      size: 14,
-                                      color: AppColors.primary,
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Symbols.schedule,
+                                    size: 14,
+                                    color: AppColors.primary,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    med['usage']!,
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w500,
+                                      color: AppColors.onSurfaceVariant,
                                     ),
-                                    const SizedBox(width: 4),
-                                    Flexible(
-                                      child: Text(
-                                        med['usage']!,
-                                        style: const TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w500,
-                                          color: AppColors.onSurfaceVariant,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                              Expanded(
-                                child: Row(
-                                  children: [
-                                    const Icon(
-                                      Symbols.restaurant,
-                                      size: 14,
-                                      color: AppColors.primary,
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Symbols.restaurant,
+                                    size: 14,
+                                    color: AppColors.primary,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    med['meal']!,
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w500,
+                                      color: AppColors.onSurfaceVariant,
                                     ),
-                                    const SizedBox(width: 4),
-                                    Flexible(
-                                      child: Text(
-                                        med['meal']!,
-                                        style: const TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w500,
-                                          color: AppColors.onSurfaceVariant,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -1733,8 +1928,12 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: () =>
-                              _openBarcodeModal(code, '$dateText • $subtitle'),
+                          onPressed: () {
+                            setState(() {
+                              _selectedPrescriptionId = id;
+                            });
+                            _openBarcodeModal(code, '$dateText • $subtitle');
+                          },
                           style: OutlinedButton.styleFrom(
                             foregroundColor: AppColors.primary,
                             side: BorderSide(
@@ -1745,9 +1944,9 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          icon: const Icon(Symbols.visibility, size: 17),
+                          icon: const Icon(Symbols.qr_code, size: 17),
                           label: const Text(
-                            'Özeti Gör',
+                            'Barkodu Gör',
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,

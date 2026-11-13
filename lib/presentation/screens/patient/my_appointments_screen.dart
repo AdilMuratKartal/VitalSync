@@ -4,6 +4,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import '../../../core/di/service_locator.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/services/firestore_service.dart';
+import '../../widgets/appointment_reschedule_sheet.dart';
 import '../../widgets/dentora_logo.dart';
 
 class MyAppointmentsScreen extends StatefulWidget {
@@ -17,7 +18,7 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
   String _selectedFilter = 'all'; // 'all', 'upcoming', 'past', 'cancelled'
   int _selectedDayIndex = 3; // 19 Per
 
-  late List<Map<String, dynamic>> _upcomingAppointments = [
+  final List<Map<String, dynamic>> _upcomingAppointments = [
     {
       'id': 'apt-up-1',
       'badgeText': 'Planlandı • Yarın',
@@ -27,10 +28,13 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
       'icon': Symbols.dentistry,
       'title': 'Kanal Tedavisi & Kompozit Dolgu',
       'subtitle': 'Uzm. Dt. Selin Yılmaz • Endodonti Kliniği (Oda 3)',
+      'doctor': 'Uzm. Dt. Selin Yılmaz',
+      'doctorId': 'DOC-101',
       'date': '19 Mart 2026, Per',
       'time': '14:30 - 15:15',
-      'primaryBtnLabel': 'Detay & Hazırlık',
+      'primaryBtnLabel': 'Detayları Gör',
       'status': 'upcoming',
+      'prescriptionId': 'rec-89412',
     },
     {
       'id': 'apt-up-2',
@@ -41,9 +45,11 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
       'icon': Symbols.clean_hands,
       'title': 'Ultrasonik Diş Taşı Temizliği (Detartraj)',
       'subtitle': 'Dt. Emre Karahan • Periodontoloji (Oda 1)',
+      'doctor': 'Dt. Emre Karahan',
+      'doctorId': 'DOC-102',
       'date': '21 Mart 2026, Cmt',
       'time': '10:00 - 10:30',
-      'primaryBtnLabel': 'Takvime Ekle',
+      'primaryBtnLabel': 'Detayları Gör',
       'status': 'upcoming',
     },
   ];
@@ -133,7 +139,7 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
               child: OutlinedButton.icon(
                 onPressed: () {
                   Navigator.pop(ctx);
-                  context.push('/patient/book-calendar');
+                  _openRescheduleModal(appointment);
                 },
                 icon: const Icon(Symbols.calendar_month, size: 18),
                 label: const Text('Farklı Bir Tarihe Ertele'),
@@ -212,6 +218,25 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
     }
   }
 
+  void _openRescheduleModal(Map<String, dynamic> appointment) {
+    AppointmentRescheduleSheet.show(
+      context: context,
+      appointment: appointment,
+      onRescheduled: (newDateDisplay, newTime, newIsoDate) {
+        setState(() {
+          final aptId = appointment['id'];
+          final index = _upcomingAppointments
+              .indexWhere((item) => item['id'] == aptId);
+          if (index != -1) {
+            _upcomingAppointments[index]['date'] = newDateDisplay;
+            _upcomingAppointments[index]['time'] = newTime;
+            _upcomingAppointments[index]['badgeText'] = 'Ertelendi • Planlandı';
+          }
+        });
+      },
+    );
+  }
+
   static const List<Map<String, dynamic>> _stripDays = [
     {'day': 'Pzt', 'num': '16', 'hasDot': false},
     {'day': 'Sal', 'num': '17', 'hasDot': false},
@@ -224,28 +249,37 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
 
   static const List<Map<String, String>> _pastAppointments = [
     {
+      'id': 'apt-past-1',
       'title': 'Alt Çene İmplant Cerrahisi (1. Aşama)',
       'doctor': 'Prof. Dr. Kerem Aydın • Çene Cerrahisi',
       'date': '12 Şubat 2026 • 11:00',
       'price': '14.500 ₺',
+      'status': 'completed',
+      'prescriptionId': 'rec-44109',
     },
     {
+      'id': 'apt-past-2',
       'title': 'Panoramik & 3D Dental Tomografi',
       'doctor': 'Uzm. Dt. Selin Yılmaz • Radyoloji Birimi',
       'date': '05 Ocak 2026 • 15:45',
       'price': '950 ₺',
+      'status': 'completed',
     },
     {
+      'id': 'apt-past-3',
       'title': 'Kompozit Estetik Dolgu (26 Nolu Diş)',
       'doctor': 'Dt. Emre Karahan • Restoratif Diş Tedavisi',
       'date': '18 Kasım 2025 • 10:15',
       'price': '2.100 ₺',
+      'status': 'completed',
     },
     {
+      'id': 'apt-past-4',
       'title': 'Yıllık Genel Muayene & Flor Uygulaması',
       'doctor': 'Uzm. Dt. Selin Yılmaz • Klinik 2',
       'date': '02 Eylül 2025 • 16:00',
       'price': '800 ₺',
+      'status': 'completed',
     },
   ];
 
@@ -854,7 +888,6 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
     final subtitle = item['subtitle'] as String;
     final date = item['date'] as String;
     final time = item['time'] as String;
-    final primaryBtnLabel = item['primaryBtnLabel'] as String;
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -1045,21 +1078,25 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
           Row(
             children: [
               Expanded(
-                child: OutlinedButton(
-                  onPressed: () => context.push('/patient/book-calendar'),
+                child: OutlinedButton.icon(
+                  onPressed: () => context.push(
+                    '/patient/appointment-detail?id=${item['id']}',
+                    extra: item,
+                  ),
+                  icon: const Icon(Symbols.visibility, size: 16),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.primary,
                     side: BorderSide(
-                      color: AppColors.primary.withValues(alpha: 0.2),
+                      color: AppColors.primary.withValues(alpha: 0.25),
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 11),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: Text(
-                    primaryBtnLabel,
-                    style: const TextStyle(
+                  label: const Text(
+                    'Detayları Gör',
+                    style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                     ),
@@ -1202,6 +1239,31 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
               ],
             ),
           ),
+          const SizedBox(height: 10),
+          Align(
+            alignment: Alignment.centerRight,
+            child: OutlinedButton.icon(
+              onPressed: () => context.push(
+                '/patient/appointment-detail?id=${item['id']}',
+                extra: item,
+              ),
+              icon: const Icon(Symbols.visibility, size: 14),
+              label: const Text(
+                'Detayları Gör',
+                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppColors.onSurfaceVariant,
+                side: const BorderSide(
+                  color: AppColors.surfaceContainerHigh,
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -1293,25 +1355,31 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
                   color: AppColors.onSurface,
                 ),
               ),
-              InkWell(
-                onTap: () => context.go('/patient/results'),
-                child: const Row(
-                  children: [
-                    Text(
-                      'Rapor & Reçete',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                    SizedBox(width: 4),
-                    Icon(
-                      Symbols.arrow_forward,
-                      size: 14,
-                      color: AppColors.primary,
-                    ),
-                  ],
+              OutlinedButton.icon(
+                onPressed: () => context.push(
+                  '/patient/appointment-detail?id=${item['id']}',
+                  extra: item,
+                ),
+                icon: const Icon(Symbols.visibility, size: 14),
+                label: const Text(
+                  'Detayları Gör',
+                  style: TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                  side: BorderSide(
+                    color: AppColors.primary.withValues(alpha: 0.25),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
               ),
             ],
