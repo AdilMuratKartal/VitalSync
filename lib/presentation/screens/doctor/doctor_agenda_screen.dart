@@ -14,7 +14,383 @@ class DoctorAgendaScreen extends StatefulWidget {
 class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
   String _selectedFilter = 'all'; // 'all', 'active', 'waiting', 'completed'
   bool _isEditingAnamnez = false;
+  bool _isAhmetCompleted = false;
   late final TextEditingController _anamnezController;
+  DateTime _selectedDate = DateTime(2026, 3, 18);
+
+  int get _dateDiffFromToday {
+    final today = DateTime(2026, 3, 18);
+    final sel = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day);
+    return sel.difference(today).inDays;
+  }
+
+  String get _dateBadgeText {
+    final diff = _dateDiffFromToday;
+    if (diff == 0) return 'Bugün';
+    if (diff > 0) return 'Gelecekte';
+    return 'Geçmişte';
+  }
+
+  Color get _dateBadgeBg {
+    final diff = _dateDiffFromToday;
+    if (diff == 0) return AppColors.secondaryFixedDoctor;
+    if (diff > 0) return const Color(0xFFEFF6FF);
+    return const Color(0xFFF3F4F6);
+  }
+
+  Color get _dateBadgeFg {
+    final diff = _dateDiffFromToday;
+    if (diff == 0) return AppColors.primary;
+    if (diff > 0) return const Color(0xFF1D4ED8);
+    return const Color(0xFF4B5563);
+  }
+
+  int get _totalAppointmentsCount {
+    final diff = _dateDiffFromToday;
+    if (diff == 0) return 6;
+    if (diff == 1) return 4;
+    if (diff > 1) return 3;
+    if (diff == -1) return 5;
+    return 3;
+  }
+
+  int get _completedAppointmentsCount {
+    final diff = _dateDiffFromToday;
+    if (diff == 0) return _isAhmetCompleted ? 3 : 2;
+    if (diff > 0) return 0;
+    if (diff == -1) return 5;
+    return 3;
+  }
+
+  int get _activeAppointmentsCount {
+    final diff = _dateDiffFromToday;
+    if (diff == 0) return _isAhmetCompleted ? 0 : 1;
+    return 0;
+  }
+
+  int get _waitingAppointmentsCount {
+    final diff = _dateDiffFromToday;
+    if (diff == 0) return 3;
+    if (diff == 1) return 4;
+    if (diff > 1) return 3;
+    return 0;
+  }
+
+  Widget _buildEmptyNotice(String text) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 20),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.surfaceContainerHigh),
+      ),
+      child: Column(
+        children: [
+          const Icon(Symbols.event_busy, size: 36, color: AppColors.outline),
+          const SizedBox(height: 10),
+          Text(
+            text,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: AppColors.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDate(DateTime dt) {
+    const months = [
+      '', 'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+      'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
+    ];
+    const weekdays = [
+      '', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'
+    ];
+    return '${dt.day} ${months[dt.month]} ${dt.year}, ${weekdays[dt.weekday]}';
+  }
+
+  Future<void> _selectDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2025, 1, 1),
+      lastDate: DateTime(2030, 12, 31),
+      helpText: 'Randevu Tarihi Seçin',
+      cancelText: 'Vazgeç',
+      confirmText: 'Seç',
+    );
+    if (picked != null) {
+      setState(() => _selectedDate = picked);
+    }
+  }
+
+  void _openAppointmentDetailsSheet({
+    required String name,
+    required String time,
+    required String duration,
+    required String info,
+    required String status,
+    required String procedure,
+    required String note,
+    String? allergy,
+    String? complaint,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        height: MediaQuery.of(ctx).size.height * 0.75,
+        decoration: const BoxDecoration(
+          color: AppColors.doctorSurface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          children: [
+            const SizedBox(height: 12),
+            Center(
+              child: Container(
+                width: 44,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: AppColors.outlineVariant,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Randevu & Hasta Detayı',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.onSurfaceDoctor,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    icon: const Icon(Symbols.close),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1, color: AppColors.doctorSurfaceContainerHigh),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(20),
+                children: [
+                  // Patient Header Card
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.doctorSurfaceContainerHigh),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [AppColors.primary, AppColors.primaryContainer],
+                            ),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Text(
+                            name.split(' ').map((e) => e.isNotEmpty ? e[0] : '').take(2).join(),
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.onSurfaceDoctor)),
+                              Text(info, style: const TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: status == 'completed'
+                                ? const Color(0xFFECFDF5)
+                                : status == 'active'
+                                    ? AppColors.secondaryFixedDoctor
+                                    : const Color(0xFFFFFBEB),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: Text(
+                            status == 'completed'
+                                ? 'Tamamlandı'
+                                : status == 'active'
+                                    ? 'Koltukta'
+                                    : 'Bekliyor',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: status == 'completed'
+                                  ? const Color(0xFF047857)
+                                  : status == 'active'
+                                      ? AppColors.primary
+                                      : const Color(0xFFB45309),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // Session Time & Unit
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: AppColors.doctorSurfaceContainerHigh),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Symbols.schedule, size: 20, color: AppColors.primary),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Randevu: $time ($duration)',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        const Text('Klinik: Ünit 1', style: TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Procedure & Diagnosis
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.doctorSurfaceContainerHigh),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('PLANLANAN / YAPILAN İŞLEM', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.secondaryDoctor, letterSpacing: 0.8)),
+                        const SizedBox(height: 6),
+                        Text(procedure, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurfaceDoctor)),
+                        const SizedBox(height: 12),
+                        const Text('ŞİKAYET / BAŞVURU SEBEBİ', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.onSurfaceVariant, letterSpacing: 0.8)),
+                        const SizedBox(height: 4),
+                        Text(complaint ?? 'Rutin kontrol ve planlı tedavi seansı.', style: const TextStyle(fontSize: 12, color: AppColors.onSurfaceDoctor)),
+                        const SizedBox(height: 12),
+                        const Text('KLİNİK NOT & ANAMNEZ', style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: AppColors.onSurfaceVariant, letterSpacing: 0.8)),
+                        const SizedBox(height: 4),
+                        Text(note, style: const TextStyle(fontSize: 12, height: 1.4, color: AppColors.onSurfaceDoctor)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Allergy Alert
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: (allergy != null && allergy != 'Alerji Yok') ? const Color(0xFFFEF2F2) : const Color(0xFFF0FDF4),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: (allergy != null && allergy != 'Alerji Yok') ? const Color(0xFFFCA5A5) : const Color(0xFFDCFCE7),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          (allergy != null && allergy != 'Alerji Yok') ? Symbols.warning : Symbols.check_circle,
+                          size: 20,
+                          color: (allergy != null && allergy != 'Alerji Yok') ? AppColors.error : const Color(0xFF15803D),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            allergy ?? 'Alerji / Tıbbi Risk Kaydı Bulunmuyor',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: (allergy != null && allergy != 'Alerji Yok') ? AppColors.error : const Color(0xFF15803D),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Quick Action Buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            Navigator.pop(ctx);
+                            context.go('/doctor/prescription');
+                          },
+                          icon: const Icon(Symbols.prescriptions, size: 18),
+                          label: const Text('Reçete Yaz'),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.primary,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.pop(ctx);
+                            context.push('/doctor/chat', extra: {
+                              'name': name,
+                              'avatar': 'assets/images/patient_ahmet_chat.png',
+                              'tag': procedure,
+                            });
+                          },
+                          icon: const Icon(Symbols.chat, size: 18),
+                          label: const Text('Mesaj Gönder'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -229,75 +605,128 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  const Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'GÜNLÜK KLİNİK AJANDASI',
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            fontWeight: FontWeight.w700,
-                                            letterSpacing: 0.8,
-                                            color: AppColors.secondaryDoctor,
+                                  Expanded(
+                                    child: InkWell(
+                                      onTap: _selectDate,
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            'GÜNLÜK KLİNİK AJANDASI',
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w700,
+                                              letterSpacing: 0.8,
+                                              color: AppColors.secondaryDoctor,
+                                            ),
                                           ),
-                                        ),
-                                        SizedBox(height: 2),
-                                        Row(
-                                          children: [
-                                            Flexible(
-                                              child: Text(
-                                                '18 Mart 2026, Çarşamba',
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w700,
-                                                  color:
-                                                      AppColors.onSurfaceDoctor,
+                                          const SizedBox(height: 2),
+                                          Row(
+                                            children: [
+                                              Flexible(
+                                                child: Text(
+                                                  _formatDate(_selectedDate),
+                                                  maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  style: const TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w700,
+                                                    color:
+                                                        AppColors.onSurfaceDoctor,
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                            SizedBox(width: 4),
-                                            Icon(
-                                              Symbols.expand_more,
-                                              size: 18,
-                                              color: AppColors.primary,
-                                            ),
-                                          ],
-                                        ),
-                                      ],
+                                              const SizedBox(width: 4),
+                                              const Icon(
+                                                Symbols.calendar_today,
+                                                size: 16,
+                                                color: AppColors.primary,
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                   const SizedBox(width: 8),
                                   Row(
                                     children: [
-                                      _buildDateBtn(Symbols.chevron_left),
+                                      _buildDateBtn(
+                                        Symbols.chevron_left,
+                                        () => setState(() {
+                                          _selectedDate = _selectedDate.subtract(const Duration(days: 1));
+                                        }),
+                                      ),
                                       const SizedBox(width: 4),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                          vertical: 6,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color:
-                                              AppColors.secondaryFixedDoctor,
-                                          borderRadius: BorderRadius.circular(
-                                            8,
+                                      InkWell(
+                                        onTap: () {
+                                          if (_dateDiffFromToday != 0) {
+                                            setState(() => _selectedDate = DateTime(2026, 3, 18));
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                content: const Text('Bugünün klinik ajandasına dönüldü.'),
+                                                backgroundColor: AppColors.primary,
+                                                behavior: SnackBarBehavior.floating,
+                                                duration: const Duration(seconds: 1),
+                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                              ),
+                                            );
+                                          } else {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                content: const Text('Bugünün klinik ajandasındasınız.'),
+                                                backgroundColor: AppColors.primary,
+                                                behavior: SnackBarBehavior.floating,
+                                                duration: const Duration(seconds: 1),
+                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                              ),
+                                            );
+                                          }
+                                        },
+                                        borderRadius: BorderRadius.circular(8),
+                                        child: AnimatedContainer(
+                                          duration: const Duration(milliseconds: 200),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                            vertical: 6,
                                           ),
-                                        ),
-                                        child: const Text(
-                                          'Bugün',
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w700,
-                                            color: AppColors.primary,
+                                          decoration: BoxDecoration(
+                                            color: _dateBadgeBg,
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              if (_dateDiffFromToday > 0) ...[
+                                                Icon(Symbols.event_upcoming, size: 13, color: _dateBadgeFg),
+                                                const SizedBox(width: 4),
+                                              ] else if (_dateDiffFromToday < 0) ...[
+                                                Icon(Symbols.history, size: 13, color: _dateBadgeFg),
+                                                const SizedBox(width: 4),
+                                              ],
+                                              Text(
+                                                _dateBadgeText,
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: _dateBadgeFg,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ),
                                       const SizedBox(width: 4),
-                                      _buildDateBtn(Symbols.chevron_right),
+                                      _buildDateBtn(
+                                        Symbols.chevron_right,
+                                        () => setState(() {
+                                          _selectedDate = _selectedDate.add(const Duration(days: 1));
+                                        }),
+                                      ),
                                     ],
                                   ),
                                 ],
@@ -307,23 +736,25 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
                               Row(
                                 children: [
                                   _buildCounterBox(
-                                    count: '6',
+                                    count: '$_totalAppointmentsCount',
                                     label: 'Toplam',
                                     bg: AppColors.doctorSurfaceContainerLow,
                                     countColor: AppColors.primary,
                                     labelColor: AppColors.onSurfaceVariant,
+                                    onTap: () => setState(() => _selectedFilter = 'all'),
                                   ),
                                   const SizedBox(width: 8),
                                   _buildCounterBox(
-                                    count: '2',
+                                    count: '$_completedAppointmentsCount',
                                     label: 'Tamamlandı',
                                     bg: const Color(0xFFECFDF5),
                                     countColor: const Color(0xFF047857),
                                     labelColor: const Color(0xFF065F46),
+                                    onTap: () => setState(() => _selectedFilter = 'completed'),
                                   ),
                                   const SizedBox(width: 8),
                                   _buildCounterBox(
-                                    count: '1',
+                                    count: '$_activeAppointmentsCount',
                                     label: 'Koltukta',
                                     bg: AppColors.secondaryFixedDoctor
                                         .withValues(alpha: 0.7),
@@ -331,14 +762,16 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
                                         AppColors.onSecondaryFixedVariantDoctor,
                                     labelColor:
                                         AppColors.onSecondaryFixedVariantDoctor,
+                                    onTap: () => setState(() => _selectedFilter = 'active'),
                                   ),
                                   const SizedBox(width: 8),
                                   _buildCounterBox(
-                                    count: '3',
+                                    count: '$_waitingAppointmentsCount',
                                     label: 'Bekleyen',
                                     bg: const Color(0xFFFFFBEB),
                                     countColor: const Color(0xFFB45309),
                                     labelColor: const Color(0xFF92400E),
+                                    onTap: () => setState(() => _selectedFilter = 'waiting'),
                                   ),
                                 ],
                               ),
@@ -352,24 +785,25 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
                           scrollDirection: Axis.horizontal,
                           child: Row(
                             children: [
-                              _buildFilterChip('all', 'Tüm Randevular (6)'),
+                              _buildFilterChip('all', 'Tüm Randevular ($_totalAppointmentsCount)'),
                               const SizedBox(width: 8),
                               _buildFilterChip(
                                 'active',
-                                'Aktif / Koltukta (1)',
+                                'Aktif / Koltukta ($_activeAppointmentsCount)',
                               ),
                               const SizedBox(width: 8),
-                              _buildFilterChip('waiting', 'Bekleyenler (3)'),
+                              _buildFilterChip('waiting', 'Bekleyenler ($_waitingAppointmentsCount)'),
                               const SizedBox(width: 8),
                               _buildFilterChip(
                                 'completed',
-                                'Tamamlananlar (2)',
+                                'Tamamlananlar ($_completedAppointmentsCount)',
                               ),
                             ],
                           ),
                         ),
                         const SizedBox(height: 16),
 
+                        if (_dateDiffFromToday == 0) ...[
                         // PATIENT 1: COMPLETED (09:00)
                         if (showCompleted) ...[
                           _buildCompletedPatientCard(
@@ -393,11 +827,24 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
                                 'İyileşme başlığı kontrol edildi, enfeksiyon bulgusu yok.',
                           ),
                           const SizedBox(height: 12),
+
+                          if (_isAhmetCompleted) ...[
+                            _buildCompletedPatientCard(
+                              time: '11:15',
+                              duration: '60 dk',
+                              name: 'Ahmet Arslan',
+                              info: '29 Yaş • Erkek • #HST-0742',
+                              procedure: 'Sol Alt #36 Kanal Tedavisi (1. Seans)',
+                              note: _anamnezController.text,
+                            ),
+                            const SizedBox(height: 12),
+                          ],
                         ],
 
                         // PATIENT 3: ACTIVE / IN CHAIR (11:15) - Ahmet Arslan
                         if (showActive) ...[
-                          Container(
+                          if (!_isAhmetCompleted)
+                            Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
                               color: AppColors.surfaceContainerLowest,
@@ -707,12 +1154,15 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
                                     Expanded(
                                       child: ElevatedButton.icon(
                                         onPressed: () {
+                                          setState(() {
+                                            _isAhmetCompleted = true;
+                                          });
                                           ScaffoldMessenger.of(
                                             context,
                                           ).showSnackBar(
                                             SnackBar(
                                               content: const Text(
-                                                'Ahmet Arslan muayene seansı tamamlandı olarak işaretlendi.',
+                                                'Ahmet Arslan muayene seansı tamamlandı ve tamamlananlar listesine aktarıldı.',
                                               ),
                                               backgroundColor:
                                                   AppColors.primary,
@@ -750,7 +1200,46 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(width: 8),
+                                    const SizedBox(width: 6),
+                                    OutlinedButton.icon(
+                                      onPressed: () => _openAppointmentDetailsSheet(
+                                        name: 'Ahmet Arslan',
+                                        time: '11:15 - 12:15',
+                                        duration: '60 dk',
+                                        info: '29 Yaş • Erkek • Kan Grubu: A Rh+',
+                                        status: 'active',
+                                        procedure: 'Sol Alt #36 Kanal Tedavisi (1. Seans)',
+                                        note: _anamnezController.text,
+                                        allergy: 'Penisilin Alerjisi',
+                                        complaint: 'Sol alt çenede çiğneme sırasında zonklayıcı ağrı ve soğuk hassasiyeti.',
+                                      ),
+                                      style: OutlinedButton.styleFrom(
+                                        foregroundColor: AppColors.primary,
+                                        backgroundColor: AppColors.doctorSurfaceContainerLow,
+                                        side: BorderSide.none,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 11,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                      ),
+                                      icon: const Icon(
+                                        Symbols.visibility,
+                                        size: 16,
+                                      ),
+                                      label: const Text(
+                                        'Detay',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
                                     OutlinedButton.icon(
                                       onPressed: () =>
                                           context.go('/doctor/prescription'),
@@ -760,7 +1249,7 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
                                             AppColors.secondaryFixedDoctor,
                                         side: BorderSide.none,
                                         padding: const EdgeInsets.symmetric(
-                                          horizontal: 14,
+                                          horizontal: 12,
                                           vertical: 11,
                                         ),
                                         shape: RoundedRectangleBorder(
@@ -785,7 +1274,45 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
                                 ),
                               ],
                             ),
-                          ),
+                          )
+                          else
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: AppColors.surfaceContainerLowest,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: AppColors.doctorSurfaceContainerHigh),
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 38,
+                                    height: 38,
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFFECFDF5),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(Symbols.check_circle, color: Color(0xFF047857), size: 20),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  const Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Koltuk Müsait (Seans Tamamlandı)',
+                                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurfaceDoctor),
+                                        ),
+                                        Text(
+                                          'Ahmet Arslan muayenesi tamamlandı. Sıradaki bekleyen hasta koltuğa çağrılabilir.',
+                                          style: TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           const SizedBox(height: 12),
                         ],
 
@@ -889,6 +1416,190 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
                             primaryBtnLabel: 'Dosyayı Aç',
                           ),
                         ],
+                        ] else if (_dateDiffFromToday > 0) ...[
+                          if (_selectedFilter == 'completed') ...[
+                            _buildEmptyNotice('Gelecek tarihlerde henüz tamamlanmış randevu bulunmamaktadır.'),
+                          ],
+                          if (_selectedFilter == 'active') ...[
+                            _buildEmptyNotice('Bu tarihte henüz koltuğa çağrılmış aktif hasta bulunmamaktadır.'),
+                          ],
+                          if (showWaiting) ...[
+                            if (_dateDiffFromToday == 1) ...[
+                              _buildWaitingPatientCard(
+                                time: '09:30',
+                                duration: '45 dk',
+                                name: 'Serdar Koç',
+                                info: '42 Yaş • Erkek • #HST-1102',
+                                badgeText: 'Onaylandı',
+                                badgeBg: AppColors.doctorSurfaceContainer,
+                                badgeFg: AppColors.secondaryDoctor,
+                                procedure: 'İmplant Üstü Protez Kontrolü',
+                                note: 'İyileşme başlıkları ve diş eti uyumu değerlendirilecek.',
+                                primaryBtnLabel: 'Detayları Gör',
+                              ),
+                              const SizedBox(height: 12),
+                              _buildWaitingPatientCard(
+                                time: '11:00',
+                                duration: '60 dk',
+                                name: 'Derya Aydın',
+                                info: '31 Yaş • Kadın • #HST-0955',
+                                badgeText: 'Onaylandı',
+                                badgeBg: AppColors.doctorSurfaceContainer,
+                                badgeFg: AppColors.secondaryDoctor,
+                                procedure: 'Sol Üst #24 Kanal Tedavisi (2. Seans)',
+                                note: 'Pansuman değişimi yapılacak ve kalıcı dolgu planlanacak.',
+                                primaryBtnLabel: 'Detayları Gör',
+                              ),
+                              const SizedBox(height: 12),
+                              _buildWaitingPatientCard(
+                                time: '14:00',
+                                duration: '45 dk',
+                                name: 'Murat Çelik',
+                                info: '28 Yaş • Erkek • #HST-1340',
+                                badgeText: 'Onaylandı',
+                                badgeBg: AppColors.doctorSurfaceContainer,
+                                badgeFg: AppColors.secondaryDoctor,
+                                procedure: 'Ön Diş Kompozit Estetik Dolgu',
+                                note: 'Kırık insizal kenar estetik kompozit ile restore edilecek.',
+                                primaryBtnLabel: 'Detayları Gör',
+                              ),
+                              const SizedBox(height: 12),
+                              _buildWaitingPatientCard(
+                                time: '15:30',
+                                duration: '30 dk',
+                                name: 'Ayşe Bulut',
+                                info: '56 Yaş • Kadın • #HST-0820',
+                                badgeText: 'Onaylandı',
+                                badgeBg: AppColors.doctorSurfaceContainer,
+                                badgeFg: AppColors.secondaryDoctor,
+                                procedure: 'Total Protez 2. Hassas Ölçü',
+                                note: 'Alt ve üst çene fonksiyonel ölçü kaşığı ile ölçüm.',
+                                primaryBtnLabel: 'Detayları Gör',
+                              ),
+                            ] else ...[
+                              _buildWaitingPatientCard(
+                                time: '10:00',
+                                duration: '45 dk',
+                                name: 'Berk Can',
+                                info: '33 Yaş • Erkek • #HST-1422',
+                                badgeText: 'Onaylandı',
+                                badgeBg: AppColors.doctorSurfaceContainer,
+                                badgeFg: AppColors.secondaryDoctor,
+                                procedure: 'Klinik Tipi Diş Beyazlatma (Bleaching)',
+                                note: 'Hassasiyet önleyici jel uygulandıktan sonra lazer aktivasyonu.',
+                                primaryBtnLabel: 'Detayları Gör',
+                              ),
+                              const SizedBox(height: 12),
+                              _buildWaitingPatientCard(
+                                time: '13:30',
+                                duration: '30 dk',
+                                name: 'Seda Doğan',
+                                info: '26 Yaş • Kadın • #HST-0671',
+                                badgeText: 'Onaylandı',
+                                badgeBg: AppColors.doctorSurfaceContainer,
+                                badgeFg: AppColors.secondaryDoctor,
+                                procedure: 'Rutin 6 Aylık Ağız & Diş Kontrolü',
+                                note: 'Genel ağız hijyeni ve başlangıç çürük taraması.',
+                                primaryBtnLabel: 'Detayları Gör',
+                              ),
+                              const SizedBox(height: 12),
+                              _buildWaitingPatientCard(
+                                time: '15:00',
+                                duration: '45 dk',
+                                name: 'Tolga Aksoy',
+                                info: '45 Yaş • Erkek • #HST-1209',
+                                badgeText: 'Onaylandı',
+                                badgeBg: AppColors.doctorSurfaceContainer,
+                                badgeFg: AppColors.secondaryDoctor,
+                                procedure: 'Zirkonyum Kron Simantasyonu',
+                                note: 'Laboratuvardan gelen kron prova edilip yapıştırılacak.',
+                                primaryBtnLabel: 'Detayları Gör',
+                              ),
+                            ],
+                          ],
+                        ] else ...[
+                          if (_selectedFilter == 'waiting') ...[
+                            _buildEmptyNotice('Geçmiş tarihte bekleyen randevu bulunmamaktadır.'),
+                          ],
+                          if (_selectedFilter == 'active') ...[
+                            _buildEmptyNotice('Geçmiş tarihte koltukta aktif hasta bulunmamaktadır.'),
+                          ],
+                          if (showCompleted) ...[
+                            if (_dateDiffFromToday == -1) ...[
+                              _buildCompletedPatientCard(
+                                time: '09:00',
+                                duration: '30 dk',
+                                name: 'Fatma Güler',
+                                info: '48 Yaş • Kadın • #HST-0511',
+                                procedure: 'Sağ Alt #46 Basit Diş Çekimi',
+                                note: 'Lokal anestezi altında komplikasyonsuz çekim yapıldı. Gazlı bez tamponu uygulandı.',
+                              ),
+                              const SizedBox(height: 12),
+                              _buildCompletedPatientCard(
+                                time: '10:30',
+                                duration: '60 dk',
+                                name: 'Emre Yıldız',
+                                info: '35 Yaş • Erkek • #HST-0789',
+                                procedure: 'Üst Çene Kanal Tedavisi (1. Seans)',
+                                note: 'Kök kanalları şekillendirildi ve kalsiyum hidroksit pansumanı konuldu.',
+                              ),
+                              const SizedBox(height: 12),
+                              _buildCompletedPatientCard(
+                                time: '13:00',
+                                duration: '30 dk',
+                                name: 'Hasan Akın',
+                                info: '61 Yaş • Erkek • #HST-0342',
+                                procedure: 'Rutin Hareketli Protez Kontrolü',
+                                note: 'Vuruk yapan bölgeler mölle edildi, oklüzal temaslar dengelendi.',
+                              ),
+                              const SizedBox(height: 12),
+                              _buildCompletedPatientCard(
+                                time: '14:30',
+                                duration: '45 dk',
+                                name: 'Sevim Yalçın',
+                                info: '27 Yaş • Kadın • #HST-1190',
+                                procedure: 'Detartraj & Diş Yüzeyi Polisajı',
+                                note: 'Alt ön bölge diş taşları temizlendi, hassasiyet önleyici cila sürüldü.',
+                              ),
+                              const SizedBox(height: 12),
+                              _buildCompletedPatientCard(
+                                time: '16:00',
+                                duration: '45 dk',
+                                name: 'Ali Polat',
+                                info: '39 Yaş • Erkek • #HST-0934',
+                                procedure: 'Sağ Üst #14 Oklüzal Kompozit Dolgu',
+                                note: 'Çürük doku uzaklaştırıldı, bonding ve kompozit rezin ile restore edildi.',
+                              ),
+                            ] else ...[
+                              _buildCompletedPatientCard(
+                                time: '09:30',
+                                duration: '30 dk',
+                                name: 'Cansu Eren',
+                                info: '30 Yaş • Kadın • #HST-0488',
+                                procedure: 'Dentin Hassasiyeti Tedavisi',
+                                note: 'Flor verniği uygulandı ve desensitizer ajan sürüldü.',
+                              ),
+                              const SizedBox(height: 12),
+                              _buildCompletedPatientCard(
+                                time: '11:15',
+                                duration: '45 dk',
+                                name: 'Kadir Vural',
+                                info: '50 Yaş • Erkek • #HST-0612',
+                                procedure: '3 Üyeli Köprü Protez Altyapı Provasi',
+                                note: 'Metal altyapı marjinal uyumu kontrol edildi, renk seçimi yapıldı.',
+                              ),
+                              const SizedBox(height: 12),
+                              _buildCompletedPatientCard(
+                                time: '14:00',
+                                duration: '45 dk',
+                                name: 'Nilgün Kara',
+                                info: '44 Yaş • Kadın • #HST-0831',
+                                procedure: 'Derin Çürük Kuafaj & Dolgu',
+                                note: 'Kalsiyum silikat bazlı kuafaj uygulandı, kompozit dolgu yapıldı.',
+                              ),
+                            ],
+                          ],
+                        ]
                       ],
                     ),
                   ),
@@ -949,15 +1660,19 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
     );
   }
 
-  Widget _buildDateBtn(IconData icon) {
-    return Container(
-      width: 30,
-      height: 30,
-      decoration: BoxDecoration(
-        color: AppColors.doctorSurfaceContainerLow,
-        borderRadius: BorderRadius.circular(8),
+  Widget _buildDateBtn(IconData icon, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          color: AppColors.doctorSurfaceContainerLow,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, size: 18, color: AppColors.onSurfaceVariant),
       ),
-      child: Icon(icon, size: 18, color: AppColors.onSurfaceVariant),
     );
   }
 
@@ -967,34 +1682,41 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
     required Color bg,
     required Color countColor,
     required Color labelColor,
+    VoidCallback? onTap,
   }) {
     return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        decoration: BoxDecoration(
-          color: bg,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Column(
-          children: [
-            Text(
-              count,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: countColor,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(14),
+          ),
+          child: Column(
+            children: [
+              Text(
+                count,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: countColor,
+                ),
               ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                color: labelColor,
+              const SizedBox(height: 2),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: labelColor,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -1170,6 +1892,33 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
                     ],
                   ),
                 ),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    OutlinedButton.icon(
+                      onPressed: () => _openAppointmentDetailsSheet(
+                        name: name,
+                        time: time,
+                        duration: duration,
+                        info: info,
+                        status: 'completed',
+                        procedure: procedure,
+                        note: note,
+                        complaint: 'Tamamlanan rutin klinik kontrol ve tedavi takibi.',
+                      ),
+                      icon: const Icon(Symbols.visibility, size: 15),
+                      label: const Text('Detay Görüntüle', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700)),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.primary,
+                        backgroundColor: AppColors.doctorSurfaceContainerLow,
+                        side: BorderSide.none,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -1326,19 +2075,18 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: OutlinedButton(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('$name: $primaryBtnLabel açıldı.'),
-                              backgroundColor: AppColors.primary,
-                              behavior: SnackBarBehavior.floating,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          );
-                        },
+                      child: OutlinedButton.icon(
+                        onPressed: () => _openAppointmentDetailsSheet(
+                          name: name,
+                          time: time,
+                          duration: duration,
+                          info: info,
+                          status: 'waiting',
+                          procedure: procedure,
+                          note: note,
+                          allergy: info.contains('Diyabet') ? 'Tip 2 Diyabet Takibi' : 'Alerji Yok',
+                          complaint: 'Planlı klinik muayene ve müdahale seansı.',
+                        ),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppColors.primary,
                           backgroundColor: AppColors.doctorSurfaceContainerLow,
@@ -1348,9 +2096,10 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: Text(
-                          primaryBtnLabel,
-                          style: const TextStyle(
+                        icon: const Icon(Symbols.visibility, size: 15),
+                        label: const Text(
+                          'Detay Görüntüle',
+                          style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                           ),
@@ -1359,20 +2108,58 @@ class _DoctorAgendaScreenState extends State<DoctorAgendaScreen> {
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: OutlinedButton(
-                        onPressed: _openQuickNoteSheet,
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.onSurfaceVariant,
-                          backgroundColor: AppColors.doctorSurfaceContainerLow,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          if (primaryBtnLabel == 'Koltuğa Çağır') {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('$name koltuğa çağrıldı ve asistana bildirim iletildi.'),
+                                backgroundColor: AppColors.primary,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                            );
+                          } else if (primaryBtnLabel == 'Röntgeni Gör' || primaryBtnLabel == 'Dosyayı Aç') {
+                            _openAppointmentDetailsSheet(
+                              name: name,
+                              time: time,
+                              duration: duration,
+                              info: info,
+                              status: 'waiting',
+                              procedure: procedure,
+                              note: note,
+                              allergy: info.contains('Diyabet') ? 'Tip 2 Diyabet Takibi' : 'Alerji Yok',
+                              complaint: primaryBtnLabel == 'Röntgeni Gör'
+                                  ? 'Panoramik röntgen ve kemik retansiyonu kontrolü.'
+                                  : 'Şeffaf plak tedavisi ve hasta dosyası kontrolü.',
+                            );
+                          } else {
+                            _openQuickNoteSheet();
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryBtnLabel == 'Koltuğa Çağır'
+                              ? AppColors.primary
+                              : AppColors.doctorSurfaceContainerLow,
+                          foregroundColor: primaryBtnLabel == 'Koltuğa Çağır'
+                              ? Colors.white
+                              : AppColors.primary,
+                          elevation: 0,
                           side: BorderSide.none,
                           padding: const EdgeInsets.symmetric(vertical: 8),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: const Text(
-                          'Not Ekle',
-                          style: TextStyle(
+                        icon: Icon(
+                          primaryBtnLabel == 'Koltuğa Çağır'
+                              ? Symbols.airline_seat_recline_extra
+                              : (primaryBtnLabel == 'Röntgeni Gör' ? Symbols.radiology : Symbols.folder_open),
+                          size: 15,
+                        ),
+                        label: Text(
+                          primaryBtnLabel,
+                          style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                           ),

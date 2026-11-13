@@ -174,17 +174,32 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                               ),
                               InkWell(
                                 borderRadius: BorderRadius.circular(8),
-                                onTap: () =>
-                                    context.push('/patient/book-calendar'),
+                                onTap: () => context.push(
+                                  '/patient/appointment-detail?id=apt-up-1',
+                                  extra: const {
+                                    'id': 'apt-up-1',
+                                    'title': 'Kanal Tedavisi & Genel Muayene',
+                                    'doctor': 'Dt. Selin Yılmaz',
+                                    'specialty': 'Çene Cerrahisi & Endodonti',
+                                    'doctorAvatar': 'assets/images/dr_selin_home.png',
+                                    'room': 'Poliklinik 3 • Kat 2',
+                                    'date': '24 Ekim Perşembe',
+                                    'time': '14:30',
+                                    'price': '3.200 ₺',
+                                    'status': 'upcoming',
+                                    'badgeText': 'Yaklaşan Randevu',
+                                    'prescriptionId': 'rec-89412',
+                                  },
+                                ),
                                 child: const Padding(
                                   padding: EdgeInsets.symmetric(
-                                    horizontal: 4,
-                                    vertical: 2,
+                                    horizontal: 6,
+                                    vertical: 3,
                                   ),
                                   child: Row(
                                     children: [
                                       Text(
-                                        'Detaylar',
+                                        'Detayları Gör',
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w700,
@@ -720,44 +735,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                                         height: 1,
                                       ),
                                   ],
-                                  const SizedBox(height: 12),
-                                  Container(
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.secondaryFixed
-                                          .withValues(alpha: 0.4),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        const Expanded(
-                                          child: Text(
-                                            'Özel sağlık sigortası anlaşmalarımız mevcuttur.',
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w600,
-                                              color: AppColors.onSecondaryFixed,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        GestureDetector(
-                                          onTap: () =>
-                                              context.go('/patient/chat'),
-                                          child: const Text(
-                                            'Bize Sorun →',
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w700,
-                                              color: AppColors.primary,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                                  const SizedBox(height: 4),
                                 ],
                               ),
                             ),

@@ -6,10 +6,12 @@ import '../../presentation/screens/auth/login_screen.dart';
 import '../../presentation/screens/auth/register_screen.dart';
 import '../../presentation/screens/doctor/create_prescription_screen.dart';
 import '../../presentation/screens/doctor/doctor_agenda_screen.dart';
+import '../../presentation/screens/doctor/doctor_chat_screen.dart';
 import '../../presentation/screens/doctor/doctor_messages_screen.dart';
 import '../../presentation/screens/doctor/doctor_shell_screen.dart';
 import '../../presentation/screens/doctor/past_patients_screen.dart';
 import '../../presentation/screens/doctor/schedule_pricing_screen.dart';
+import '../../presentation/screens/patient/appointment_detail_screen.dart';
 import '../../presentation/screens/patient/book_appointment_calendar_screen.dart';
 import '../../presentation/screens/patient/book_appointment_screen.dart';
 import '../../presentation/screens/patient/my_appointments_screen.dart';
@@ -48,6 +50,21 @@ class AppRouter {
       GoRoute(
         path: '/forgot-password',
         builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
+        path: '/patient/appointment-detail',
+        builder: (context, state) {
+          final appointmentId = state.uri.queryParameters['id'] ?? '';
+          final initialData = state.extra is Map<String, dynamic>
+              ? state.extra as Map<String, dynamic>
+              : (state.extra is Map
+                  ? Map<String, dynamic>.from(state.extra as Map)
+                  : null);
+          return AppointmentDetailScreen(
+            appointmentId: appointmentId,
+            initialData: initialData,
+          );
+        },
       ),
 
       // PATIENT PORTAL SHELL ROUTE (5 persistent bottom tabs + sub-routes)
@@ -92,7 +109,19 @@ class AppRouter {
             routes: [
               GoRoute(
                 path: '/patient/results',
-                builder: (context, state) => const MyResultsScreen(),
+                builder: (context, state) {
+                  var prescriptionId =
+                      state.uri.queryParameters['prescriptionId'] ??
+                      (state.extra is String ? state.extra as String : null);
+                  if (prescriptionId != null &&
+                      (prescriptionId.trim().isEmpty ||
+                          prescriptionId.trim().toLowerCase() == 'null')) {
+                    prescriptionId = null;
+                  }
+                  return MyResultsScreen(
+                    initialPrescriptionId: prescriptionId,
+                  );
+                },
               ),
             ],
           ),
@@ -169,6 +198,20 @@ class AppRouter {
             ],
           ),
         ],
+      ),
+
+      // Full-screen Doctor Chat (WhatsApp style)
+      GoRoute(
+        path: '/doctor/chat',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return DoctorChatScreen(
+            patientName: extra?['name'] as String? ?? 'Ahmet Arslan',
+            patientAvatar: extra?['avatar'] as String? ??
+                'assets/images/patient_ahmet_chat.png',
+            tag: extra?['tag'] as String? ?? 'Tedavi Takibi',
+          );
+        },
       ),
     ],
   );

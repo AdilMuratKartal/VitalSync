@@ -158,6 +158,9 @@ class _BookAppointmentCalendarScreenState
                       height: 48,
                       child: ListView.separated(
                         scrollDirection: Axis.horizontal,
+                        physics: const AlwaysScrollableScrollPhysics(
+                          parent: BouncingScrollPhysics(),
+                        ),
                         itemCount: _services.length,
                         separatorBuilder: (_, _) => const SizedBox(width: 10),
                         itemBuilder: (context, index) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../widgets/dentora_logo.dart';
@@ -13,7 +14,6 @@ class PatientChatScreen extends StatefulWidget {
 class _PatientChatScreenState extends State<PatientChatScreen> {
   final TextEditingController _msgController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  bool _hasAttachedPhoto = false;
 
   final List<Map<String, dynamic>> _messages = [
     {
@@ -46,19 +46,15 @@ class _PatientChatScreenState extends State<PatientChatScreen> {
 
   void _sendMessage() {
     final text = _msgController.text.trim();
-    if (text.isEmpty && !_hasAttachedPhoto) return;
+    if (text.isEmpty) return;
 
     setState(() {
       _messages.add({
         'isMe': true,
-        'text': text.isNotEmpty
-            ? text
-            : 'Sol alt çene dikiş bölgesi fotoğrafını ekledim hocam.',
+        'text': text,
         'time': '10:02',
-        'hasPhoto': _hasAttachedPhoto,
       });
       _msgController.clear();
-      _hasAttachedPhoto = false;
     });
 
     Future.delayed(const Duration(milliseconds: 100), () {
@@ -74,8 +70,7 @@ class _PatientChatScreenState extends State<PatientChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final canSend =
-        _msgController.text.trim().isNotEmpty || _hasAttachedPhoto;
+    final canSend = _msgController.text.trim().isNotEmpty;
 
     return Scaffold(
       backgroundColor: AppColors.surface,
@@ -218,89 +213,6 @@ class _PatientChatScreenState extends State<PatientChatScreen> {
                     _buildMessageBubble(msg),
                     const SizedBox(height: 14),
                   ],
-
-                  // Interactive Media Attachment Preview Card
-                  if (_hasAttachedPhoto)
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: Container(
-                        width: 280,
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceContainerLowest,
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(18),
-                            topRight: Radius.circular(18),
-                            bottomLeft: Radius.circular(18),
-                            bottomRight: Radius.circular(4),
-                          ),
-                          border: Border.all(
-                            color: AppColors.primary.withValues(alpha: 0.35),
-                          ),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Color(0x0D131B2E),
-                              blurRadius: 16,
-                              offset: Offset(0, 6),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: Image.asset(
-                                'assets/images/tooth_photo.png',
-                                width: 52,
-                                height: 52,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            const Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'RANDEVU ÖNCESİ GÖRSEL',
-                                    style: TextStyle(
-                                      fontSize: 9,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.primary,
-                                    ),
-                                  ),
-                                  Text(
-                                    'sol_alt_cene_dikis.jpg',
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppColors.onSurface,
-                                    ),
-                                  ),
-                                  Text(
-                                    '1.8 MB • Gönderime Hazır',
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      color: AppColors.onSurfaceVariant,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            IconButton(
-                              onPressed: () =>
-                                  setState(() => _hasAttachedPhoto = false),
-                              icon: const Icon(
-                                Symbols.close,
-                                size: 18,
-                                color: AppColors.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
                 ],
               ),
             ),
@@ -316,36 +228,10 @@ class _PatientChatScreenState extends State<PatientChatScreen> {
               ),
               child: Row(
                 children: [
-                  // Camera / Photo Attach Button
-                  InkWell(
-                    borderRadius: BorderRadius.circular(22),
-                    onTap: () {
-                      setState(() {
-                        _hasAttachedPhoto = !_hasAttachedPhoto;
-                      });
-                    },
-                    child: Container(
-                      width: 42,
-                      height: 42,
-                      decoration: BoxDecoration(
-                        color: _hasAttachedPhoto
-                            ? AppColors.secondaryFixed
-                            : AppColors.surfaceContainerLow,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Symbols.add_a_photo,
-                        size: 20,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-
-                  // Input Pill
+                  // Text Input Pill
                   Expanded(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       decoration: BoxDecoration(
                         color: AppColors.surfaceContainerLow,
                         borderRadius: BorderRadius.circular(24),
@@ -353,47 +239,36 @@ class _PatientChatScreenState extends State<PatientChatScreen> {
                           color: AppColors.surfaceContainerHigh,
                         ),
                       ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: _msgController,
-                              onChanged: (_) => setState(() {}),
-                              onSubmitted: (_) => _sendMessage(),
-                              style: const TextStyle(
-                                fontSize: 13,
-                                color: AppColors.onSurface,
-                              ),
-                              decoration: InputDecoration(
-                                hintText: 'Hekiminize mesaj yazın...',
-                                hintStyle: TextStyle(
-                                  fontSize: 13,
-                                  color: AppColors.outline.withValues(
-                                    alpha: 0.7,
-                                  ),
-                                ),
-                                border: InputBorder.none,
-                                contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                ),
-                              ),
+                      child: TextField(
+                        controller: _msgController,
+                        onChanged: (_) => setState(() {}),
+                        onSubmitted: (_) => _sendMessage(),
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: AppColors.onSurface,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: 'Hekiminize mesaj yazın...',
+                          hintStyle: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.outline.withValues(
+                              alpha: 0.7,
                             ),
                           ),
-                          const Icon(
-                            Symbols.attach_file,
-                            size: 20,
-                            color: AppColors.onSurfaceVariant,
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 12,
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(width: 8),
 
-                  // Dynamic Mic / Send Button
+                  // Send Button (Only text messages)
                   InkWell(
                     borderRadius: BorderRadius.circular(22),
-                    onTap: _sendMessage,
+                    onTap: canSend ? _sendMessage : null,
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 180),
                       width: 42,
@@ -411,10 +286,12 @@ class _PatientChatScreenState extends State<PatientChatScreen> {
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        canSend ? Symbols.send : Symbols.mic,
+                        Symbols.send,
                         size: 20,
                         fill: canSend ? 1 : 0,
-                        color: canSend ? Colors.white : AppColors.primary,
+                        color: canSend
+                            ? Colors.white
+                            : AppColors.outline.withValues(alpha: 0.5),
                       ),
                     ),
                   ),
@@ -543,6 +420,41 @@ class _PatientChatScreenState extends State<PatientChatScreen> {
                                       ),
                                     ),
                                   ],
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              InkWell(
+                                onTap: () => context.go(
+                                  '/patient/results?prescriptionId=rec-89412',
+                                ),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Symbols.visibility,
+                                        size: 13,
+                                        color: Colors.white,
+                                      ),
+                                      SizedBox(width: 3),
+                                      Text(
+                                        'Özeti Gör',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],

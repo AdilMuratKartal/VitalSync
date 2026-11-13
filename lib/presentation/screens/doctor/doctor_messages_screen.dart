@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../widgets/dentora_logo.dart';
@@ -12,9 +13,8 @@ class DoctorMessagesScreen extends StatefulWidget {
 
 class _DoctorMessagesScreenState extends State<DoctorMessagesScreen> {
   final TextEditingController _searchController = TextEditingController();
-  String _selectedFilter = 'all';
 
-  static const List<Map<String, dynamic>> _chats = [
+  final List<Map<String, dynamic>> _chats = [
     {
       'name': 'Ahmet Arslan',
       'time': '10:42',
@@ -28,7 +28,6 @@ class _DoctorMessagesScreenState extends State<DoctorMessagesScreen> {
       'extraTag': 'Röntgen Eklendi',
       'preview':
           'Hocam dün yapılan implant sonrası hafif bir şişlik var, buz kompresine devam edeyim mi?',
-      'category': 'urgent',
       'isUnread': true,
     },
     {
@@ -44,7 +43,6 @@ class _DoctorMessagesScreenState extends State<DoctorMessagesScreen> {
       'extraTag': null,
       'preview':
           'Selin Hanım merhaba, yarınki 14:30 randevumu 16:00\'ya çekme şansımız olur mu?',
-      'category': 'postop',
       'isUnread': true,
     },
     {
@@ -60,7 +58,6 @@ class _DoctorMessagesScreenState extends State<DoctorMessagesScreen> {
       'extraTag': null,
       'preview':
           'Siz: Yazdığım antibiyotiği sabah akşam tok karnına 5 gün boyunca aksatmadan kullanın lütfen.',
-      'category': 'postop',
       'isUnread': false,
     },
     {
@@ -76,7 +73,6 @@ class _DoctorMessagesScreenState extends State<DoctorMessagesScreen> {
       'extraTag': null,
       'preview':
           'Çok teşekkür ederim doktor hanım, hassasiyetim tamamen geçti.',
-      'category': 'all',
       'isUnread': false,
     },
   ];
@@ -89,157 +85,265 @@ class _DoctorMessagesScreenState extends State<DoctorMessagesScreen> {
 
   List<Map<String, dynamic>> get _filteredChats {
     final q = _searchController.text.trim().toLowerCase();
+    if (q.isEmpty) return _chats;
     return _chats.where((c) {
-      if (_selectedFilter == 'unread' && c['isUnread'] != true) return false;
-      if (_selectedFilter == 'urgent' && c['category'] != 'urgent') {
-        return false;
-      }
-      if (_selectedFilter == 'postop' && c['category'] != 'postop') {
-        return false;
-      }
-      if (q.isEmpty) return true;
       final hay = '${c['name']} ${c['tag']} ${c['preview']}'.toLowerCase();
       return hay.contains(q);
     }).toList();
   }
 
-  void _openPatientReplyModal(Map<String, dynamic> chat) {
-    final replyCtrl = TextEditingController();
+  void _openNewPatientMessageModal() {
+    final searchCtrl = TextEditingController();
+    final messageCtrl = TextEditingController();
+    Map<String, dynamic>? selectedPatient;
+
+    final allClinicPatients = [
+      {
+        'name': 'Ahmet Arslan',
+        'tc': '428••••••14',
+        'fullTc': '42819204914',
+        'tag': '#46 İmplant Sonrası',
+        'avatar': 'assets/images/patient_ahmet_chat.png',
+      },
+      {
+        'name': 'Canan Demir',
+        'tc': '298••••••19',
+        'fullTc': '29810482019',
+        'tag': 'Zirkonyum Kaplama Prova',
+        'avatar': 'assets/images/patient_canan_chat.png',
+      },
+      {
+        'name': 'Zeynep Kaya',
+        'tc': '348••••••29',
+        'fullTc': '34891204829',
+        'tag': 'Kanal Tedavisi Kontrol',
+        'avatar': 'assets/images/patient_zeynep_chat.png',
+      },
+      {
+        'name': 'Burak Yılmaz',
+        'tc': '512••••••12',
+        'fullTc': '51290384712',
+        'tag': 'Diş Taşı Temizliği',
+        'avatar': 'assets/images/patient_burak_chat.png',
+      },
+      {
+        'name': 'Mehmet Öztürk',
+        'tc': '619••••••29',
+        'fullTc': '61928471029',
+        'tag': '20 Yaş Çekimi',
+        'avatar': 'assets/images/patient_mehmet_past.png',
+      },
+      {
+        'name': 'Elif Şahin',
+        'tc': '184••••••72',
+        'fullTc': '18492048172',
+        'tag': 'Şeffaf Plak Kontrol',
+        'avatar': 'assets/images/patient_canan_past.png',
+      },
+    ];
+
+    selectedPatient = allClinicPatients.first;
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.fromLTRB(
-          20,
-          16,
-          20,
-          MediaQuery.of(ctx).viewInsets.bottom + 24,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 44,
-                height: 5,
-                decoration: BoxDecoration(
-                  color: AppColors.outlineVariant,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-              ),
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModalState) {
+          final query = searchCtrl.text.trim().toLowerCase();
+          final filtered = allClinicPatients.where((p) {
+            if (query.isEmpty) return true;
+            return (p['name'] as String).toLowerCase().contains(query) ||
+                (p['fullTc'] as String).contains(query);
+          }).toList();
+
+          return Container(
+            height: MediaQuery.of(ctx).size.height * 0.78,
+            decoration: const BoxDecoration(
+              color: AppColors.doctorSurface,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
             ),
-            const SizedBox(height: 14),
-            Row(
+            padding: EdgeInsets.fromLTRB(
+              20,
+              12,
+              20,
+              MediaQuery.of(ctx).viewInsets.bottom + 20,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.asset(
-                    chat['avatar'] as String,
+                Center(
+                  child: Container(
                     width: 44,
-                    height: 44,
-                    fit: BoxFit.cover,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: AppColors.outlineVariant,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        chat['name'] as String,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.onSurfaceDoctor,
-                        ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Yeni Hasta Mesajı Başlat',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.onSurfaceDoctor,
                       ),
-                      Text(
-                        chat['tag'] as String,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ],
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      icon: const Icon(Symbols.close),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+
+                // Search field by Name or TC
+                TextField(
+                  controller: searchCtrl,
+                  onChanged: (_) => setModalState(() {}),
+                  style: const TextStyle(fontSize: 13, color: AppColors.onSurfaceDoctor),
+                  decoration: InputDecoration(
+                    hintText: 'Hasta adı veya TC Kimlik No ile arayın...',
+                    prefixIcon: const Icon(Symbols.search, size: 20, color: AppColors.primary),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: AppColors.doctorSurfaceContainerHigh),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: AppColors.doctorSurfaceContainerHigh),
+                    ),
                   ),
                 ),
-                IconButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  icon: const Icon(Symbols.close),
+                const SizedBox(height: 10),
+
+                // Patients list (choose patient)
+                const Text(
+                  'HASTA SEÇİN',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.secondaryDoctor,
+                    letterSpacing: 0.6,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                SizedBox(
+                  height: 110,
+                  child: ListView.separated(
+                    itemCount: filtered.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 6),
+                    itemBuilder: (ctx, i) {
+                      final p = filtered[i];
+                      final isSelected = selectedPatient?['name'] == p['name'];
+                      return InkWell(
+                        onTap: () => setModalState(() => selectedPatient = p),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: isSelected ? AppColors.secondaryFixedDoctor : Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: isSelected ? AppColors.primary : AppColors.doctorSurfaceContainerHigh,
+                              width: isSelected ? 1.5 : 1,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.asset(p['avatar'] as String, width: 28, height: 28, fit: BoxFit.cover),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  '${p['name']} (TC: ${p['tc']})',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                                    color: AppColors.onSurfaceDoctor,
+                                  ),
+                                ),
+                              ),
+                              if (isSelected)
+                                const Icon(Symbols.check_circle, size: 18, color: AppColors.primary),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Initial Message Field
+                const Text(
+                  'İLK MESAJINIZ',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.secondaryDoctor,
+                    letterSpacing: 0.6,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: messageCtrl,
+                  maxLines: 3,
+                  style: const TextStyle(fontSize: 13, color: AppColors.onSurfaceDoctor),
+                  decoration: InputDecoration(
+                    hintText: 'Hastaya iletmek istediğiniz mesajı yazın...',
+                    hintStyle: const TextStyle(fontSize: 12, color: AppColors.outline),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: AppColors.doctorSurfaceContainerHigh),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      borderSide: const BorderSide(color: AppColors.doctorSurfaceContainerHigh),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 14),
+
+                // Submit button
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      if (selectedPatient == null) return;
+                      Navigator.pop(ctx);
+                      context.push('/doctor/chat', extra: {
+                        'name': selectedPatient!['name'],
+                        'avatar': selectedPatient!['avatar'],
+                        'tag': selectedPatient!['tag'],
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    ),
+                    icon: const Icon(Symbols.send, size: 18),
+                    label: const Text('Mesajı Gönder ve Sohbete Başla', style: TextStyle(fontWeight: FontWeight.w700)),
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.doctorSurfaceContainerLow,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                chat['preview'] as String,
-                style: const TextStyle(
-                  fontSize: 13,
-                  height: 1.4,
-                  color: AppColors.onSurfaceDoctor,
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: replyCtrl,
-              maxLines: 3,
-              decoration: InputDecoration(
-                hintText: 'Hastaya klinik yanıtınızı yazın...',
-                filled: true,
-                fillColor: AppColors.doctorSurfaceContainerLow,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-            const SizedBox(height: 14),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        '${chat['name']} adlı hastaya yanıtınız iletildi.',
-                      ),
-                      backgroundColor: AppColors.primary,
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-                icon: const Icon(Symbols.send, size: 18),
-                label: const Text(
-                  'Yanıtı Gönder',
-                  style: TextStyle(fontWeight: FontWeight.w700),
-                ),
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -262,144 +366,112 @@ class _DoctorMessagesScreenState extends State<DoctorMessagesScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Search & Filter Bar
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: _searchController,
-                                onChanged: (_) => setState(() {}),
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  color: AppColors.onSurfaceDoctor,
-                                ),
-                                decoration: InputDecoration(
-                                  hintText:
-                                      'Hasta adı, protokol no veya işlem ara...',
-                                  prefixIcon: const Icon(
-                                    Symbols.search,
-                                    size: 20,
-                                    color: AppColors.outline,
-                                  ),
-                                  filled: true,
-                                  fillColor: AppColors.surfaceContainerLowest,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 14,
-                                    vertical: 12,
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(14),
-                                    borderSide: const BorderSide(
-                                      color:
-                                          AppColors.doctorSurfaceContainerHigh,
-                                    ),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(14),
-                                    borderSide: const BorderSide(
-                                      color:
-                                          AppColors.doctorSurfaceContainerHigh,
-                                    ),
-                                  ),
-                                ),
+                        // Search Bar (Clean WhatsApp style)
+                        TextField(
+                          controller: _searchController,
+                          onChanged: (_) => setState(() {}),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: AppColors.onSurfaceDoctor,
+                          ),
+                          decoration: InputDecoration(
+                            hintText: 'Hasta adı, protokol no veya mesaj ara...',
+                            prefixIcon: const Icon(
+                              Symbols.search,
+                              size: 20,
+                              color: AppColors.outline,
+                            ),
+                            suffixIcon: _searchController.text.isNotEmpty
+                                ? IconButton(
+                                    onPressed: () {
+                                      _searchController.clear();
+                                      setState(() {});
+                                    },
+                                    icon: const Icon(Symbols.close, size: 18, color: AppColors.outline),
+                                  )
+                                : null,
+                            filled: true,
+                            fillColor: AppColors.surfaceContainerLowest,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 12,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: const BorderSide(
+                                color: AppColors.doctorSurfaceContainerHigh,
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            Container(
-                              width: 44,
-                              height: 44,
-                              decoration: BoxDecoration(
-                                color: AppColors.surfaceContainerLowest,
-                                borderRadius: BorderRadius.circular(14),
-                                border: Border.all(
-                                  color: AppColors.doctorSurfaceContainerHigh,
-                                ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(14),
+                              borderSide: const BorderSide(
+                                color: AppColors.doctorSurfaceContainerHigh,
                               ),
-                              child: const Icon(
-                                Symbols.tune,
-                                size: 20,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+
+                        // Section Header
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'MESAJLAR & SOHBETLER',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.6,
+                                color: AppColors.onSurfaceVariant,
+                              ),
+                            ),
+                            Text(
+                              '${list.length} Sohbet',
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
                                 color: AppColors.primary,
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 10),
 
-                        // Quick Filter Pills
-                        SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children: [
-                              _buildFilterPill('all', 'Tümü', badge: '4'),
-                              const SizedBox(width: 8),
-                              _buildFilterPill(
-                                'unread',
-                                'Okunmamış',
-                                badge: '2',
-                                badgeRed: true,
+                        // Conversation List
+                        if (list.isEmpty)
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(28),
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceContainerLowest,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: AppColors.doctorSurfaceContainerHigh,
                               ),
-                              const SizedBox(width: 8),
-                              _buildFilterPill('urgent', 'Acil / Ağrı'),
-                              const SizedBox(width: 8),
-                              _buildFilterPill('postop', 'Tedavi Sonrası'),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 14),
-
-                        // Encryption Banner
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.doctorSurfaceContainerLow,
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(
-                              color: AppColors.doctorSurfaceContainerHigh,
                             ),
-                          ),
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    Symbols.verified_user,
-                                    size: 18,
-                                    fill: 1,
-                                    color: AppColors.primary,
-                                  ),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    'Dentora Şifreli Hekim-Hasta Hattı',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.onSurfaceDoctor,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Text(
-                                'KVKK Uyumlu',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.primary,
+                            child: const Column(
+                              children: [
+                                Icon(
+                                  Symbols.search_off,
+                                  size: 32,
+                                  color: AppColors.outline,
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 14),
-
-                        // Patient Conversation List
-                        for (final chat in list) ...[
-                          _buildChatCard(chat),
-                          const SizedBox(height: 10),
-                        ],
+                                SizedBox(height: 8),
+                                Text(
+                                  'Aramanızla eşleşen mesaj bulunamadı.',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: AppColors.onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        else
+                          for (final chat in list) ...[
+                            _buildChatCard(chat),
+                            const SizedBox(height: 10),
+                          ],
                       ],
                     ),
                   ),
@@ -407,7 +479,7 @@ class _DoctorMessagesScreenState extends State<DoctorMessagesScreen> {
               ],
             ),
 
-            // Floating Action Button
+            // Floating Action Button: Yeni Hasta Mesajı Başlat (opens modal!)
             Positioned(
               right: 16,
               bottom: 16,
@@ -426,7 +498,7 @@ class _DoctorMessagesScreenState extends State<DoctorMessagesScreen> {
                   ],
                 ),
                 child: ElevatedButton.icon(
-                  onPressed: () => _openPatientReplyModal(_chats.first),
+                  onPressed: _openNewPatientMessageModal,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
                     shadowColor: Colors.transparent,
@@ -460,66 +532,6 @@ class _DoctorMessagesScreenState extends State<DoctorMessagesScreen> {
     );
   }
 
-  Widget _buildFilterPill(
-    String key,
-    String label, {
-    String? badge,
-    bool badgeRed = false,
-  }) {
-    final isSelected = _selectedFilter == key;
-    return GestureDetector(
-      onTap: () => setState(() => _selectedFilter = key),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected
-              ? AppColors.primary
-              : AppColors.surfaceContainerLowest,
-          borderRadius: BorderRadius.circular(999),
-          border: isSelected
-              ? null
-              : Border.all(color: AppColors.doctorSurfaceContainerHigh),
-        ),
-        child: Row(
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: isSelected ? Colors.white : AppColors.onSurfaceVariant,
-              ),
-            ),
-            if (badge != null) ...[
-              const SizedBox(width: 6),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? Colors.white.withValues(alpha: 0.2)
-                      : (badgeRed
-                            ? AppColors.errorContainer
-                            : AppColors.doctorSurfaceContainerLow),
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Text(
-                  badge,
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    color: isSelected
-                        ? Colors.white
-                        : (badgeRed ? AppColors.error : AppColors.primary),
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildChatCard(Map<String, dynamic> chat) {
     final isUnread = chat['isUnread'] as bool;
     final online = chat['online'] as bool;
@@ -529,7 +541,14 @@ class _DoctorMessagesScreenState extends State<DoctorMessagesScreen> {
 
     return InkWell(
       borderRadius: BorderRadius.circular(18),
-      onTap: () => _openPatientReplyModal(chat),
+      onTap: () => context.push(
+        '/doctor/chat',
+        extra: {
+          'name': chat['name'],
+          'avatar': chat['avatar'],
+          'tag': chat['tag'],
+        },
+      ),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
@@ -622,7 +641,7 @@ class _DoctorMessagesScreenState extends State<DoctorMessagesScreen> {
                               child: Text(
                                 unreadCount,
                                 style: const TextStyle(
-                                  fontSize: 10,
+                                  fontSize: 11,
                                   fontWeight: FontWeight.w700,
                                   color: Colors.white,
                                 ),
@@ -633,10 +652,8 @@ class _DoctorMessagesScreenState extends State<DoctorMessagesScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 5),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 4,
+                  const SizedBox(height: 4),
+                  Row(
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -669,7 +686,8 @@ class _DoctorMessagesScreenState extends State<DoctorMessagesScreen> {
                           ],
                         ),
                       ),
-                      if (extraTag != null)
+                      if (extraTag != null) ...[
+                        const SizedBox(width: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 8,
@@ -688,6 +706,7 @@ class _DoctorMessagesScreenState extends State<DoctorMessagesScreen> {
                             ),
                           ),
                         ),
+                      ],
                     ],
                   ),
                   const SizedBox(height: 6),
@@ -728,4 +747,3 @@ class _DoctorMessagesScreenState extends State<DoctorMessagesScreen> {
     );
   }
 }
-

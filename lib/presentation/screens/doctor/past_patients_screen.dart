@@ -16,6 +16,304 @@ class _PastPatientsScreenState extends State<PastPatientsScreen> {
   String _selectedFilter = 'all';
   final Set<int> _expandedIndices = {0}; // First card expanded by default
 
+  void _openEpikrizDetailsModal(Map<String, dynamic> patient, Map<String, dynamic> item) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        height: MediaQuery.of(ctx).size.height * 0.82,
+        decoration: const BoxDecoration(
+          color: AppColors.doctorSurface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          children: [
+            const SizedBox(height: 12),
+            Center(
+              child: Container(
+                width: 44,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: AppColors.outlineVariant,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(Symbols.description, color: AppColors.primary, size: 22),
+                      SizedBox(width: 8),
+                      Text(
+                        'Klinik Epikriz & Dosya Detayı',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.onSurfaceDoctor,
+                        ),
+                      ),
+                    ],
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    icon: const Icon(Symbols.close),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1, color: AppColors.doctorSurfaceContainerHigh),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(20),
+                children: [
+                  // Patient Info
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.doctorSurfaceContainerHigh),
+                    ),
+                    child: Row(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.asset(
+                            patient['avatar'] as String,
+                            width: 44,
+                            height: 44,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                patient['name'] as String,
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.onSurfaceDoctor),
+                              ),
+                              Text(
+                                'TC: ${patient['tc']} • ${patient['ageGender']}',
+                                style: const TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+
+                  // Module 1: Treatment & Surgery
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.doctorSurfaceContainerHigh),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Row(
+                          children: [
+                            Icon(Symbols.dentistry, size: 18, color: AppColors.primary),
+                            SizedBox(width: 6),
+                            Text(
+                              'TEDAVİ & CERRAHİ MODÜLÜ',
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 0.6, color: AppColors.primary),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          item['proc'] as String,
+                          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.onSurfaceDoctor),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'İşlem Tarihi: ${item['date']} • Hekim: Dr. Selin Yılmaz',
+                          style: const TextStyle(fontSize: 12, color: AppColors.onSurfaceVariant),
+                        ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          'Anestezi: 2 cc Artikain HCl + Epinefrin (1:100.000) Lokal İnfiltrasyon',
+                          style: TextStyle(fontSize: 12, color: AppColors.onSurfaceDoctor),
+                        ),
+                        const SizedBox(height: 6),
+                        const Text(
+                          'Kullanılan Materyal: 4.1x10mm Straumann BLT Titanyum İmplant (Lot: #ST-8921)',
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.onSurfaceDoctor),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Module 2: Epikriz & Clinical Notes
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.doctorSurfaceContainerHigh),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Row(
+                          children: [
+                            Icon(Symbols.clinical_notes, size: 18, color: AppColors.secondaryDoctor),
+                            SizedBox(width: 6),
+                            Text(
+                              'EPİKRİZ & KLİNİK RAPOR METNİ',
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 0.6, color: AppColors.secondaryDoctor),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          item['note'] as String,
+                          style: const TextStyle(fontSize: 12, height: 1.5, color: AppColors.onSurfaceDoctor),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Module 3: Linked Modules (Radiology, Prescription, Billing)
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppColors.doctorSurfaceContainerHigh),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Row(
+                          children: [
+                            Icon(Symbols.hub, size: 18, color: AppColors.primary),
+                            SizedBox(width: 6),
+                            Text(
+                              'İLİŞKİLİ KLİNİK VERİ MODÜLLERİ',
+                              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, letterSpacing: 0.6, color: AppColors.primary),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        _buildLinkedModuleRow(
+                          icon: Symbols.radiology,
+                          color: const Color(0xFF0284C7),
+                          title: 'Radyoloji Modülü',
+                          sub: 'Panoramik Röntgen (#RAD-2026-904) • Dijital Arşivde',
+                        ),
+                        const Divider(height: 16),
+                        _buildLinkedModuleRow(
+                          icon: Symbols.prescriptions,
+                          color: const Color(0xFF059669),
+                          title: 'Reçete Modülü',
+                          sub: 'E-Reçete (#REC-2026-89412) • 3 Kalem İlaç Reçetelenmiş',
+                        ),
+                        const Divider(height: 16),
+                        _buildLinkedModuleRow(
+                          icon: Symbols.payments,
+                          color: const Color(0xFFD97706),
+                          title: 'Klinik Muhasebe Modülü',
+                          sub: '4.500 ₺ Tahsil Edildi (Makbuz #FTR-2026-1049)',
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () {
+                            Navigator.pop(ctx);
+                            context.go('/doctor/prescription');
+                          },
+                          icon: const Icon(Symbols.prescriptions, size: 16),
+                          label: const Text('Yeni Reçete Yaz', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColors.primary,
+                            padding: const EdgeInsets.symmetric(vertical: 11),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.pop(ctx);
+                            context.push('/doctor/chat', extra: {
+                              'name': patient['name'],
+                              'avatar': patient['avatar'],
+                              'tag': item['proc'] as String? ?? 'Tedavi Takibi',
+                            });
+                          },
+                          icon: const Icon(Symbols.chat, size: 16),
+                          label: const Text('Mesaj Gönder', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 11),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLinkedModuleRow({
+    required IconData icon,
+    required Color color,
+    required String title,
+    required String sub,
+  }) {
+    return Row(
+      children: [
+        Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, size: 18, color: color),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.onSurfaceDoctor)),
+              Text(sub, style: const TextStyle(fontSize: 11, color: AppColors.onSurfaceVariant)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   static const List<Map<String, dynamic>> _patients = [
     {
       'name': 'Ahmet Arslan',
@@ -496,11 +794,29 @@ class _PastPatientsScreenState extends State<PastPatientsScreen> {
                               '•',
                               style: TextStyle(color: AppColors.outlineVariant),
                             ),
-                            Text(
-                              'Son: ${p['lastDate']}',
-                              style: const TextStyle(
-                                fontSize: 11,
-                                color: AppColors.onSurfaceVariant,
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.secondaryFixedDoctor,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Symbols.event_available, size: 12, color: AppColors.primary),
+                                  const SizedBox(width: 3),
+                                  Text(
+                                    'Son Randevu: ${p['lastDate']}',
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.onSecondaryFixedVariantDoctor,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                             Container(
@@ -646,6 +962,23 @@ class _PastPatientsScreenState extends State<PastPatientsScreen> {
                               ],
                             ),
                           ],
+                          const SizedBox(height: 8),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton.icon(
+                              onPressed: () => _openEpikrizDetailsModal(p, item),
+                              style: TextButton.styleFrom(
+                                foregroundColor: AppColors.primary,
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                visualDensity: VisualDensity.compact,
+                              ),
+                              icon: const Icon(Symbols.description, size: 15),
+                              label: const Text(
+                                'Epikriz & Modül Detayları',
+                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -679,7 +1012,16 @@ class _PastPatientsScreenState extends State<PastPatientsScreen> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: ElevatedButton.icon(
-                          onPressed: () => context.go('/doctor/messages'),
+                          onPressed: () => context.push(
+                            '/doctor/chat',
+                            extra: {
+                              'name': p['name'],
+                              'avatar': p['avatar'],
+                              'tag': (p['history'] as List).isNotEmpty
+                                  ? (p['history'][0]['proc'] as String)
+                                  : 'Tedavi Takibi',
+                            },
+                          ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,

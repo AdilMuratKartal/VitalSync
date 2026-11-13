@@ -16,6 +16,14 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   bool _rxAlerts = true;
   bool _checkupReminder = false;
 
+  // Patient profile editable information
+  String _phone = '+90 532 418 90 12';
+  String _email = 'zeynep.demir@eposta.com';
+  String _bloodType = 'A Rh+';
+  String _allergy = 'Penisilin Alerjisi';
+  String _address = 'Bağdat Caddesi No: 142/5 Kadıköy / İstanbul';
+  String _emergencyContact = 'Ahmet Demir (Eşi) - 0533 111 22 33';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,52 +62,26 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                         children: [
                           Row(
                             children: [
-                              Stack(
-                                clipBehavior: Clip.none,
-                                children: [
-                                  Container(
-                                    width: 74,
-                                    height: 74,
-                                    padding: const EdgeInsets.all(2),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(20),
-                                      border: Border.all(
-                                        color: AppColors.primary.withValues(
-                                          alpha: 0.25,
-                                        ),
-                                        width: 2,
-                                      ),
+                              Container(
+                                width: 74,
+                                height: 74,
+                                padding: const EdgeInsets.all(2),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: AppColors.primary.withValues(
+                                      alpha: 0.25,
                                     ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(16),
-                                      child: Image.asset(
-                                        'assets/images/zeynep_demir_profile.png',
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
+                                    width: 2,
                                   ),
-                                  Positioned(
-                                    bottom: -4,
-                                    right: -4,
-                                    child: Container(
-                                      width: 28,
-                                      height: 28,
-                                      decoration: BoxDecoration(
-                                        color: AppColors.primary,
-                                        borderRadius: BorderRadius.circular(9),
-                                        border: Border.all(
-                                          color: Colors.white,
-                                          width: 2,
-                                        ),
-                                      ),
-                                      child: const Icon(
-                                        Symbols.photo_camera,
-                                        size: 14,
-                                        color: Colors.white,
-                                      ),
-                                    ),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: Image.asset(
+                                    'assets/images/zeynep_demir_profile.png',
+                                    fit: BoxFit.cover,
                                   ),
-                                ],
+                                ),
                               ),
                               const SizedBox(width: 16),
                               Expanded(
@@ -179,18 +161,18 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                                               8,
                                             ),
                                           ),
-                                          child: const Row(
+                                          child: Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
-                                              Icon(
+                                              const Icon(
                                                 Symbols.bloodtype,
                                                 size: 14,
                                                 color: AppColors.primary,
                                               ),
-                                              SizedBox(width: 4),
+                                              const SizedBox(width: 4),
                                               Text(
-                                                'A Rh+',
-                                                style: TextStyle(
+                                                _bloodType,
+                                                style: const TextStyle(
                                                   fontSize: 11,
                                                   fontWeight: FontWeight.w700,
                                                   color: AppColors.onSurface,
@@ -199,39 +181,40 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                                             ],
                                           ),
                                         ),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                            vertical: 4,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: AppColors.errorContainer
-                                                .withValues(alpha: 0.55),
-                                            borderRadius: BorderRadius.circular(
-                                              8,
+                                        if (_allergy.isNotEmpty)
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 4,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: AppColors.errorContainer
+                                                  .withValues(alpha: 0.55),
+                                              borderRadius: BorderRadius.circular(
+                                                8,
+                                              ),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                const Icon(
+                                                  Symbols.warning,
+                                                  size: 14,
+                                                  color: AppColors.error,
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Text(
+                                                  _allergy,
+                                                  style: const TextStyle(
+                                                    fontSize: 11,
+                                                    fontWeight: FontWeight.w700,
+                                                    color:
+                                                        AppColors.onErrorContainer,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                          child: const Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Icon(
-                                                Symbols.warning,
-                                                size: 14,
-                                                color: AppColors.error,
-                                              ),
-                                              SizedBox(width: 4),
-                                              Text(
-                                                'Penisilin Alerjisi',
-                                                style: TextStyle(
-                                                  fontSize: 11,
-                                                  fontWeight: FontWeight.w700,
-                                                  color:
-                                                      AppColors.onErrorContainer,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
                                       ],
                                     ),
                                   ],
@@ -254,20 +237,20 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                                     color: AppColors.surfaceContainerLow,
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: const Row(
+                                  child: Row(
                                     children: [
-                                      Icon(
+                                      const Icon(
                                         Symbols.call,
                                         size: 18,
                                         color: AppColors.primary,
                                       ),
-                                      SizedBox(width: 8),
+                                      const SizedBox(width: 8),
                                       Expanded(
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            Text(
+                                            const Text(
                                               'TELEFON',
                                               style: TextStyle(
                                                 fontSize: 9,
@@ -277,9 +260,9 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                                               ),
                                             ),
                                             Text(
-                                              '+90 532 418 90 12',
+                                              _phone,
                                               overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.w700,
                                                 color: AppColors.onSurface,
@@ -300,20 +283,20 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                                     color: AppColors.surfaceContainerLow,
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: const Row(
+                                  child: Row(
                                     children: [
-                                      Icon(
+                                      const Icon(
                                         Symbols.mail,
                                         size: 18,
                                         color: AppColors.primary,
                                       ),
-                                      SizedBox(width: 8),
+                                      const SizedBox(width: 8),
                                       Expanded(
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            Text(
+                                            const Text(
                                               'E-POSTA',
                                               style: TextStyle(
                                                 fontSize: 9,
@@ -323,9 +306,9 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                                               ),
                                             ),
                                             Text(
-                                              'zeynep.demir@eposta.com',
+                                              _email,
                                               overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.w700,
                                                 color: AppColors.onSurface,
@@ -433,6 +416,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                             title: 'Kişisel & Tıbbi Bilgilerimi Düzenle',
                             subtitle:
                                 'Adres, acil durum kişisi ve sistemik hastalıklar',
+                            onTap: _showEditProfileModal,
                           ),
                           const Divider(
                             color: AppColors.surfaceContainerLow,
@@ -440,19 +424,9 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                           ),
                           _buildMenuRow(
                             icon: Symbols.lock_reset,
-                            title: 'Şifre ve Giriş Güvenliği',
+                            title: 'Şifre ve Güvenlik',
                             subtitle: 'Son şifre değişikliği: 3 ay önce',
-                            trailingText: '2FA Aktif',
-                          ),
-                          const Divider(
-                            color: AppColors.surfaceContainerLow,
-                            height: 1,
-                          ),
-                          _buildMenuRow(
-                            icon: Symbols.health_and_safety,
-                            title: 'Özel Sağlık Sigortası & Kurum',
-                            subtitle:
-                                'Allianz Sigorta • Türk Dişhekimleri Birliği (TDB)',
+                            onTap: () => context.push('/forgot-password'),
                           ),
                         ],
                       ),
@@ -485,6 +459,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                         title: 'KVKK Aydınlatma Metni & Hasta Hakları',
                         subtitle:
                             'Kişisel sağlık verilerinin korunması izinleri',
+                        onTap: _showKvkkDialog,
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -596,9 +571,10 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     required String title,
     required String subtitle,
     String? trailingText,
+    VoidCallback? onTap,
   }) {
     return InkWell(
-      onTap: () {},
+      onTap: onTap,
       borderRadius: BorderRadius.circular(20),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -662,6 +638,265 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showEditProfileModal() {
+    final phoneController = TextEditingController(text: _phone);
+    final emailController = TextEditingController(text: _email);
+    final bloodController = TextEditingController(text: _bloodType);
+    final allergyController = TextEditingController(text: _allergy);
+    final addressController = TextEditingController(text: _address);
+    final emergencyController = TextEditingController(text: _emergencyContact);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(24),
+              topRight: Radius.circular(24),
+            ),
+          ),
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 24,
+            top: 16,
+            left: 20,
+            right: 20,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: AppColors.surfaceContainerHigh,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Bilgilerimi Düzenle',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.onSurface,
+                          ),
+                        ),
+                        SizedBox(height: 2),
+                        Text(
+                          'Kişisel ve tıbbi bilgilerinizi güncelleyin',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      icon: const Icon(
+                        Symbols.close,
+                        color: AppColors.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _buildModalTextField(
+                  label: 'Telefon Numarası',
+                  icon: Symbols.call,
+                  controller: phoneController,
+                  keyboardType: TextInputType.phone,
+                ),
+                const SizedBox(height: 12),
+                _buildModalTextField(
+                  label: 'E-Posta Adresi',
+                  icon: Symbols.mail,
+                  controller: emailController,
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: _buildModalTextField(
+                        label: 'Kan Grubu',
+                        icon: Symbols.bloodtype,
+                        controller: bloodController,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      flex: 2,
+                      child: _buildModalTextField(
+                        label: 'Alerjiler / Tıbbi Uyarı',
+                        icon: Symbols.warning,
+                        controller: allergyController,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                _buildModalTextField(
+                  label: 'İkamet Adresi',
+                  icon: Symbols.home_pin,
+                  controller: addressController,
+                  maxLines: 2,
+                ),
+                const SizedBox(height: 12),
+                _buildModalTextField(
+                  label: 'Acil Durum İletişim Kişisi',
+                  icon: Symbols.contact_emergency,
+                  controller: emergencyController,
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _phone = phoneController.text.trim();
+                        _email = emailController.text.trim();
+                        _bloodType = bloodController.text.trim();
+                        _allergy = allergyController.text.trim();
+                        _address = addressController.text.trim();
+                        _emergencyContact = emergencyController.text.trim();
+                      });
+                      Navigator.pop(ctx);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Bilgileriniz başarıyla güncellendi.'),
+                          backgroundColor: AppColors.primary,
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: const Text(
+                      'Değişiklikleri Kaydet',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildModalTextField({
+    required String label,
+    required IconData icon,
+    required TextEditingController controller,
+    TextInputType? keyboardType,
+    int maxLines = 1,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: AppColors.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.surfaceContainerLowest,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: AppColors.surfaceContainerHigh),
+          ),
+          child: TextField(
+            controller: controller,
+            keyboardType: keyboardType,
+            maxLines: maxLines,
+            style: const TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: AppColors.onSurface,
+            ),
+            decoration: InputDecoration(
+              isDense: true,
+              prefixIcon: Icon(icon, size: 20, color: AppColors.primary),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 12,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showKvkkDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Symbols.policy, color: AppColors.primary),
+            SizedBox(width: 8),
+            Text(
+              'KVKK ve Hasta Hakları',
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+            ),
+          ],
+        ),
+        content: const SingleChildScrollView(
+          child: Text(
+            '6698 sayılı Kişisel Verilerin Korunması Kanunu (KVKK) uyarınca, Dentora Klinik olarak sağlık verileriniz ve kişisel kimlik bilgileriniz en yüksek güvenlik standartlarında korunmaktadır.\n\nTıbbi geçmişiniz, röntgenleriniz ve reçete kayıtlarınız yalnızca tedavi sürecinizi yürüten hekimleriniz ile paylaşılır. İzniniz olmadan üçüncü şahıslara aktarılmaz.',
+            style: TextStyle(
+              fontSize: 13,
+              height: 1.5,
+              color: AppColors.onSurfaceVariant,
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text(
+              'Anladım',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+        ],
       ),
     );
   }

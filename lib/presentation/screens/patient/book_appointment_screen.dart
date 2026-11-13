@@ -324,6 +324,9 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                       height: 82,
                       child: ListView.separated(
                         scrollDirection: Axis.horizontal,
+                        physics: const AlwaysScrollableScrollPhysics(
+                          parent: BouncingScrollPhysics(),
+                        ),
                         itemCount: _dates.length,
                         separatorBuilder: (_, _) => const SizedBox(width: 10),
                         itemBuilder: (context, index) {

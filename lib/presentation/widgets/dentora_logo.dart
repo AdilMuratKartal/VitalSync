@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import '../../core/theme/app_colors.dart';
+import '../screens/doctor/widgets/doctor_modals.dart';
 
 /// Custom vector clinical tooth + cross/spark emblem representing the Dentora logo.
 class DentoraLogo extends StatelessWidget {
@@ -292,32 +293,16 @@ class PatientTopAppBar extends StatelessWidget {
                 child: Container(
                   width: 38,
                   height: 38,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: AppColors.surfaceContainerLow,
                     shape: BoxShape.circle,
                   ),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      const Icon(
-                        Symbols.notifications,
-                        size: 20,
-                        color: AppColors.onSurfaceVariant,
-                      ),
-                      Positioned(
-                        top: 9,
-                        right: 9,
-                        child: Container(
-                          width: 7,
-                          height: 7,
-                          decoration: BoxDecoration(
-                            color: AppColors.secondaryContainer,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 1.2),
-                          ),
-                        ),
-                      ),
-                    ],
+                  child: const Center(
+                    child: Icon(
+                      Symbols.notifications,
+                      size: 20,
+                      color: AppColors.onSurfaceVariant,
+                    ),
                   ),
                 ),
               ),
@@ -338,7 +323,7 @@ class PatientTopAppBar extends StatelessWidget {
                   ),
                   child: ClipOval(
                     child: Image.asset(
-                      'assets/images/avatar_profile_header.png',
+                      'assets/images/zeynep_demir_profile.png',
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -437,19 +422,7 @@ class DoctorTopAppBar extends StatelessWidget {
             children: [
               InkWell(
                 borderRadius: BorderRadius.circular(20),
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Klinik bildirimleri güncel.'),
-                      behavior: SnackBarBehavior.floating,
-                      backgroundColor: AppColors.primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      duration: const Duration(seconds: 2),
-                    ),
-                  );
-                },
+                onTap: () => showDoctorNotificationsSheet(context),
                 child: Container(
                   width: 38,
                   height: 38,
@@ -489,13 +462,38 @@ class DoctorTopAppBar extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 onSelected: (value) {
-                  if (value == 'patient') {
+                  if (value == 'profile') {
+                    showDoctorProfileSheet(context);
+                  } else if (value == 'settings') {
+                    showDoctorSettingsSheet(context);
+                  } else if (value == 'patient') {
                     context.go('/patient/home');
                   } else if (value == 'logout') {
                     context.go('/login');
                   }
                 },
                 itemBuilder: (context) => [
+                  const PopupMenuItem(
+                    value: 'profile',
+                    child: Row(
+                      children: [
+                        Icon(Symbols.account_circle, size: 18, color: AppColors.primary),
+                        SizedBox(width: 10),
+                        Text('Doktor Profili', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'settings',
+                    child: Row(
+                      children: [
+                        Icon(Symbols.settings, size: 18, color: AppColors.primary),
+                        SizedBox(width: 10),
+                        Text('Klinik & Hekim Ayarları', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuDivider(),
                   const PopupMenuItem(
                     value: 'patient',
                     child: Row(
