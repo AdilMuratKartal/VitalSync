@@ -720,44 +720,7 @@ class _PatientHomeScreenState extends State<PatientHomeScreen> {
                                         height: 1,
                                       ),
                                   ],
-                                  const SizedBox(height: 12),
-                                  Container(
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.secondaryFixed
-                                          .withValues(alpha: 0.4),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        const Expanded(
-                                          child: Text(
-                                            'Özel sağlık sigortası anlaşmalarımız mevcuttur.',
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w600,
-                                              color: AppColors.onSecondaryFixed,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        GestureDetector(
-                                          onTap: () =>
-                                              context.go('/patient/chat'),
-                                          child: const Text(
-                                            'Bize Sorun →',
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w700,
-                                              color: AppColors.primary,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                                  const SizedBox(height: 4),
                                 ],
                               ),
                             ),

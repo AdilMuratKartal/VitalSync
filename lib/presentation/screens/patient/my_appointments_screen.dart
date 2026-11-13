@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import '../../../core/di/service_locator.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../data/services/firestore_service.dart';
 import '../../widgets/dentora_logo.dart';
 
 class MyAppointmentsScreen extends StatefulWidget {
@@ -14,6 +16,201 @@ class MyAppointmentsScreen extends StatefulWidget {
 class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
   String _selectedFilter = 'all'; // 'all', 'upcoming', 'past', 'cancelled'
   int _selectedDayIndex = 3; // 19 Per
+
+  late List<Map<String, dynamic>> _upcomingAppointments = [
+    {
+      'id': 'apt-up-1',
+      'badgeText': 'Planlandı • Yarın',
+      'badgeBg': AppColors.secondaryFixed,
+      'badgeFg': AppColors.onSecondaryFixed,
+      'price': '3.200 ₺',
+      'icon': Symbols.dentistry,
+      'title': 'Kanal Tedavisi & Kompozit Dolgu',
+      'subtitle': 'Uzm. Dt. Selin Yılmaz • Endodonti Kliniği (Oda 3)',
+      'date': '19 Mart 2026, Per',
+      'time': '14:30 - 15:15',
+      'primaryBtnLabel': 'Detay & Hazırlık',
+      'status': 'upcoming',
+    },
+    {
+      'id': 'apt-up-2',
+      'badgeText': 'Onaylandı',
+      'badgeBg': AppColors.tertiaryFixed,
+      'badgeFg': AppColors.onTertiaryFixedVariant,
+      'price': '1.450 ₺',
+      'icon': Symbols.clean_hands,
+      'title': 'Ultrasonik Diş Taşı Temizliği (Detartraj)',
+      'subtitle': 'Dt. Emre Karahan • Periodontoloji (Oda 1)',
+      'date': '21 Mart 2026, Cmt',
+      'time': '10:00 - 10:30',
+      'primaryBtnLabel': 'Takvime Ekle',
+      'status': 'upcoming',
+    },
+  ];
+
+  final List<Map<String, dynamic>> _cancelledAppointments = [];
+
+  void _showCancelOrRescheduleDialog(Map<String, dynamic> appointment) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+        decoration: const BoxDecoration(
+          color: AppColors.surfaceContainerLowest,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceContainerHigh,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 18),
+            Row(
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: AppColors.errorContainer.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Symbols.event_busy,
+                    color: AppColors.error,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Randevu İşlemleri',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.onSurface,
+                        ),
+                      ),
+                      Text(
+                        appointment['title'] as String,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: AppColors.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '${appointment['date']} saat ${appointment['time']} tarihindeki randevunuzu iptal etmek veya başka bir tarihe taşımak istiyor musunuz?',
+              style: const TextStyle(
+                fontSize: 13,
+                color: AppColors.onSurfaceVariant,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  context.push('/patient/book-calendar');
+                },
+                icon: const Icon(Symbols.calendar_month, size: 18),
+                label: const Text('Farklı Bir Tarihe Ertele'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                  side: const BorderSide(color: AppColors.primary),
+                  padding: const EdgeInsets.symmetric(vertical: 13),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  _cancelAppointment(appointment);
+                },
+                icon: const Icon(Symbols.cancel, size: 18),
+                label: const Text('Randevuyu İptal Et'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.error,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 13),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _cancelAppointment(Map<String, dynamic> appointment) async {
+    final aptId = appointment['id'] as String;
+
+    try {
+      if (ServiceLocator.isRegistered<FirestoreService>()) {
+        final firestoreService = ServiceLocator.get<FirestoreService>();
+        await firestoreService.updateAppointmentStatus(aptId, 'cancelled');
+      }
+    } catch (_) {
+      // Offline fallback: update local UI seamlessly
+    }
+
+    setState(() {
+      _upcomingAppointments.removeWhere((item) => item['id'] == aptId);
+      final cancelledItem = Map<String, dynamic>.from(appointment);
+      cancelledItem['status'] = 'cancelled';
+      cancelledItem['badgeText'] = 'İptal Edildi';
+      cancelledItem['badgeBg'] = AppColors.errorContainer;
+      cancelledItem['badgeFg'] = AppColors.error;
+      _cancelledAppointments.add(cancelledItem);
+    });
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'Randevunuz iptal edildi ve iptal edilen randevularınıza taşındı.',
+          ),
+          backgroundColor: AppColors.primary,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
+  }
 
   static const List<Map<String, dynamic>> _stripDays = [
     {'day': 'Pzt', 'num': '16', 'hasDot': false},
@@ -58,6 +255,13 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
         _selectedFilter == 'all' || _selectedFilter == 'upcoming';
     final showPast = _selectedFilter == 'all' || _selectedFilter == 'past';
     final showCancelled = _selectedFilter == 'cancelled';
+
+    final totalCount = _upcomingAppointments.length +
+        _pastAppointments.length +
+        _cancelledAppointments.length;
+    final upcomingCount = _upcomingAppointments.length;
+    final pastCount = _pastAppointments.length;
+    final cancelledCount = _cancelledAppointments.length;
 
     return Scaffold(
       backgroundColor: AppColors.surface,
@@ -229,6 +433,7 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
                               final hasDot = d['hasDot'] as bool;
                               return Expanded(
                                 child: GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
                                   onTap: () {
                                     setState(() {
                                       _selectedDayIndex = index;
@@ -312,20 +517,30 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
                     // Filter Chips Bar
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
+                      physics: const AlwaysScrollableScrollPhysics(
+                        parent: BouncingScrollPhysics(),
+                      ),
                       child: Row(
                         children: [
-                          _buildFilterChip('all', 'Tümü', '6'),
+                          _buildFilterChip('all', 'Tümü', '$totalCount'),
                           const SizedBox(width: 8),
                           _buildFilterChip(
                             'upcoming',
                             'Yaklaşan',
-                            '2',
+                            '$upcomingCount',
                             dotColor: AppColors.secondaryContainer,
                           ),
                           const SizedBox(width: 8),
-                          _buildFilterChip('past', 'Geçmiş', '4'),
+                          _buildFilterChip('past', 'Geçmiş', '$pastCount'),
                           const SizedBox(width: 8),
-                          _buildFilterChip('cancelled', 'İptal Edilen', '0'),
+                          _buildFilterChip(
+                            'cancelled',
+                            'İptal Edilen',
+                            '$cancelledCount',
+                            dotColor: _cancelledAppointments.isNotEmpty
+                                ? AppColors.error
+                                : null,
+                          ),
                         ],
                       ),
                     ),
@@ -357,9 +572,9 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
                               ),
                             ],
                           ),
-                          const Text(
-                            '2 Kayıt',
-                            style: TextStyle(
+                          Text(
+                            '${_upcomingAppointments.length} Kayıt',
+                            style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
                               color: AppColors.onSurfaceVariant,
@@ -369,37 +584,33 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
                       ),
                       const SizedBox(height: 12),
 
-                      // Upcoming Card 1
-                      _buildUpcomingCard(
-                        badgeText: 'Planlandı • Yarın',
-                        badgeBg: AppColors.secondaryFixed,
-                        badgeFg: AppColors.onSecondaryFixed,
-                        price: '3.200 ₺',
-                        icon: Symbols.dentistry,
-                        title: 'Kanal Tedavisi & Kompozit Dolgu',
-                        subtitle:
-                            'Uzm. Dt. Selin Yılmaz • Endodonti Kliniği (Oda 3)',
-                        date: '19 Mart 2026, Per',
-                        time: '14:30 - 15:15',
-                        primaryBtnLabel: 'Detay & Hazırlık',
-                      ),
-                      const SizedBox(height: 14),
-
-                      // Upcoming Card 2
-                      _buildUpcomingCard(
-                        badgeText: 'Onaylandı',
-                        badgeBg: AppColors.tertiaryFixed,
-                        badgeFg: AppColors.onTertiaryFixedVariant,
-                        price: '1.450 ₺',
-                        icon: Symbols.clean_hands,
-                        title: 'Ultrasonik Diş Taşı Temizliği (Detartraj)',
-                        subtitle:
-                            'Dt. Emre Karahan • Periodontoloji (Oda 1)',
-                        date: '21 Mart 2026, Cmt',
-                        time: '10:00 - 10:30',
-                        primaryBtnLabel: 'Takvime Ekle',
-                      ),
-                      const SizedBox(height: 24),
+                      if (_upcomingAppointments.isEmpty)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceContainerLowest,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: AppColors.surfaceContainerHigh,
+                            ),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              'Aktif yaklaşan randevunuz bulunmamaktadır.',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: AppColors.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                        )
+                      else
+                        for (final item in _upcomingAppointments) ...[
+                          _buildUpcomingCard(item),
+                          const SizedBox(height: 14),
+                        ],
+                      const SizedBox(height: 10),
                     ],
 
                     // SECTION 2: GEÇMİŞ RANDEVULAR
@@ -446,54 +657,97 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
                       ],
                     ],
 
-                    // SECTION 3: İPTAL EDİLEN RANDEVULAR (Empty State)
-                    if (showCancelled)
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(28),
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceContainerLowest,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: AppColors.surfaceContainerHigh,
+                    // SECTION 3: İPTAL EDİLEN RANDEVULAR
+                    if (showCancelled) ...[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                width: 8,
+                                height: 8,
+                                decoration: const BoxDecoration(
+                                  color: AppColors.error,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              const Text(
+                                'İptal Edilen Randevular',
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.onSurface,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        child: Column(
-                          children: [
-                            Container(
-                              width: 56,
-                              height: 56,
-                              decoration: const BoxDecoration(
-                                color: AppColors.surfaceContainerLow,
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Symbols.event_busy,
-                                size: 28,
-                                color: AppColors.primary,
-                              ),
+                          Text(
+                            '${_cancelledAppointments.length} Kayıt',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.onSurfaceVariant,
                             ),
-                            const SizedBox(height: 14),
-                            const Text(
-                              'İptal Edilen Randevunuz Yok',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.onSurface,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            const Text(
-                              'Tüm randevularınıza düzenli katılım sağladığınız için teşekkür ederiz.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: AppColors.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
+                      const SizedBox(height: 12),
+
+                      if (_cancelledAppointments.isEmpty)
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(28),
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceContainerLowest,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: AppColors.surfaceContainerHigh,
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              Container(
+                                width: 56,
+                                height: 56,
+                                decoration: const BoxDecoration(
+                                  color: AppColors.surfaceContainerLow,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Symbols.event_busy,
+                                  size: 28,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+                              const Text(
+                                'İptal Edilen Randevunuz Yok',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.onSurface,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              const Text(
+                                'Tüm randevularınıza düzenli katılım sağladığınız için teşekkür ederiz.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      else
+                        for (final item in _cancelledAppointments) ...[
+                          _buildCancelledCard(item),
+                          const SizedBox(height: 12),
+                        ],
+                    ],
                   ],
                 ),
               ),
@@ -524,6 +778,7 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
   }) {
     final isSelected = _selectedFilter == key;
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () {
         setState(() {
           _selectedFilter = key;
@@ -589,18 +844,17 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
     );
   }
 
-  Widget _buildUpcomingCard({
-    required String badgeText,
-    required Color badgeBg,
-    required Color badgeFg,
-    required String price,
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required String date,
-    required String time,
-    required String primaryBtnLabel,
-  }) {
+  Widget _buildUpcomingCard(Map<String, dynamic> item) {
+    final badgeText = item['badgeText'] as String;
+    final badgeBg = item['badgeBg'] as Color;
+    final badgeFg = item['badgeFg'] as Color;
+    final price = item['price'] as String;
+    final icon = item['icon'] as IconData;
+    final title = item['title'] as String;
+    final subtitle = item['subtitle'] as String;
+    final date = item['date'] as String;
+    final time = item['time'] as String;
+    final primaryBtnLabel = item['primaryBtnLabel'] as String;
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -814,20 +1068,7 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
               ),
               const SizedBox(width: 10),
               OutlinedButton(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text(
-                        'Erteleme / İptal talebiniz için klinik sekreterliği bilgilendirildi.',
-                      ),
-                      backgroundColor: AppColors.primary,
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  );
-                },
+                onPressed: () => _showCancelOrRescheduleDialog(item),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.error,
                   backgroundColor: AppColors.errorContainer.withValues(
@@ -848,6 +1089,118 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
                 ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCancelledCard(Map<String, dynamic> item) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: AppColors.error.withValues(alpha: 0.25),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: AppColors.errorContainer.withValues(alpha: 0.45),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Symbols.cancel, size: 12, color: AppColors.error),
+                    SizedBox(width: 4),
+                    Text(
+                      'İptal Edildi',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.error,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Text(
+                item['price'] as String,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.onSurfaceVariant,
+                  decoration: TextDecoration.lineThrough,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            item['title'] as String,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: AppColors.onSurface,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            item['subtitle'] as String,
+            style: const TextStyle(
+              fontSize: 11,
+              color: AppColors.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              const Icon(
+                Symbols.event,
+                size: 14,
+                color: AppColors.onSurfaceVariant,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                '${item['date']} • ${item['time']}',
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: AppColors.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Row(
+              children: [
+                Icon(Symbols.info, size: 14, color: AppColors.onSurfaceVariant),
+                SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    'Hasta talebiyle iptal edildi. Geçmiş arşiv kayıtlarında saklanmaktadır.',
+                    style: TextStyle(
+                      fontSize: 10.5,
+                      color: AppColors.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

@@ -292,32 +292,16 @@ class PatientTopAppBar extends StatelessWidget {
                 child: Container(
                   width: 38,
                   height: 38,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: AppColors.surfaceContainerLow,
                     shape: BoxShape.circle,
                   ),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      const Icon(
-                        Symbols.notifications,
-                        size: 20,
-                        color: AppColors.onSurfaceVariant,
-                      ),
-                      Positioned(
-                        top: 9,
-                        right: 9,
-                        child: Container(
-                          width: 7,
-                          height: 7,
-                          decoration: BoxDecoration(
-                            color: AppColors.secondaryContainer,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 1.2),
-                          ),
-                        ),
-                      ),
-                    ],
+                  child: const Center(
+                    child: Icon(
+                      Symbols.notifications,
+                      size: 20,
+                      color: AppColors.onSurfaceVariant,
+                    ),
                   ),
                 ),
               ),
@@ -338,7 +322,7 @@ class PatientTopAppBar extends StatelessWidget {
                   ),
                   child: ClipOval(
                     child: Image.asset(
-                      'assets/images/avatar_profile_header.png',
+                      'assets/images/zeynep_demir_profile.png',
                       fit: BoxFit.cover,
                     ),
                   ),

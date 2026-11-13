@@ -18,6 +18,21 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
   bool _rx1Expanded = true;
   bool _rx2Expanded = false;
 
+  bool _matchesTimeRange(String dateString) {
+    if (_selectedTimeRange == 'all') return true;
+    if (_selectedTimeRange == '2026') return dateString.contains('2026');
+    if (_selectedTimeRange == '2025') return dateString.contains('2025');
+    if (_selectedTimeRange == '1m') {
+      return dateString.contains('Mart 2026');
+    }
+    if (_selectedTimeRange == '6m' || _selectedTimeRange == '6months') {
+      return dateString.contains('2026') ||
+          dateString.contains('Aralık 2025') ||
+          dateString.contains('Kasım 2025');
+    }
+    return true;
+  }
+
   void _showToast(String title, String subtitle) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -138,7 +153,7 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
               ),
               const SizedBox(height: 12),
               const Text(
-                'E-Reçete Eczane Kodu',
+                'E-Reçete & Tedavi Özeti',
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
@@ -468,6 +483,9 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
                           const SizedBox(height: 10),
                           SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
+                            physics: const AlwaysScrollableScrollPhysics(
+                              parent: BouncingScrollPhysics(),
+                            ),
                             child: Row(
                               children: [
                                 _buildTimeChip('all', 'Tümü'),
@@ -504,6 +522,7 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
   Widget _buildTimeChip(String key, String label) {
     final isSelected = _selectedTimeRange == key;
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () => setState(() => _selectedTimeRange = key),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -528,12 +547,20 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
         _selectedCategory == 'all' || _selectedCategory == 'xray';
     final showLab = _selectedCategory == 'all' || _selectedCategory == 'lab';
 
+    final showCard1 = showXray && _matchesTimeRange('14 Mart 2026');
+    final showCard3 = showXray && _matchesTimeRange('15 Aralık 2025');
+    final showCard2 = showLab && _matchesTimeRange('02 Şubat 2026');
+    final hasAnyTest = showCard1 || showCard3 || showCard2;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Category Sub-filter Pills
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
+          physics: const AlwaysScrollableScrollPhysics(
+            parent: BouncingScrollPhysics(),
+          ),
           child: Row(
             children: [
               _buildCatChip('all', 'Tümü (3)', null),
@@ -546,7 +573,7 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
         ),
         const SizedBox(height: 16),
 
-        if (showXray) ...[
+        if (showCard1) ...[
           // Card 1: Panoramik Çene Röntgeni (OPG)
           Container(
             padding: const EdgeInsets.all(20),
@@ -805,7 +832,9 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
             ),
           ),
           const SizedBox(height: 16),
+        ],
 
+        if (showCard3) ...[
           // Card 3: 3D Dental Volümetrik Tomografi (CBCT)
           Container(
             padding: const EdgeInsets.all(20),
@@ -955,7 +984,7 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
           const SizedBox(height: 16),
         ],
 
-        if (showLab) ...[
+        if (showCard2) ...[
           // Card 2: Cerrahi Öncesi Kan & Koagülasyon Paneli
           Container(
             padding: const EdgeInsets.all(20),
@@ -1067,6 +1096,51 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
             ),
           ),
         ],
+        if (!hasAnyTest)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(28),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceContainerLowest,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppColors.surfaceContainerHigh),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  width: 52,
+                  height: 52,
+                  decoration: const BoxDecoration(
+                    color: AppColors.surfaceContainerLow,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Symbols.folder_off,
+                    size: 26,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Seçilen Döneme Ait Tetkik Bulunamadı',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Farklı bir tarih aralığı veya tetkik kategorisi seçebilirsiniz.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }
@@ -1074,6 +1148,7 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
   Widget _buildCatChip(String key, String label, IconData? icon) {
     final isSelected = _selectedCategory == key;
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () => setState(() => _selectedCategory = key),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
@@ -1157,6 +1232,10 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
   }
 
   Widget _buildPrescriptionsView() {
+    final showRx1 = _matchesTimeRange('14 Mart 2026');
+    final showRx2 = _matchesTimeRange('18 Kasım 2025');
+    final hasAnyRx = showRx1 || showRx2;
+
     return Column(
       children: [
         // Info Banner
@@ -1188,70 +1267,121 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
         ),
         const SizedBox(height: 16),
 
-        // Prescription 1: #REC-2026-89412
-        _buildPrescriptionCard(
-          isExpanded: _rx1Expanded,
-          onToggle: () => setState(() => _rx1Expanded = !_rx1Expanded),
-          code: '#REC-2026-89412',
-          statusBadge: 'Aktif Tedavi',
-          dateText: '14 Mart 2026',
-          title: 'Kanal Tedavisi & Akut Apikal Periodontitis',
-          subtitle: 'Dt. Selin Yılmaz • 3 Kalem İlaç',
-          medications: const [
-            {
-              'name': 'Augmentin-BID 1000 mg Film Tablet',
-              'sub': 'Antibiyotik • 14 Tablet (1 Kutu)',
-              'freq': 'Günde 2x1',
-              'usage': 'Sabah / Akşam (12 saat arayla)',
-              'meal': 'Tok Karnına • 7 Gün Boyunca',
-            },
-            {
-              'name': 'Apranax Fort 550 mg Film Tablet',
-              'sub': 'Ağrı Kesici & Anti-inflamatuar • 10 Tablet',
-              'freq': 'Günde 2x1',
-              'usage': 'Ağrı oldukça (Maks. 2 adet)',
-              'meal': 'Tok Karnına • Bol su ile',
-            },
-            {
-              'name': 'Kloroben %0.12 + %0.15 Gargara',
-              'sub': 'Oral Antiseptik Solüsyon • 200 ml',
-              'freq': 'Günde 3x1',
-              'usage': 'Diş fırçalama sonrası 30 sn çalkalama',
-              'meal': 'Yutulmaz • 30 dk bir şey yenmemeli',
-            },
-          ],
-          note:
-              'Antibiyotik kullanımını ağrınız geçse dahi 7. günün sonuna kadar tamamlayınız. Sıcak gıda ve içeceklerden 48 saat kaçınınız.',
-        ),
-        const SizedBox(height: 16),
+        if (showRx1) ...[
+          // Prescription 1: #REC-2026-89412
+          _buildPrescriptionCard(
+            isExpanded: _rx1Expanded,
+            onToggle: () => setState(() => _rx1Expanded = !_rx1Expanded),
+            code: '#REC-2026-89412',
+            statusBadge: 'Aktif Tedavi',
+            dateText: '14 Mart 2026',
+            title: 'Kanal Tedavisi & Akut Apikal Periodontitis',
+            subtitle: 'Dt. Selin Yılmaz • 3 Kalem İlaç',
+            medications: const [
+              {
+                'name': 'Augmentin-BID 1000 mg Film Tablet',
+                'sub': 'Antibiyotik • 14 Tablet (1 Kutu)',
+                'freq': 'Günde 2x1',
+                'usage': 'Sabah / Akşam (12 saat arayla)',
+                'meal': 'Tok Karnına • 7 Gün Boyunca',
+              },
+              {
+                'name': 'Apranax Fort 550 mg Film Tablet',
+                'sub': 'Ağrı Kesici & Anti-inflamatuar • 10 Tablet',
+                'freq': 'Günde 2x1',
+                'usage': 'Ağrı oldukça (Maks. 2 adet)',
+                'meal': 'Tok Karnına • Bol su ile',
+              },
+              {
+                'name': 'Kloroben %0.12 + %0.15 Gargara',
+                'sub': 'Oral Antiseptik Solüsyon • 200 ml',
+                'freq': 'Günde 3x1',
+                'usage': 'Diş fırçalama sonrası 30 sn çalkalama',
+                'meal': 'Yutulmaz • 30 dk bir şey yenmemeli',
+              },
+            ],
+            note:
+                'Antibiyotik kullanımını ağrınız geçse dahi 7. günün sonuna kadar tamamlayınız. Sıcak gıda ve içeceklerden 48 saat kaçınınız.',
+          ),
+          const SizedBox(height: 16),
+        ],
 
-        // Prescription 2: #REC-2025-44109
-        _buildPrescriptionCard(
-          isExpanded: _rx2Expanded,
-          onToggle: () => setState(() => _rx2Expanded = !_rx2Expanded),
-          code: '#REC-2025-44109',
-          statusBadge: 'Tamamlandı',
-          dateText: '18 Kasım 2025',
-          title: 'Gömülü 20 Yaş Dişi Çekimi Sonrası',
-          subtitle: 'Prof. Dr. Kerem Aydın • 2 Kalem İlaç',
-          medications: const [
-            {
-              'name': 'Klamoks-BID 1000 mg Tablet',
-              'sub': 'Antibiyotik • 10 Tablet',
-              'freq': 'Günde 2x1',
-              'usage': '12 Saat Arayla',
-              'meal': 'Tok Karnına • 5 Gün',
-            },
-            {
-              'name': 'Arveles 25 mg Film Tablet',
-              'sub': 'Analjezik • 20 Tablet',
-              'freq': 'Günde 2x1',
-              'usage': 'Sabah / Akşam',
-              'meal': 'Tok Karnına',
-            },
-          ],
-          note: null,
-        ),
+        if (showRx2) ...[
+          // Prescription 2: #REC-2025-44109
+          _buildPrescriptionCard(
+            isExpanded: _rx2Expanded,
+            onToggle: () => setState(() => _rx2Expanded = !_rx2Expanded),
+            code: '#REC-2025-44109',
+            statusBadge: 'Tamamlandı',
+            dateText: '18 Kasım 2025',
+            title: 'Gömülü 20 Yaş Dişi Çekimi Sonrası',
+            subtitle: 'Prof. Dr. Kerem Aydın • 2 Kalem İlaç',
+            medications: const [
+              {
+                'name': 'Klamoks-BID 1000 mg Tablet',
+                'sub': 'Antibiyotik • 10 Tablet',
+                'freq': 'Günde 2x1',
+                'usage': '12 Saat Arayla',
+                'meal': 'Tok Karnına • 5 Gün',
+              },
+              {
+                'name': 'Arveles 25 mg Film Tablet',
+                'sub': 'Analjezik • 20 Tablet',
+                'freq': 'Günde 2x1',
+                'usage': 'Sabah / Akşam',
+                'meal': 'Tok Karnına',
+              },
+            ],
+            note: null,
+          ),
+          const SizedBox(height: 16),
+        ],
+
+        if (!hasAnyRx)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(28),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceContainerLowest,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: AppColors.surfaceContainerHigh),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  width: 52,
+                  height: 52,
+                  decoration: const BoxDecoration(
+                    color: AppColors.surfaceContainerLow,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Symbols.folder_off,
+                    size: 26,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Seçilen Döneme Ait Reçete Bulunamadı',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Farklı bir tarih aralığı seçebilirsiniz.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }
@@ -1372,18 +1502,34 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
                         ),
                       ),
                       Container(
-                        width: 32,
-                        height: 32,
-                        decoration: const BoxDecoration(
-                          color: AppColors.surfaceContainerLow,
-                          shape: BoxShape.circle,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 6,
                         ),
-                        child: Icon(
-                          isExpanded
-                              ? Symbols.expand_less
-                              : Symbols.expand_more,
-                          size: 20,
-                          color: AppColors.onSurfaceVariant,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              isExpanded
+                                  ? Symbols.expand_less
+                                  : Symbols.visibility,
+                              size: 15,
+                              color: AppColors.primary,
+                            ),
+                            const SizedBox(width: 4),
+                            const Text(
+                              'Özeti Gör',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.primary,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -1599,9 +1745,9 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          icon: const Icon(Symbols.qr_code, size: 17),
+                          icon: const Icon(Symbols.visibility, size: 17),
                           label: const Text(
-                            'Barkod Göster',
+                            'Özeti Gör',
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,

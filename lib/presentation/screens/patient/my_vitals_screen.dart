@@ -502,6 +502,9 @@ class _MyVitalsScreenState extends State<MyVitalsScreen> {
                           // Parameter Selector Pills
                           SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
+                            physics: const AlwaysScrollableScrollPhysics(
+                              parent: BouncingScrollPhysics(),
+                            ),
                             child: Row(
                               children: [
                                 _buildChartMetricPill(0, 'Tansiyon (mmHg)'),
@@ -892,6 +895,7 @@ class _MyVitalsScreenState extends State<MyVitalsScreen> {
   Widget _buildChartMetricPill(int index, String label) {
     final isSelected = _selectedChartMetric == index;
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: () => setState(() => _selectedChartMetric = index),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),

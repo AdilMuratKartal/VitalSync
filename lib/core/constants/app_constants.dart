@@ -23,7 +23,7 @@ class AppConstants {
   static const String defaultXrayFallbackAsset =
       'assets/images/xray_panoramic_hd.png';
   static const String defaultAvatarFallbackAsset =
-      'assets/images/avatar_profile_header.png';
+      'assets/images/zeynep_demir_profile.png';
 
   // Kullanıcı Rolleri
   static const String rolePatient = 'patient';
