@@ -6,6 +6,7 @@ import '../../presentation/screens/auth/login_screen.dart';
 import '../../presentation/screens/auth/register_screen.dart';
 import '../../presentation/screens/doctor/create_prescription_screen.dart';
 import '../../presentation/screens/doctor/doctor_agenda_screen.dart';
+import '../../presentation/screens/doctor/doctor_chat_screen.dart';
 import '../../presentation/screens/doctor/doctor_messages_screen.dart';
 import '../../presentation/screens/doctor/doctor_shell_screen.dart';
 import '../../presentation/screens/doctor/past_patients_screen.dart';
@@ -169,6 +170,20 @@ class AppRouter {
             ],
           ),
         ],
+      ),
+
+      // Full-screen Doctor Chat (WhatsApp style)
+      GoRoute(
+        path: '/doctor/chat',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return DoctorChatScreen(
+            patientName: extra?['name'] as String? ?? 'Ahmet Arslan',
+            patientAvatar: extra?['avatar'] as String? ??
+                'assets/images/patient_ahmet_chat.png',
+            tag: extra?['tag'] as String? ?? 'Tedavi Takibi',
+          );
+        },
       ),
     ],
   );

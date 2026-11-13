@@ -17,7 +17,7 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
   String _selectedFilter = 'all'; // 'all', 'upcoming', 'past', 'cancelled'
   int _selectedDayIndex = 3; // 19 Per
 
-  late List<Map<String, dynamic>> _upcomingAppointments = [
+  late final List<Map<String, dynamic>> _upcomingAppointments = [
     {
       'id': 'apt-up-1',
       'badgeText': 'Planlandı • Yarın',
