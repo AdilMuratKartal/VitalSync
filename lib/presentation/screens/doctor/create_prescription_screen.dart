@@ -324,13 +324,16 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
                     separatorBuilder: (_, _) => const SizedBox(height: 8),
                     itemBuilder: (ctx, i) {
                       final m = filtered[i];
-                      return Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: AppColors.doctorSurfaceContainerHigh),
-                        ),
-                        child: ListTile(
+                      return Material(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        clipBehavior: Clip.antiAlias,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: AppColors.doctorSurfaceContainerHigh),
+                          ),
+                          child: ListTile(
                           leading: Container(
                             width: 38,
                             height: 38,
@@ -357,7 +360,8 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
                             );
                           },
                         ),
-                      );
+                      ),
+                    );
                     },
                   ),
                 ),
@@ -725,14 +729,17 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
                         constraints: const BoxConstraints(maxHeight: 124),
                         margin: const EdgeInsets.only(top: 6, bottom: 8),
                         decoration: BoxDecoration(
-                          color: Colors.white,
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(color: AppColors.primary.withValues(alpha: 0.35)),
                           boxShadow: const [
                             BoxShadow(color: Color(0x10006574), blurRadius: 16, offset: Offset(0, 4)),
                           ],
                         ),
-                        child: ListView.separated(
+                        child: Material(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(14),
+                          clipBehavior: Clip.antiAlias,
+                          child: ListView.separated(
                           shrinkWrap: true,
                           padding: const EdgeInsets.symmetric(vertical: 2),
                           itemCount: _matchingPatients.length,
@@ -761,6 +768,7 @@ class _CreatePrescriptionScreenState extends State<CreatePrescriptionScreen> {
                           },
                         ),
                       ),
+                    ),
                     const SizedBox(height: 10),
 
                     // Selected Patient Clinical Snapshot Card (Dynamic!)
