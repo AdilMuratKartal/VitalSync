@@ -44,4 +44,74 @@ class ClinicMockData {
     titleOrInfo: 'Ağız, Diş ve Çene Cerrahisi',
     avatarAsset: 'assets/images/dr_selin_home.png',
   );
+
+  // Ortak Reçete Veri Havuzu (Doktor oluşturduğunda hastada anında görünür)
+  static final List<Map<String, dynamic>> patientPrescriptions = [
+    {
+      'id': 'REC-2026-89412',
+      'code': '#REC-2026-89412',
+      'statusBadge': 'Aktif Tedavi',
+      'dateText': '14 Mart 2026',
+      'title': 'Kanal Tedavisi & Akut Apikal Periodontitis',
+      'subtitle': 'Dt. Selin Yılmaz • 3 Kalem İlaç',
+      'patientName': 'Ahmet Arslan',
+      'doctorName': 'Dr. Selin Yılmaz',
+      'medications': [
+        {
+          'name': 'Augmentin-BID 1000 mg Film Tablet',
+          'sub': 'Antibiyotik • 14 Tablet (1 Kutu)',
+          'freq': 'Günde 2x1',
+          'usage': 'Sabah / Akşam',
+          'meal': 'Tok Karnına • 7 Gün Boyunca',
+        },
+        {
+          'name': 'Apranax Fort 550 mg Film Tablet',
+          'sub': 'Ağrı Kesici & Anti-inflamatuar • 10 Tablet',
+          'freq': 'Günde 2x1',
+          'usage': 'Ağrı oldukça (Maks. 2 adet)',
+          'meal': 'Tok Karnına • Bol su ile',
+        },
+        {
+          'name': 'Kloroben %0.12 + %0.15 Gargara',
+          'sub': 'Oral Antiseptik Solüsyon • 200 ml',
+          'freq': 'Günde 3x1',
+          'usage': 'Diş fırçalama sonrası 30 sn çalkalama',
+          'meal': 'Haricen Gargara • 30 dk bir şey yenmemeli',
+        },
+      ],
+      'note':
+          'Antibiyotik kullanımını ağrınız geçse dahi 7. günün sonuna kadar tamamlayınız. Sıcak gıda ve içeceklerden 48 saat kaçınınız.',
+    },
+    {
+      'id': 'REC-2025-44109',
+      'code': '#REC-2025-44109',
+      'statusBadge': 'Tamamlandı',
+      'dateText': '18 Kasım 2025',
+      'title': 'Gömülü 20 Yaş Dişi Çekimi Sonrası',
+      'subtitle': 'Prof. Dr. Kerem Aydın • 2 Kalem İlaç',
+      'patientName': 'Zeynep Demir',
+      'doctorName': 'Prof. Dr. Kerem Aydın',
+      'medications': [
+        {
+          'name': 'Klamoks-BID 1000 mg Tablet',
+          'sub': 'Antibiyotik • 10 Tablet',
+          'freq': 'Günde 2x1',
+          'usage': 'Sabah / Akşam',
+          'meal': 'Tok Karnına • 5 Gün',
+        },
+        {
+          'name': 'Arveles 25 mg Film Tablet',
+          'sub': 'Analjezik • 20 Tablet',
+          'freq': 'Günde 2x1',
+          'usage': 'Sabah / Akşam',
+          'meal': 'Tok Karnına',
+        },
+      ],
+      'note': null,
+    },
+  ];
+
+  static void addPrescription(Map<String, dynamic> prescription) {
+    patientPrescriptions.insert(0, prescription);
+  }
 }

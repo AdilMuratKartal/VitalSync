@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../data/datasources/clinic_mock_data.dart';
 import '../../widgets/dentora_logo.dart';
 
 class MyResultsScreen extends StatefulWidget {
@@ -22,8 +23,7 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
   String _selectedTimeRange = 'all';
   String _selectedCategory = 'all';
 
-  bool _rx1Expanded = true;
-  bool _rx2Expanded = false;
+  final Set<String> _expandedRxCodes = {'#REC-2026-89412'};
 
   @override
   void initState() {
@@ -1307,9 +1307,10 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
   }
 
   Widget _buildPrescriptionsView() {
-    final showRx1 = _matchesTimeRange('14 Mart 2026');
-    final showRx2 = _matchesTimeRange('18 Kasım 2025');
-    final hasAnyRx = showRx1 || showRx2;
+    final prescriptions = ClinicMockData.patientPrescriptions.where((rx) {
+      final date = rx['dateText'] as String? ?? '';
+      return _matchesTimeRange(date);
+    }).toList();
 
     final isKnownRx =
         _matchesRx(_selectedPrescriptionId, 'rec-89412', '#REC-2026-89412') ||
@@ -1384,7 +1385,7 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
               SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'E-Reçete kodunuzu eczanenize göstererek ilaçlarınızı temin edebilir veya kullanım talimatlarını PDF olarak indirebilirsiniz.',
+                  'E-Reçete kodunuzu eczanenize göstererek ilaçlarınızı temin edebilir veya kullanım talimatlarını inceleyebilirsiniz.',
                   style: TextStyle(
                     fontSize: 12,
                     height: 1.4,
@@ -1398,85 +1399,32 @@ class _MyResultsScreenState extends State<MyResultsScreen> {
         ),
         const SizedBox(height: 16),
 
-        if (showRx1) ...[
-          // Prescription 1: #REC-2026-89412
+        for (final rx in prescriptions) ...[
           _buildPrescriptionCard(
-            id: 'rec-89412',
-            isExpanded: _rx1Expanded,
+            isExpanded: _expandedRxCodes.contains(rx['code']),
             onToggle: () => setState(() {
-              _selectedPrescriptionId = 'rec-89412';
-              _rx1Expanded = !_rx1Expanded;
+              final code = rx['code'] as String? ?? '';
+              if (_expandedRxCodes.contains(code)) {
+                _expandedRxCodes.remove(code);
+              } else {
+                _expandedRxCodes.add(code);
+              }
             }),
-            code: '#REC-2026-89412',
-            statusBadge: 'Aktif Tedavi',
-            dateText: '14 Mart 2026',
-            title: 'Kanal Tedavisi & Akut Apikal Periodontitis',
-            subtitle: 'Dt. Selin Yılmaz • 3 Kalem İlaç',
-            medications: const [
-              {
-                'name': 'Augmentin-BID 1000 mg Film Tablet',
-                'sub': 'Antibiyotik • 14 Tablet (1 Kutu)',
-                'freq': 'Günde 2x1',
-                'usage': 'Sabah / Akşam (12 saat arayla)',
-                'meal': 'Tok Karnına • 7 Gün Boyunca',
-              },
-              {
-                'name': 'Apranax Fort 550 mg Film Tablet',
-                'sub': 'Ağrı Kesici & Anti-inflamatuar • 10 Tablet',
-                'freq': 'Günde 2x1',
-                'usage': 'Ağrı oldukça (Maks. 2 adet)',
-                'meal': 'Tok Karnına • Bol su ile',
-              },
-              {
-                'name': 'Kloroben %0.12 + %0.15 Gargara',
-                'sub': 'Oral Antiseptik Solüsyon • 200 ml',
-                'freq': 'Günde 3x1',
-                'usage': 'Diş fırçalama sonrası 30 sn çalkalama',
-                'meal': 'Yutulmaz • 30 dk bir şey yenmemeli',
-              },
-            ],
-            note:
-                'Antibiyotik kullanımını ağrınız geçse dahi 7. günün sonuna kadar tamamlayınız. Sıcak gıda ve içeceklerden 48 saat kaçınınız.',
+            code: rx['code'] as String? ?? '#REC',
+            statusBadge: rx['statusBadge'] as String? ?? 'Aktif Tedavi',
+            dateText: rx['dateText'] as String? ?? '',
+            title: rx['title'] as String? ?? '',
+            subtitle: rx['subtitle'] as String? ?? '',
+            medications: (rx['medications'] as List).map((m) {
+              final map = m as Map;
+              return map.map((k, v) => MapEntry(k.toString(), v?.toString() ?? ''));
+            }).toList(),
+            note: rx['note'] as String?,
           ),
           const SizedBox(height: 16),
         ],
 
-        if (showRx2) ...[
-          // Prescription 2: #REC-2025-44109
-          _buildPrescriptionCard(
-            id: 'rec-44109',
-            isExpanded: _rx2Expanded,
-            onToggle: () => setState(() {
-              _selectedPrescriptionId = 'rec-44109';
-              _rx2Expanded = !_rx2Expanded;
-            }),
-            code: '#REC-2025-44109',
-            statusBadge: 'Tamamlandı',
-            dateText: '18 Kasım 2025',
-            title: 'Gömülü 20 Yaş Dişi Çekimi Sonrası',
-            subtitle: 'Prof. Dr. Kerem Aydın • 2 Kalem İlaç',
-            medications: const [
-              {
-                'name': 'Klamoks-BID 1000 mg Tablet',
-                'sub': 'Antibiyotik • 10 Tablet',
-                'freq': 'Günde 2x1',
-                'usage': '12 Saat Arayla',
-                'meal': 'Tok Karnına • 5 Gün',
-              },
-              {
-                'name': 'Arveles 25 mg Film Tablet',
-                'sub': 'Analjezik • 20 Tablet',
-                'freq': 'Günde 2x1',
-                'usage': 'Sabah / Akşam',
-                'meal': 'Tok Karnına',
-              },
-            ],
-            note: null,
-          ),
-          const SizedBox(height: 16),
-        ],
-
-        if (!hasAnyRx)
+        if (prescriptions.isEmpty)
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(28),
