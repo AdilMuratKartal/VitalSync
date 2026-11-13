@@ -122,3 +122,38 @@ Bu doküman, kullanıcı tarafından sağlanan ekran tasarımları, hata notlar�
 4. **Adım 4:** `CreatePrescriptionScreen` arama-seçim, klavye uyumu, saat ifadelerinin temizlenmesi, Medula kutusunun kaldırılması, şablonlar ve hastaya reçetenin yansıtılması işleminin yapılması. -> [Tamamlandı]
 5. **Adım 5:** `DoctorMessagesScreen` filtrelerinin kaldırılması, yeni hasta mesajı modalının eklenmesi ve tam ekran `DoctorChatConversationScreen` sayfasının oluşturulup bağlanması (görüntü/ek yükleme butonu olmadan sade metin ve hızlı şablonlar). -> [Tamamlandı]
 6. **Adım 6:** Projenin derleme ve test kontrollerinin yapılması. `flutter analyze` ile 0 hata doğrulaması gerçekleştirildi. -> [Tamamlandı]
+
+
+---
+
+## 🛠️ Ek Düzeltmeler ve Son İyileştirmeler (Hotfix & QA İncelemesi)
+
+Kullanıcı geri bildirimleri ve ekran testleri doğrultusunda `fix/dev1-yapilanlar` dalında gerçekleştirilen ve `develop` dalına birleştirilen ek iyileştirmeler:
+
+### 1. `ListTile` Background / Ink Splash Assertion Düzeltmesi (`create_prescription_screen.dart`)
+- **Sorun:** Flutter Web ortamında `ListTile` bileşeni arka plan rengi olan bir `Container` / `DecoratedBox` içine konulduğunda ink splash ve arka plan boyama etkilerinin kaybolabileceğine dair assertion hatası fırlatılıyordu.
+- **Çözüm:** Hasta arama açılır öneri listesi (`ListView.separated`) ve ilaç seçim modalındaki kartlar doğrudan kendi `Material(color: Colors.white, borderRadius: BorderRadius.circular(14), clipBehavior: Clip.antiAlias)` katmanına taşındı. Böylece assertion hatası tamamen giderildi, tıklama dalgalanmaları (ink ripple) akıcı hale getirildi.
+
+### 2. Doktor Ajandası Tarih Rozeti ve Güne Göre Randevu Filtreleme (`doctor_agenda_screen.dart`)
+- **Tarih Rozeti Dinamizmi:**
+  - Seçili tarih durumuna göre rozet metni ve rengi anlık güncellenir:
+    - **Bugün (18 Mart):** `Bugün` (Yeşil / Teal klinik rengi)
+    - **Gelecek Tarihler (19 Mart ve sonrası):** `Gelecekte` (Mavi ton + Takvim ikonu)
+    - **Geçmiş Tarihler (17 Mart ve öncesi):** `Geçmişte` (Gri/Nötr ton + Saat/Tarihçe ikonu)
+  - Rozete tıklandığında hekim tek dokunuşla bugünün ajandasına geri döner.
+- **Güne Göre Dinamik Randevu Listesi:**
+  - Tarih değiştirildiğinde alt kısımdaki randevu listesi ve 4 özet sayaç kutusu (`Toplam`, `Tamamlandı`, `Koltukta`, `Bekleyen`) ile filtre çipleri seçilen günün verilerine göre filtrelenir:
+    - **18 Mart 2026 (Bugün):** Canan Demir (09:00), Burak Yılmaz (10:00), Ahmet Arslan (11:15 - Koltukta/Aktif), Zeynep Kaya (13:30), Mehmet Öztürk (14:30), Elif Şahin (16:00).
+    - **19 Mart 2026 (Gelecekte / Yarın):** Serdar Koç (09:30), Derya Aydın (11:00), Murat Çelik (14:00), Ayşe Bulut (15:30) randevuları gösterilir. Sayaçlar: `Toplam: 4, Bekleyen: 4, Koltukta: 0, Tamamlandı: 0`.
+    - **17 Mart 2026 (Geçmişte / Dün):** Fatma Güler (09:00), Emre Yıldız (10:30), Hasan Akın (13:00), Sevim Yalçın (14:30), Ali Polat (16:00) tamamlanan seansları gösterilir. Sayaçlar: `Toplam: 5, Tamamlandı: 5, Bekleyen: 0, Koltukta: 0`.
+    - İlgili filtrede randevu olmadığında şık ve bilgilendirici "Randevu bulunmamaktadır" boş durum kartı (`_buildEmptyNotice`) gösterilir.
+
+### 3. Hasta Portalı Reçete Senkronizasyonu (`my_results_screen.dart`)
+- Randevu detayından reçete açma (`initialPrescriptionId`) ile hekimin yeni yazdığı reçetelerin dinamik açılıp kapanması (`Set<String> _expandedRxCodes`) birleştirildi.
+- Zorunlu `id` parametresi ve animasyonlu yeşil vurgulama desteği korundu.
+
+### 4. Git & Versiyon Yönetimi
+- Tüm geliştirmeler kısa ömürlü `fix/dev1-yapilanlar` dalında tamamlandı.
+- Değişiklikler doğrudan `AdilMuratKartal` kimliğiyle commit edildi.
+- `develop` dalına başarıyla merge edildi.
+- **Doğrulama:** `flutter analyze` ile 0 hata, `flutter test` ile 15/15 test başarısı teyit edildi.
